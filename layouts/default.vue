@@ -1,12 +1,25 @@
 <template>
-  <v-app dark>
+  <v-app :dark="dark">
     <v-navigation-drawer
       v-model="drawer"
       :mini-variant="miniVariant"
       :clipped="clipped"
+      :width="210"
       fixed
       app
     >
+      <v-list class="pa-1">
+        <v-list-tile avatar>
+          <v-list-tile-avatar>
+            <img src="/me.png">
+          </v-list-tile-avatar>
+
+          <v-list-tile-content>
+            <v-list-tile-title>Maurizio Rendon</v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
+      </v-list>
+      <v-divider></v-divider>
       <v-list>
         <v-list-tile
           v-for="(item, i) in items"
@@ -44,17 +57,11 @@
       </v-btn>
       <v-btn
         icon
-        @click.stop="fixed = !fixed"
+        @click.stop="dark = !dark"
       >
-        <v-icon>remove</v-icon>
+        <v-icon>brightness_6</v-icon>
       </v-btn>
       <v-toolbar-title v-text="title" />
-      <v-btn
-        icon
-        @click.stop="rightDrawer = !rightDrawer"
-      >
-        <v-icon>menu</v-icon>
-      </v-btn>
     </v-toolbar>
     <v-content>
       <v-container>
@@ -91,25 +98,31 @@
 export default {
   data() {
     return {
+      dark: false,
       clipped: false,
-      drawer: false,
+      drawer: true,
       fixed: false,
       items: [
         {
-          icon: 'apps',
-          title: 'Welcome',
+          icon: 'person',
+          title: 'About Me',
           to: '/'
         },
         {
-          icon: 'bubble_chart',
-          title: 'Inspire',
-          to: '/inspire'
+          icon: 'work',
+          title: 'Experience',
+          to: '/experience'
+        },
+        {
+          icon: 'school',
+          title: 'Education',
+          to: '/education'
         }
       ],
       miniVariant: false,
       right: true,
       rightDrawer: false,
-      title: 'Vuetify.js'
+      title: 'Resume / Curriculum'
     }
   }
 }
