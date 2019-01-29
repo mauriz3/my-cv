@@ -122,7 +122,7 @@ export default {
       miniVariant: false,
       right: true,
       rightDrawer: false,
-      title: 'Resume / Curriculum'
+      title: 'My Resume'
     }
   }
 }
