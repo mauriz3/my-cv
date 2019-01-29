@@ -1,0 +1,11 @@
+<template>
+  <v-layout>
+    <v-flex
+      xs12
+      sm8
+      md6
+    >
+      <h3>Timeline</h3>
+    </v-flex>
+  </v-layout>
+</template>

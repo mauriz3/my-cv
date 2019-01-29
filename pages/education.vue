@@ -1,0 +1,12 @@
+<template>
+  <v-layout>
+    <v-flex
+      xs12
+      sm8
+      md6
+    >
+      <h3>Degrees</h3>
+      <h3>Courses</h3>
+    </v-flex>
+  </v-layout>
+</template>
