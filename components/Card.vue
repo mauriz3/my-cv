@@ -4,6 +4,7 @@
       FrontEnd Developer & DevOps
     </v-card-title>
     <v-card-text>
+      <h3>Skills</h3>
       <ul>
         <li>Development of dynamic websites.</li>
         <li>Business processes modeling, and optimization.</li>
@@ -13,13 +14,7 @@
       </ul>
       <br>
       <h3>Languages</h3>
-      <p>
-      </p>
-      <h3>Skills & Endorsements</h3>
-      <p>
-      </p>
       <h3>Tools & Technologies</h3>
-      <p></p>
       <br>
       <hr class="my-3">
       <a

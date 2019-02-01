@@ -1,27 +1,197 @@
 <template>
-  <v-layout
-    column
-    justify-center
-    align-center
-  >
-    <v-flex
-      xs12
-      sm8
-      md6
+  <v-container grid-list-xl>
+    <v-layout
+      flex-child
+      wrap
     >
-      <div class="ext-xs-center">
-        <card />
-      </div>
-    </v-flex>
-  </v-layout>
+
+      <v-flex
+        xs12
+        md8
+        d-flex
+      >
+        <v-layout wrap>
+          <v-flex xs12>
+            <v-sheet
+              class="d-flex"
+              color="green lighten-3"
+              min-height="420"
+            >
+              <v-stepper v-model="e1">
+                <v-stepper-header>
+                  <v-stepper-step :complete="e1 > 1" step="1">Frontend</v-stepper-step>
+
+                  <v-divider></v-divider>
+
+                  <v-stepper-step :complete="e1 > 2" step="2">Designer</v-stepper-step>
+
+                  <v-divider></v-divider>
+
+                  <v-stepper-step step="3">DevOps</v-stepper-step>
+                </v-stepper-header>
+
+                <v-stepper-items>
+                  <v-stepper-content step="1">
+                    <v-card
+                      class="mb-3"
+                      min-height="200px"
+                    >
+                      <v-img
+                        src="frontend.png"
+                        aspect-ratio="3.2"
+                      ></v-img>
+                      <v-card-text>
+                        <div>I am a PWA, CMS, and dashboards developer. Working with serverless and JAMstack architecture at the present. <u>Experience</u>: <strong class="primary--text">2 years</strong>.</div>
+                      </v-card-text>
+                    </v-card>
+
+                    <v-btn
+                      class="mt-2"
+                      color="primary"
+                      @click="e1 = 2"
+                    >
+                      Continue
+                    </v-btn>
+                  </v-stepper-content>
+
+                  <v-stepper-content step="2">
+                    <v-card
+                      class="mb-3"
+                      min-height="200px"
+                    >
+                      <v-img
+                        src="design.png"
+                        aspect-ratio="3.2"
+                      ></v-img>
+                      <v-card-text>
+                        <div>Creative thinking + UX + prototyping = Minimum Viable Product. <u>Experience</u>: <strong class="primary--text">1 years</strong>.</div>
+                      </v-card-text>
+                    </v-card>
+
+                    <v-btn
+                      class="mt-2"
+                      color="primary"
+                      @click="e1 = 3"
+                    >
+                      Continue
+                    </v-btn>
+                  </v-stepper-content>
+
+                  <v-stepper-content step="3">
+                    <v-card
+                      class="mb-3"
+                      min-height="200px"
+                    >
+                      <v-img
+                        src="devops.png"
+                        aspect-ratio="3.2"
+                      ></v-img>
+                      <v-card-text>
+                        <div>I can create and maintain your CI / CD pipeline. In addition to automating processes using the configuration as a code. <u>Experience</u>: <strong class="primary--text">2 years</strong>.</div>
+                      </v-card-text>
+                    </v-card>
+                      <v-btn
+                        class="mt-2"
+                        color="primary"
+                        @click="e1 = 1"
+                      >
+                        Continue
+                      </v-btn>
+                  </v-stepper-content>
+                </v-stepper-items>
+              </v-stepper>
+              
+            </v-sheet>
+          </v-flex>
+          
+          <v-flex xs12>
+            <v-sheet
+              class="d-flex elevation-1"
+              min-height="150"
+            >
+              <v-card min-height="150px" flat>
+                <div 
+                  class="headline text-xs-center pt-4"
+                  color="teal"
+                >
+                  {{ bottomNav }}
+                </div>
+                <v-bottom-nav
+                  :active.sync="bottomNav"
+                  :value="true"
+                  absolute
+                >
+                  <v-btn
+                    color="teal"
+                    flat
+                    value="B2"
+                  >
+                    <span>English</span>
+                    <v-icon>history</v-icon>
+                  </v-btn>
+
+                  <v-btn
+                    color="teal"
+                    flat
+                    value="C2"
+                  >
+                    <span>Spanish</span>
+                    <v-icon>favorite</v-icon>
+                  </v-btn>
+
+                  <v-btn
+                    color="teal"
+                    flat
+                    value="B1"
+                  >
+                    <span>Italian</span>
+                    <v-icon>place</v-icon>
+                  </v-btn>
+                </v-bottom-nav>
+              </v-card>
+            </v-sheet>
+          </v-flex>
+        </v-layout>
+      </v-flex>
+
+      <v-flex
+        xs12
+        md4
+        d-flex
+      >
+        <v-sheet
+          class="d-flex elevation-1"
+          min-height="600"
+        >
+          <v-card color="white">
+            <v-card-title primary-title class="pt-4 pb-0">
+              <v-spacer />
+              <h2 class="black--text">Tools & Technologies</h2>
+              <v-spacer />
+            </v-card-title>
+            <v-card-text>
+              <v-container fluid grid-list-sm>
+                <v-layout row wrap>
+                  <v-flex v-for="i in 15" :key="i" xs4>
+                    <img :src="`${i}.png`" class="image" alt="lorem" width="100%" height="100%">
+                  </v-flex>
+                </v-layout>
+              </v-container>
+            </v-card-text>
+          </v-card>
+        </v-sheet>
+      </v-flex>
+    </v-layout>
+  </v-container>
 </template>
 
 <script>
-import Card from '~/components/Card.vue'
-
 export default {
-  components: {
-    Card
+  data() {
+    return {
+      e1: 0,
+      bottomNav: 'B2'
+    }
   }
 }
 </script>

@@ -85,12 +85,6 @@
         </v-list-tile>
       </v-list>
     </v-navigation-drawer>
-    <v-footer
-      :fixed="fixed"
-      app
-    >
-      <span>&copy; 2019</span>
-    </v-footer>
   </v-app>
 </template>
 
@@ -101,7 +95,6 @@ export default {
       dark: false,
       clipped: false,
       drawer: true,
-      fixed: false,
       items: [
         {
           icon: 'person',
