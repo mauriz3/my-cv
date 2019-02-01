@@ -136,7 +136,7 @@
                     value="C2"
                   >
                     <span>Spanish</span>
-                    <v-icon>favorite</v-icon>
+                    <v-icon>place</v-icon>
                   </v-btn>
 
                   <v-btn
@@ -145,7 +145,7 @@
                     value="B1"
                   >
                     <span>Italian</span>
-                    <v-icon>place</v-icon>
+                    <v-icon>favorite</v-icon>
                   </v-btn>
                 </v-bottom-nav>
               </v-card>
