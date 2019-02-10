@@ -45,12 +45,14 @@
       <v-toolbar-side-icon @click="drawer = !drawer" />
       <v-btn
         icon
+        v-if="this.$vuetify.breakpoint.lgAndUp"
         @click.stop="miniVariant = !miniVariant"
       >
         <v-icon>{{ `chevron_${miniVariant ? 'right' : 'left'}` }}</v-icon>
       </v-btn>
       <v-btn
         icon
+        v-if="this.$vuetify.breakpoint.lgAndUp"
         @click.stop="clipped = !clipped"
       >
         <v-icon>web</v-icon>

@@ -41,7 +41,7 @@
                         aspect-ratio="3.2"
                       ></v-img>
                       <v-card-text>
-                        <div>I am a PWA, CMS, and dashboards developer. Working with serverless and JAMstack architecture at the present. <u>Experience</u>: <strong class="primary--text">2 years</strong>.</div>
+                        <div>I am a <a href="https://developers.google.com/web/progressive-web-apps/" target="_blank">PWA</a>, <a href="https://en.wikipedia.org/wiki/Content_management_system" target="_blank">CMS</a>, and dashboards developer. Working with serverless and <a href="https://jamstack.org/" target="_blank">JAMstack</a> architecture at the present. <strong>Experience</strong>: <strong class="primary--text">2 years</strong>.</div>
                       </v-card-text>
                     </v-card>
 
@@ -64,7 +64,7 @@
                         aspect-ratio="3.2"
                       ></v-img>
                       <v-card-text>
-                        <div>Creative thinking + UX + prototyping = Minimum Viable Product. <u>Experience</u>: <strong class="primary--text">1 years</strong>.</div>
+                        <div>Creative thinking + <a href="https://www.interaction-design.org/literature/topics/ux-design" target="_blank">UX</a> + prototyping = Minimum Viable Product. <strong>Experience:</strong> <strong class="primary--text">1 years</strong>.</div>
                       </v-card-text>
                     </v-card>
 
@@ -87,7 +87,7 @@
                         aspect-ratio="3.2"
                       ></v-img>
                       <v-card-text>
-                        <div>I can create and maintain your CI / CD pipeline. In addition to automating processes using the configuration as a code. <u>Experience</u>: <strong class="primary--text">2 years</strong>.</div>
+                        <div>I can create and maintain your <a href="https://www.mabl.com/blog/what-is-cicd" target="_blank">CI / CD pipeline</a>. In addition to automating processes using the configuration as a code. <strong>Experience</strong>: <strong class="primary--text">2 years</strong>.</div>
                       </v-card-text>
                     </v-card>
                       <v-btn
@@ -109,7 +109,7 @@
               class="d-flex elevation-1"
               min-height="150"
             >
-              <v-card min-height="150px" flat>
+              <v-card min-height="100px" flat>
                 <div 
                   class="headline text-xs-center pt-4"
                   color="teal"
