@@ -25,10 +25,9 @@
         >
           <v-card
             :color="item.color"
-            dark
           >
             <v-card-title class="title">{{ item.date }}</v-card-title>
-            <v-card-text class="white text--primary">
+            <v-card-text :class="autoColor">
               <p><strong>{{ item.job }}</strong> at <a :href="item.url" target="_blank">{{ item.comp }}</a>.</p>
               <!-- <p><strong>{{ item.job }}</strong> at <a :href="item.url" target="_blank">{{ item.comp }}</a>. {{ item.desc }}.</p> -->
             </v-card-text>
@@ -82,6 +81,11 @@ export default {
           desc: ''
         }
       ]
+    }
+  },
+  computed: {
+    autoColor: function() {
+      return this.$vuetify.dark ? 'accent' : 'white'
     }
   }
 }
