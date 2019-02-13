@@ -87,7 +87,7 @@
         </v-list-tile>
       </v-list>
     </v-navigation-drawer>
-    <v-footer
+    <!-- <v-footer
       inset="inset"
       app
       height="auto"
@@ -97,32 +97,49 @@
         flat
         tile
       >
-        <!-- <v-card-title class="primary">
-          <v-spacer></v-spacer>
-          <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Licencia de Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png" /></a>
-          <strong class="subheading">Get connected with us on social networks!</strong>
-          <v-spacer></v-spacer>
-          <v-btn
-            v-for="icon in icons"
-            :key="icon"
-            class="mx-3"
-            dark
-            icon
-          >
-            <v-icon size="24px">{{ icon }}</v-icon>
-          </v-btn>
-        </v-card-title> -->
-
         <v-card-actions class="justify-center">
           &copy;{{ new Date().getFullYear() }} - mauriz3
         </v-card-actions>
       </v-card>
-    </v-footer>
+    </v-footer> -->
     <!-- <v-footer class="pa-3">
       <v-spacer></v-spacer>
       <div>&copy; {{ new Date().getFullYear() }}</div>
       <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Licencia de Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png" /></a>
     </v-footer> -->
+    <v-footer
+      inset="inset"
+      app
+      height="auto"
+      class="elevation-18"
+    >
+      <v-card
+        class="flex "
+        flat
+        tile
+      >
+        <v-card-title class="pt-1 pb-0">
+          <strong class="mr-3">Contact me!</strong>
+          <v-btn
+            v-for="contact in contacts"
+            :key="contact"
+            :href="contact.url"
+            target="_blank"
+            class="mx-3"
+            :dark="dark"
+            icon
+          >
+            <v-icon size="24px">{{ contact.icon }}</v-icon>
+          </v-btn>
+          <v-spacer />
+          <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank"><img alt="Licencia de Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png" /></a>
+        </v-card-title>
+        <v-divider />
+        <v-card-actions class="justify-center">
+          <strong>&copy;{{ new Date().getFullYear() }} - mauriz3</strong>
+        </v-card-actions>
+      </v-card>
+    </v-footer>
   </v-app>
 </template>
 
@@ -134,7 +151,16 @@ export default {
       clipped: false,
       drawer: true,
       inset: false,
-      icons: ['fab fa-linkedin'],
+      contacts: [
+        {
+          icon: 'fab fa-linkedin-in',
+          url: 'https://www.linkedin.com/in/rendon7/'
+        },
+        {
+          icon: 'fab fa-github-alt',
+          url: 'https://github.com/mauriz3'
+        }
+      ],
       items: [
         {
           icon: 'person',
