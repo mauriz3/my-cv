@@ -10,6 +10,10 @@
     >
       <div class="text-xs-center primary--text">
         <h1>Education</h1>
+        <v-img
+          src="study.png"
+          alt="study"
+        ></v-img>
       </div>
       <v-timeline align-top>
         <v-timeline-item

@@ -10,6 +10,10 @@
     >
       <div class="text-xs-center primary--text">
         <h1>Expirience</h1>
+        <v-img
+          src="work.png"
+          alt="work"
+        ></v-img>
       </div>
       <v-timeline align-top>
         <v-timeline-item
