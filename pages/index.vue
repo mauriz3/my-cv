@@ -173,7 +173,7 @@
               <v-container fluid grid-list-sm>
                 <v-layout row wrap>
                   <v-flex v-for="i in 15" :key="i" xs4>
-                    <img :src="`${i}.png`" class="image" alt="tech" width="100%" height="100%">
+                    <v-img :src="`${i}.png`" alt="tech" width="100%" height="100%" />
                   </v-flex>
                 </v-layout>
               </v-container>
