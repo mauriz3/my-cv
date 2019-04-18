@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid>
+  <v-container fluid grid-list-xl>
     <v-layout
       justify-center
       align-top
@@ -9,7 +9,6 @@
         xs12
         sm8
         md6
-        class="px-4"
       >
         <h1 class="text-xs-center primary--text">
           Education
@@ -43,7 +42,7 @@
         xs12
         sm8
         md6
-        class="px-4 my-3"
+        class="my-3"
       >
         <v-img
           src="study.png"
