@@ -9,8 +9,10 @@
         <li>Development of dynamic websites.</li>
         <li>Business processes modeling, and optimization.</li>
         <li>Research, development and implementation of new technologies.</li>
-        <li>Sociable, able to quickly integrate into different environments or groups. 
-        Experience gained traveling through different countries, meeting different people, and cultures.</li>
+        <li>
+          Sociable, able to quickly integrate into different environments or groups. 
+          Experience gained traveling through different countries, meeting different people, and cultures.
+        </li>
       </ul>
       <br>
       <h3>Languages</h3>

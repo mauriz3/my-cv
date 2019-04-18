@@ -19,7 +19,7 @@
           </v-list-tile-content>
         </v-list-tile>
       </v-list>
-      <v-divider></v-divider>
+      <v-divider />
       <v-list>
         <v-list-tile
           v-for="(item, i) in items"
@@ -44,15 +44,15 @@
     >
       <v-toolbar-side-icon @click="drawer = !drawer" />
       <v-btn
-        icon
         v-if="this.$vuetify.breakpoint.lgAndUp"
+        icon
         @click.stop="miniVariant = !miniVariant"
       >
         <v-icon>{{ `chevron_${miniVariant ? 'right' : 'left'}` }}</v-icon>
       </v-btn>
       <v-btn
-        icon
         v-if="this.$vuetify.breakpoint.lgAndUp"
+        icon
         @click.stop="clipped = !clipped"
       >
         <v-icon>web</v-icon>
@@ -66,9 +66,7 @@
       <v-toolbar-title v-text="title" />
     </v-toolbar>
     <v-content>
-      <v-container>
-        <nuxt />
-      </v-container>
+      <nuxt />
     </v-content>
     <v-navigation-drawer
       v-model="rightDrawer"
@@ -87,26 +85,6 @@
         </v-list-tile>
       </v-list>
     </v-navigation-drawer>
-    <!-- <v-footer
-      inset="inset"
-      app
-      height="auto"
-    >
-      <v-card
-        class="flex"
-        flat
-        tile
-      >
-        <v-card-actions class="justify-center">
-          &copy;{{ new Date().getFullYear() }} - mauriz3
-        </v-card-actions>
-      </v-card>
-    </v-footer> -->
-    <!-- <v-footer class="pa-3">
-      <v-spacer></v-spacer>
-      <div>&copy; {{ new Date().getFullYear() }}</div>
-      <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Licencia de Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png" /></a>
-    </v-footer> -->
     <v-footer
       inset="inset"
       app
@@ -119,20 +97,26 @@
         tile
       >
         <v-card-title class="pt-1 pb-0">
-          <strong class="mr-3">Contact me!</strong>
+          <strong class="mr-3">
+            Contact me!
+          </strong>
           <v-btn
-            v-for="contact in contacts"
-            :key="contact"
+            v-for="(contact, i) in contacts"
+            :key="i"
             :href="contact.url"
             target="_blank"
             class="mx-3"
             :dark="dark"
             icon
           >
-            <v-icon size="24px">{{ contact.icon }}</v-icon>
+            <v-icon size="24px">
+              {{ contact.icon }}
+            </v-icon>
           </v-btn>
           <v-spacer />
-          <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank"><img alt="Licencia de Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png" /></a>
+          <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">
+            <img alt="Licencia de Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png">
+          </a>
         </v-card-title>
         <v-divider />
         <v-card-actions class="justify-center">
