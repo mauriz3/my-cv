@@ -9,7 +9,7 @@
       sm8
     >
       <div class="text-xs-center primary--text">
-        <h1>Expirience</h1>
+        <h1>Experience</h1>
         <v-img
           src="work.png"
           alt="work"
