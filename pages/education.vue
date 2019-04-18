@@ -1,40 +1,57 @@
 <template>
-  <v-layout
-    column
-    justify-center
-    align-center
-  >
-    <v-flex
-      xs12
-      sm8
+  <v-container fluid>
+    <v-layout
+      justify-center
+      align-top
+      wrap
     >
-      <div class="text-xs-center primary--text">
-        <h1>Education</h1>
+      <v-flex
+        xs12
+        sm8
+        md6
+        class="px-4"
+      >
+        <h1 class="text-xs-center primary--text">
+          Education
+        </h1>
+        <v-timeline align-top>
+          <v-timeline-item
+            v-for="(item, i) in items"
+            :key="i"
+            :color="item.color"
+            :icon="item.icon"
+            fill-dot
+          >
+            <v-card
+              :color="item.color"
+            >
+              <v-card-title class="title">
+                {{ item.date }}
+              </v-card-title>
+              <v-card-text :class="autoColor">
+                <p>
+                  <strong>{{ item.edu }}</strong> at <a :href="item.url" target="_blank">
+                    {{ item.entity }}
+                  </a>.
+                </p>
+              </v-card-text>
+            </v-card>
+          </v-timeline-item>
+        </v-timeline>
+      </v-flex>
+      <v-flex
+        xs12
+        sm8
+        md6
+        class="px-4 my-3"
+      >
         <v-img
           src="study.png"
           alt="study"
-        ></v-img>
-      </div>
-      <v-timeline align-top>
-        <v-timeline-item
-          v-for="(item, i) in items"
-          :key="i"
-          :color="item.color"
-          :icon="item.icon"
-          fill-dot
-        >
-          <v-card
-            :color="item.color"
-          >
-            <v-card-title class="title">{{ item.date }}</v-card-title>
-            <v-card-text :class="autoColor">
-              <p><strong>{{ item.edu }}</strong> at <a :href="item.url" target="_blank">{{ item.entity }}</a>.</p>
-            </v-card-text>
-          </v-card>
-        </v-timeline-item>
-      </v-timeline>
-    </v-flex>
-  </v-layout>
+        />
+      </v-flex>
+    </v-layout>
+  </v-container>
 </template>
 
 <script>

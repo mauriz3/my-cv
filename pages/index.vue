@@ -4,7 +4,6 @@
       flex-child
       wrap
     >
-
       <v-flex
         xs12
         md8
@@ -19,15 +18,21 @@
             >
               <v-stepper v-model="e1">
                 <v-stepper-header>
-                  <v-stepper-step :complete="e1 > 1" step="1">Frontend</v-stepper-step>
+                  <v-stepper-step :complete="e1 > 1" step="1">
+                    Frontend
+                  </v-stepper-step>
 
-                  <v-divider></v-divider>
+                  <v-divider />
 
-                  <v-stepper-step :complete="e1 > 2" step="2">Designer</v-stepper-step>
+                  <v-stepper-step :complete="e1 > 2" step="2">
+                    Designer
+                  </v-stepper-step>
 
-                  <v-divider></v-divider>
+                  <v-divider />
 
-                  <v-stepper-step step="3">DevOps</v-stepper-step>
+                  <v-stepper-step step="3">
+                    DevOps
+                  </v-stepper-step>
                 </v-stepper-header>
 
                 <v-stepper-items>
@@ -39,9 +44,19 @@
                       <v-img
                         src="frontend.png"
                         aspect-ratio="3.2"
-                      ></v-img>
+                      />
                       <v-card-text>
-                        <div>I am a <a href="https://developers.google.com/web/progressive-web-apps/" target="_blank">PWA</a>, <a href="https://en.wikipedia.org/wiki/Content_management_system" target="_blank">CMS</a>, and dashboards developer. Working with serverless and <a href="https://jamstack.org/" target="_blank">JAMstack</a> architecture at the present. <strong>Experience</strong>: <strong class="primary--text">2 years</strong>.</div>
+                        <div>
+                          I am a <a href="https://developers.google.com/web/progressive-web-apps/" target="_blank">
+                            PWA
+                          </a>, <a href="https://en.wikipedia.org/wiki/Content_management_system" target="_blank">
+                            CMS
+                          </a>, and dashboards developer. Working with serverless and <a href="https://jamstack.org/" target="_blank">
+                            JAMstack
+                          </a> architecture at the present. <strong>Experience</strong>: <strong class="primary--text">
+                            2 years
+                          </strong>.
+                        </div>
                       </v-card-text>
                     </v-card>
 
@@ -62,9 +77,15 @@
                       <v-img
                         src="design.png"
                         aspect-ratio="3.2"
-                      ></v-img>
+                      />
                       <v-card-text>
-                        <div>Creative thinking + <a href="https://www.interaction-design.org/literature/topics/ux-design" target="_blank">UX</a> + prototyping = Minimum Viable Product. <strong>Experience:</strong> <strong class="primary--text">1 years</strong>.</div>
+                        <div>
+                          Creative thinking + <a href="https://www.interaction-design.org/literature/topics/ux-design" target="_blank">
+                            UX
+                          </a> + prototyping = Minimum Viable Product. <strong>Experience:</strong> <strong class="primary--text">
+                            1 years
+                          </strong>.
+                        </div>
                       </v-card-text>
                     </v-card>
 
@@ -85,22 +106,27 @@
                       <v-img
                         src="devops.png"
                         aspect-ratio="3.2"
-                      ></v-img>
+                      />
                       <v-card-text>
-                        <div>I can create and maintain your <a href="https://www.mabl.com/blog/what-is-cicd" target="_blank">CI / CD pipeline</a>. In addition to automating processes using the configuration as a code. <strong>Experience</strong>: <strong class="primary--text">2 years</strong>.</div>
+                        <div>
+                          I can create and maintain your <a href="https://www.mabl.com/blog/what-is-cicd" target="_blank">
+                            CI / CD pipeline
+                          </a>. In addition to automating processes using the configuration as a code. <strong>Experience</strong>: <strong class="primary--text">
+                            2 years
+                          </strong>.
+                        </div>
                       </v-card-text>
                     </v-card>
-                      <v-btn
-                        class="mt-2"
-                        color="primary"
-                        @click="e1 = 1"
-                      >
-                        Continue
-                      </v-btn>
+                    <v-btn
+                      class="mt-2"
+                      color="primary"
+                      @click="e1 = 1"
+                    >
+                      Continue
+                    </v-btn>
                   </v-stepper-content>
                 </v-stepper-items>
               </v-stepper>
-              
             </v-sheet>
           </v-flex>
           
@@ -166,7 +192,9 @@
           <v-card color="white">
             <v-card-title primary-title class="pt-4 pb-0">
               <v-spacer />
-              <h2 class="black--text">Tools & Technologies</h2>
+              <h2 class="black--text">
+                Tools & Technologies
+              </h2>
               <v-spacer />
             </v-card-title>
             <v-card-text>
