@@ -189,10 +189,10 @@
           class="d-flex elevation-1"
           min-height="600"
         >
-          <v-card color="white">
+          <v-card>
             <v-card-title primary-title class="pt-4 pb-0">
               <v-spacer />
-              <h2 class="black--text">
+              <h2>
                 Tools & Technologies
               </h2>
               <v-spacer />
