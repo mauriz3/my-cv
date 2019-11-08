@@ -157,6 +157,11 @@ export default {
           to: '/experience'
         },
         {
+          icon: 'bookmarks',
+          title: 'My Projects',
+          to: '/projects'
+        },
+        {
           icon: 'school',
           title: 'Education',
           to: '/education'
