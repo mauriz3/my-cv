@@ -35,7 +35,7 @@ export default {
         {
           title: 'Webtele',
           img: {
-            src: 'webtele.png',
+            src: 'webtele.jpg',
             alt: 'Webtelehd web image'
           },
           desc:
