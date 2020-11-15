@@ -143,6 +143,10 @@ export default {
         {
           icon: 'fab fa-github-alt',
           url: 'https://github.com/mauriz3'
+        },
+        {
+          icon: 'fab fa-codepen',
+          url: 'https://codepen.io/maurirz3'
         }
       ],
       items: [
