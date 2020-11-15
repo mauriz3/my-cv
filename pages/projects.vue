@@ -51,7 +51,7 @@ export default {
         {
           title: 'BALANCE OF THE FORCE',
           img: {
-            src: '/sw.png',
+            src: '/bf.png',
             alt: 'BALANCE OF THE FORCE image'
           },
           desc: 'A gamified retrospective.',
