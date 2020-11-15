@@ -105,7 +105,7 @@
             :key="i"
             :href="contact.url"
             target="_blank"
-            class="mx-3"
+            class="mx-1"
             :dark="dark"
             icon
           >
