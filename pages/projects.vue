@@ -41,7 +41,7 @@ export default {
         {
           title: 'Webtele',
           img: {
-            src: 'webtele.jpg',
+            src: '/webtele.jpg',
             alt: 'Webtelehd web image'
           },
           desc:
@@ -51,7 +51,7 @@ export default {
         {
           title: 'Timeline Article',
           img: {
-            src: 'timeline.png',
+            src: '/timeline.png',
             alt: 'Timeline Article web image'
           },
           desc:

@@ -42,7 +42,7 @@
                       min-height="200px"
                     >
                       <v-img
-                        src="frontend.png"
+                        src="/frontend.png"
                         aspect-ratio="3.2"
                       />
                       <v-card-text>
@@ -75,7 +75,7 @@
                       min-height="200px"
                     >
                       <v-img
-                        src="design.png"
+                        src="/design.png"
                         aspect-ratio="3.2"
                       />
                       <v-card-text>
@@ -104,7 +104,7 @@
                       min-height="200px"
                     >
                       <v-img
-                        src="devops.png"
+                        src="/devops.png"
                         aspect-ratio="3.2"
                       />
                       <v-card-text>
@@ -201,7 +201,7 @@
               <v-container fluid grid-list-sm>
                 <v-layout row wrap>
                   <v-flex v-for="i in 15" :key="i" xs4>
-                    <v-img :src="`${i}.png`" alt="tech" width="100%" height="100%" />
+                    <v-img :src="`/${i}.png`" alt="tech" width="100%" height="100%" />
                   </v-flex>
                 </v-layout>
               </v-container>
