@@ -49,14 +49,50 @@ export default {
           href: 'https://www.webtelehd.com/'
         },
         {
-          title: 'Timeline Article',
+          title: 'BALANCE OF THE FORCE',
           img: {
-            src: '/timeline.png',
-            alt: 'Timeline Article web image'
+            src: '/sw.png',
+            alt: 'BALANCE OF THE FORCE image'
+          },
+          desc: 'A gamified retrospective.',
+          href: 'https://codepen.io/maurirz3/full/KKVdYgV'
+        },
+        {
+          title: 'Feature Flags Panel',
+          img: {
+            src: '/ff.png',
+            alt: 'Feature Flags Panel image'
+          },
+          desc: 'It is an  functional feature flags panel handler.',
+          href: 'https://codepen.io/maurirz3/full/eYzMyWe'
+        },
+        {
+          title: 'Streaming Analytcis',
+          img: {
+            src: '/sa.png',
+            alt: 'Streaming Analytcis image'
+          },
+          desc: 'A Streaming Analytcis prototype.',
+          href: 'https://codepen.io/maurirz3/full/JjYLMrZ'
+        },
+        {
+          title: 'Responsive Youtube Iframe',
+          img: {
+            src: '/ri.png',
+            alt: 'Responsive Youtube Iframe image'
           },
           desc:
-            "It is an investigation article to understand the Venezuela's current economic and political crisis.",
-          href: 'https://vzlacrisistimeline.ga/'
+            'How to insert a youtube responsive iframe in your web? Go to the following code example and watch it work.',
+          href: 'https://codepen.io/maurirz3/pen/OJVwbNv?editors=1000'
+        },
+        {
+          title: 'Status lights',
+          img: {
+            src: '/sl.png',
+            alt: 'Status lights image'
+          },
+          desc: 'Status lights with hover effect.',
+          href: 'https://codepen.io/maurirz3/pen/OJJoKXp?editors=1100'
         }
       ]
     }
