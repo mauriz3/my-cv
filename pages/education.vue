@@ -45,7 +45,7 @@
         class="my-3"
       >
         <v-img
-          src="study.png"
+          src="/study.png"
           alt="study"
         />
       </v-flex>
