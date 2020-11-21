@@ -1,21 +1,32 @@
 <template>
   <v-container grid-list-xl>
-    <v-layout align-center justify-space-around row fill-height wrap>
+    <v-layout align-center justify-start row fill-height wrap>
       <v-flex xs12>
         <h1 class="text-xs-center primary--text">
           My Projects
         </h1>
       </v-flex>
-      <v-flex v-for="(item, i) in items" :key="i" xs11 md5>
-        <v-card width="100%" :elevation="7">
+      <v-flex v-for="(item, i) in items" :key="i" xs11 sm5 md4>
+        <v-card width="100%" height="100%" :elevation="7">
           <v-card-title class="primary title">
             <v-spacer />
             {{ item.title }}
             <v-spacer />
           </v-card-title>
-          <v-card-media :src="item.img.src" :alt="item.img.atl" :aspect-ratio="16 / 10" />
-          <v-card-text class="text-xs-center">
-            {{ item.desc }}
+          <v-card-media :src="item.img.src" :alt="item.img.atl" :aspect-ratio="16 / 9" style="height:170px;" />
+          <v-card-text class="text-xs-center" style="height:74px;">
+            <v-layout
+              align-center
+              justify-center
+              row
+              fill-height
+              wrap
+              style="height:74px;"
+            >
+              <v-flex xs12>
+                {{ item.desc }}
+              </v-flex>
+            </v-layout>
           </v-card-text>
           <v-card-actions>
             <v-spacer />
@@ -39,13 +50,21 @@ export default {
     return {
       items: [
         {
+          title: 'my-cv',
+          img: {
+            src: '/cv.png',
+            alt: 'My CV image'
+          },
+          desc: 'An interactive an original CV.',
+          href: 'https://github.com/mauriz3/my-cv'
+        },
+        {
           title: 'Webtele',
           img: {
             src: '/webtele.jpg',
             alt: 'Webtelehd web image'
           },
-          desc:
-            'Watch all your favorites TV programs and series in anytime, anywhere, in any device.',
+          desc: 'Watch all your favorites TV channels anytime, anywhere.',
           href: 'https://www.webtelehd.com/'
         },
         {
@@ -76,13 +95,12 @@ export default {
           href: 'https://codepen.io/maurirz3/full/JjYLMrZ'
         },
         {
-          title: 'Responsive Youtube Iframe',
+          title: 'Responsive Youtube',
           img: {
             src: '/ri.png',
             alt: 'Responsive Youtube Iframe image'
           },
-          desc:
-            'How to insert a youtube responsive iframe in your web? Go to the following code example and watch it work.',
+          desc: 'How to insert a youtube responsive iframe in your web?',
           href: 'https://codepen.io/maurirz3/pen/OJVwbNv?editors=1000'
         },
         {
