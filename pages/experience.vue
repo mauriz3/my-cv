@@ -63,7 +63,7 @@ export default {
           color: 'primary',
           icon: 'work',
           date: '2016 – Present',
-          job: 'DevOps & FrontEnd Developer ',
+          job: 'FrontEnd & DevOps',
           comp: 'System73',
           url: 'https://system73.com/',
           desc: ''

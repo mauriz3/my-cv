@@ -156,14 +156,14 @@ export default {
           to: '/'
         },
         {
-          icon: 'work',
-          title: 'Experience',
-          to: '/experience'
-        },
-        {
           icon: 'bookmarks',
           title: 'My Projects',
           to: '/projects'
+        },
+        {
+          icon: 'work',
+          title: 'Experience',
+          to: '/experience'
         },
         {
           icon: 'school',
