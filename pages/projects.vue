@@ -1,6 +1,13 @@
 <template>
   <v-container grid-list-xl>
-    <v-layout align-center justify-start row fill-height wrap>
+    <v-layout
+      align-center
+      :justify-start="$vuetify.breakpoint.mdAndUp"
+      :justify-center="$vuetify.breakpoint.smAndDown"
+      row
+      fill-height
+      wrap
+    >
       <v-flex xs12>
         <h1 class="text-xs-center primary--text">
           My Projects
@@ -50,7 +57,7 @@ export default {
     return {
       items: [
         {
-          title: 'my-cv',
+          title: 'My CV',
           img: {
             src: '/cv.png',
             alt: 'My CV image'
