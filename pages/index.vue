@@ -54,7 +54,7 @@
                           </a>, and dashboards developer. Working with serverless and <a href="https://jamstack.org/" target="_blank">
                             JAMstack
                           </a> architecture at the present. <strong>Experience</strong>: <strong class="primary--text">
-                            2 years
+                            3 years
                           </strong>.
                         </div>
                       </v-card-text>
