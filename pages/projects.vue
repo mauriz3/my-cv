@@ -102,6 +102,15 @@ export default {
           href: 'https://codepen.io/maurirz3/full/JjYLMrZ'
         },
         {
+          title: 'Search mock',
+          img: {
+            src: '/sm.png',
+            alt: 'Search mock image'
+          },
+          desc: 'This pen is a mock of a custom search engine.',
+          href: 'https://codepen.io/maurirz3/full/JjyYRXq'
+        },
+        {
           title: 'Responsive Youtube',
           img: {
             src: '/ri.png',
