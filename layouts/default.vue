@@ -35,6 +35,14 @@
             <v-list-tile-title v-text="item.title" />
           </v-list-tile-content>
         </v-list-tile>
+        <v-list-tile @click="miniVariant = !miniVariant">
+          <v-list-tile-action>
+            <v-icon>{{ `chevron_${miniVariant ? 'right' : 'left'}` }}</v-icon>
+          </v-list-tile-action>
+          <v-list-tile-content>
+            <v-list-tile-title>Colapse</v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
       </v-list>
     </v-navigation-drawer>
     <v-toolbar
@@ -42,20 +50,12 @@
       fixed
       app
     >
-      <v-toolbar-side-icon @click="drawer = !drawer" />
-      <v-btn
-        v-if="this.$vuetify.breakpoint.lgAndUp"
-        icon
-        @click.stop="miniVariant = !miniVariant"
-      >
-        <v-icon>{{ `chevron_${miniVariant ? 'right' : 'left'}` }}</v-icon>
-      </v-btn>
       <v-btn
         v-if="this.$vuetify.breakpoint.lgAndUp"
         icon
         @click.stop="clipped = !clipped"
       >
-        <v-icon>web</v-icon>
+        <v-icon>{{ clipped ? 'view_quilt' : 'view_compact' }}</v-icon>
       </v-btn>
       <v-btn
         icon
@@ -63,7 +63,16 @@
       >
         <v-icon>brightness_6</v-icon>
       </v-btn>
+      <v-btn
+        icon
+        href="/Resume-Maurizio-Rendon.pdf"
+        target="_blank"
+      >
+        <v-icon>picture_as_pdf</v-icon>
+      </v-btn>
       <v-toolbar-title v-text="title" />
+      <v-spacer />
+      <v-toolbar-side-icon @click="drawer = !drawer" />
     </v-toolbar>
     <v-content>
       <nuxt />
