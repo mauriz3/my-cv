@@ -1,0 +1,137 @@
+import type { CvFacts } from './schema'
+
+/**
+ * Datos del CV que no cambian con el idioma (fechas, enlaces, imágenes, niveles).
+ * Fuente: repo `my-cv` (commit d23cb9e), PDF actual y LinkedIn según lo indicado por Maurizio.
+ * Orden: lo más reciente primero.
+ *
+ * Contacto: solo LinkedIn, CodePen y GitHub. Nada de teléfono, correo ni dirección.
+ */
+export const cvFacts: CvFacts = {
+  fullName: 'Maurizio Rendon',
+  resumeUrl: '/Resume-Maurizio-Rendon.pdf',
+
+  contactLinks: [
+    { label: 'LinkedIn', url: 'https://www.linkedin.com/in/rendon7/' },
+    { label: 'GitHub', url: 'https://github.com/mauriz3' },
+    { label: 'CodePen', url: 'https://codepen.io/maurirz3' },
+  ],
+
+  experience: [
+    {
+      id: 'octane11',
+      company: 'Octane11',
+      companyUrl: 'https://www.octane11.com/',
+      period: { start: '2022-02', end: null },
+    },
+    {
+      id: 'system73',
+      company: 'System73',
+      companyUrl: 'https://system73.com/',
+      period: { start: '2016-02', end: '2022-02' },
+    },
+    {
+      id: 'fasican',
+      company: 'FASICAN',
+      companyUrl: 'https://fasican.org/',
+      period: { start: '2014-12', end: '2015-06' },
+    },
+    {
+      id: 'open-canarias',
+      company: 'Open Canarias',
+      companyUrl: 'https://www.opencanarias.com/',
+      period: { start: '2014-03', end: '2014-06' },
+    },
+    {
+      id: 'huc',
+      company: 'Hospital Universitario de Canarias',
+      companyUrl:
+        'https://www3.gobiernodecanarias.org/sanidad/scs/organica.jsp?idCarpeta=3da5f513-541b-11de-9665-998e1388f7ed',
+      period: { start: '2010-03', end: '2010-06' },
+    },
+  ],
+
+  education: [
+    {
+      id: 'ull-entrepreneurship',
+      institution: 'Universidad de La Laguna',
+      institutionUrl: 'https://www.ull.es/',
+      period: { start: '2015-09', end: '2016-07' },
+    },
+    {
+      id: 'google-activate',
+      institution: 'Google Actívate',
+      institutionUrl: 'https://learndigital.withgoogle.com/activatunegocio/course/digital-marketing',
+      period: { start: '2014', end: '2014' },
+    },
+    {
+      id: 'ull-degree',
+      institution: 'Universidad de La Laguna',
+      institutionUrl: 'https://www.ull.es/grados/ingenieria-informatica/',
+      period: { start: '2010', end: '2014' },
+    },
+    {
+      id: 'ef-oxford',
+      institution: 'EF Academy Oxford',
+      institutionUrl: 'https://www.ef.com/wwen/academy/campuses/oxford/',
+      period: { start: '2013', end: '2013' },
+    },
+    {
+      id: 'ies-perez-minik',
+      institution: 'IES Domingo Pérez Minik',
+      institutionUrl:
+        'https://www.iesdomingoperezminik.es/dpmweb/category/formacion-profesional/informatica-y-comunicaciones/',
+      period: { start: '2008', end: '2010' },
+    },
+  ],
+
+  projects: [
+    { id: 'my-cv', url: 'https://github.com/mauriz3/my-cv', image: 'cv.png' },
+    { id: 'webtele', url: 'https://www.webtelehd.com/', image: 'webtele.jpg' },
+    { id: 'balance-of-the-force', url: 'https://codepen.io/maurirz3/full/KKVdYgV', image: 'bf.png' },
+    { id: 'feature-flags-panel', url: 'https://codepen.io/maurirz3/full/eYzMyWe', image: 'ff.png' },
+    { id: 'streaming-analytics', url: 'https://codepen.io/maurirz3/full/JjYLMrZ', image: 'sa.png' },
+    { id: 'search-mock', url: 'https://codepen.io/maurirz3/full/JjyYRXq', image: 'sm.png' },
+    {
+      id: 'responsive-youtube',
+      url: 'https://codepen.io/maurirz3/pen/OJVwbNv?editors=1000',
+      image: 'ri.png',
+    },
+    {
+      id: 'status-lights',
+      url: 'https://codepen.io/maurirz3/pen/OJJoKXp?editors=1100',
+      image: 'sl.png',
+    },
+  ],
+
+  languages: [
+    { id: 'spanish', level: 'native' },
+    { id: 'english', level: 'B2' },
+    { id: 'italian', level: 'B1' },
+  ],
+
+  /**
+   * Áreas para las gráficas de «años por área». Maurizio quiere destacar full stack
+   * (backend y frontend) y dar menos peso a DevOps/SysAdmin.
+   * Fechas confirmadas por Maurizio: en System73 fue DevOps de feb 2016 a ene 2018 y Frontend
+   * de feb 2018 a feb 2022; el Frontend continúa en Octane11. El backend es solo de Octane11 (feb 2022).
+   * `end` es el mes límite: el periodo termina justo antes de ese mes.
+   */
+  skillAreas: [
+    {
+      id: 'frontend',
+      periods: [{ start: '2018-02', end: null }],
+      skills: ['JavaScript', 'TypeScript', 'HTML', 'CSS', 'Vue.js', 'Nuxt.js', 'React', 'Next.js', 'Chart.js', 'Cypress', 'WordPress', 'JAMstack'],
+    },
+    {
+      id: 'backend',
+      periods: [{ start: '2022-02', end: null }],
+      skills: ['Node.js', 'API REST', 'Python', 'Django'],
+    },
+    {
+      id: 'devops',
+      periods: [{ start: '2016-02', end: '2018-02' }],
+      skills: ['Docker', 'AWS', 'Linux', 'Bash', 'Git'],
+    },
+  ],
+}

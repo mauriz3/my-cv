@@ -1,0 +1,16 @@
+{
+  "nav": {
+    "profile": "Perfil",
+    "skills": "Habilidades",
+    "experience": "Experiencia",
+    "projects": "Proyectos",
+    "education": "Formación",
+    "main": "Navegación principal"
+  },
+  "app": {
+    "skipToContent": "Saltar al contenido",
+    "language": "Idioma",
+    "downloadPdf": "Descargar PDF",
+    "findMeOn": "Encuéntrame en"
+  }
+}

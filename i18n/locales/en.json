@@ -1,0 +1,16 @@
+{
+  "nav": {
+    "profile": "Profile",
+    "skills": "Skills",
+    "experience": "Experience",
+    "projects": "Projects",
+    "education": "Education",
+    "main": "Main navigation"
+  },
+  "app": {
+    "skipToContent": "Skip to content",
+    "language": "Language",
+    "downloadPdf": "Download PDF",
+    "findMeOn": "Find me on"
+  }
+}

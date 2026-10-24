@@ -1,0 +1,82 @@
+@import 'tailwindcss';
+@import '@nuxt/ui';
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/space-grotesk';
+
+/* Escala propia «graphite» (neutrales, afinada para el modo editor). Fuente: paleta v2 de Disañador. */
+@theme {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Space Grotesk Variable', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+
+  --color-graphite-50: #f6f8fa;
+  --color-graphite-100: #eaeef2;
+  --color-graphite-200: #dde3e9;
+  --color-graphite-300: #afb8c1;
+  --color-graphite-400: #8c959f;
+  --color-graphite-500: #6e7781;
+  --color-graphite-600: #57606a;
+  --color-graphite-700: #424a53;
+  --color-graphite-800: #30363d;
+  --color-graphite-900: #161b22;
+  --color-graphite-950: #0d1117;
+
+  /* Medidas de la navegación (Figma): sidebar en escritorio, raíl en tablet. */
+  --size-sidebar: 264px;
+  --size-rail: 88px;
+  --size-bottom-bar: 64px;
+}
+
+/* Tokens de color (claro / oscuro). Mismos nombres que en el Figma. */
+:root {
+  --ui-primary: var(--ui-color-primary-700);
+  --ui-secondary: var(--ui-color-secondary-700);
+  --ui-bg: #f6f8fa;
+  --ui-bg-elevated: #ffffff;
+  --ui-border: #dde3e9;
+  --ui-text: #1f2328;
+  --ui-text-muted: #57606a;
+  --ui-text-inverted: #ffffff;
+  --chart-1: #0d9488;
+  --chart-2: #d97706;
+  --chart-3: #0369a1;
+  --chart-4: #be123c;
+  --chart-5: #475569;
+}
+
+.dark {
+  --ui-primary: var(--ui-color-primary-400);
+  --ui-secondary: var(--ui-color-secondary-400);
+  --ui-bg: #0d1117;
+  --ui-bg-elevated: #161b22;
+  --ui-border: #30363d;
+  --ui-text: #e6edf3;
+  --ui-text-muted: #9da7b3;
+  --ui-text-inverted: #0d1117;
+  --chart-1: #2dd4bf;
+  --chart-2: #fcd34d;
+  --chart-3: #0ea5e9;
+  --chart-4: #f87171;
+  --chart-5: #8b949e;
+}
+
+body {
+  font-family: var(--font-sans);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+}
+
+/* «Reducir movimiento»: nada se anima si el sistema lo pide. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

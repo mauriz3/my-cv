@@ -1,0 +1,12 @@
+[build]
+  command = "npm run test && npm run generate"
+  publish = ".output/public"
+
+# La versión de Node sale de .nvmrc (única fuente). Si Netlify no la lee, añadir NODE_VERSION aquí.
+
+# Solo el entorno de desarrollo se oculta a los buscadores.
+[context.develop]
+  [[context.develop.headers]]
+    for = "/*"
+    [context.develop.headers.values]
+      X-Robots-Tag = "noindex, nofollow"

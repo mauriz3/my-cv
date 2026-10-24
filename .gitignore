@@ -85,3 +85,11 @@ sw.*
 
 # Test output
 test/e2e/output
+# Nuxt 4
+.output
+.data
+.nitro
+.cache
+.env
+test-results
+playwright-report
