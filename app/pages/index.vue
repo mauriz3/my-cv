@@ -2,7 +2,7 @@
 const { t } = useI18n()
 const cv = useCv()
 
-useHead({ title: () => `${cv.value.fullName} · ${t('nav.profile')}` })
+usePageSeo(() => `${cv.value.fullName} · ${t('nav.profile')}`)
 </script>
 
 <template>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const { t } = useI18n()
-useHead({ title: () => t('nav.experience') })
+usePageSeo(() => t('nav.experience'))
 </script>
 
 <template>

@@ -10,6 +10,8 @@ export default defineNuxtConfig({
   icon: { fallbackToApi: false, clientBundle: { scan: true } },
 
   i18n: {
+    // Netlify expone la URL de cada despliegue; en local y en producción cae al dominio real.
+    baseUrl: process.env.DEPLOY_PRIME_URL ?? 'https://www.mauriziorendon.com',
     strategy: 'prefix',
     defaultLocale: 'en',
     detectBrowserLanguage: false,
