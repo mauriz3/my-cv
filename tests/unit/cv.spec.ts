@@ -11,7 +11,7 @@ const GENERIC_ALT_TEXTS = ['image', 'imagen', 'img', 'photo', 'foto', 'screensho
 const PERSONAL_DATA_PATTERNS = [/@/, /mailto:/i, /tel:/i, /\+?\d[\d\s().-]{8,}\d/]
 const MAX_AREA_YEARS = 50
 const MAX_MOTIVATION_CHARS = 220
-const MOTIVATION_KEYWORDS = ['Node', 'API', 'React', 'Vue']
+const END_TO_END_KEYWORDS = ['Node', 'React', 'Vue']
 
 const byIdSorted = (ids: string[]) => [...ids].sort()
 const textBlocks = [
@@ -133,11 +133,16 @@ describe('áreas confirmadas por Maurizio', () => {
   })
 })
 
-describe('motivación', () => {
-  it.each(LOCALES)('«%s» tiene una frase corta con palabras clave reales', (locale) => {
+describe('motivación y «End to end»', () => {
+  it.each(LOCALES)('«%s»: la motivación es una frase corta y no vacía', (locale) => {
     const { motivation } = getCv(locale)
+    expect(motivation.trim()).not.toBe('')
     expect(motivation.length).toBeLessThanOrEqual(MAX_MOTIVATION_CHARS)
-    for (const keyword of MOTIVATION_KEYWORDS) expect(motivation).toContain(keyword)
+  })
+
+  it.each(LOCALES)('«%s»: la tarjeta «End to end» nombra el stack real', (locale) => {
+    const { endToEnd } = getCv(locale)
+    for (const keyword of END_TO_END_KEYWORDS) expect(endToEnd).toContain(keyword)
   })
 })
 

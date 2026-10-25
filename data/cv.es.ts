@@ -9,9 +9,9 @@ export const textsEs: CvTexts = {
     'Pensamiento creativo + UX + prototipado = Producto Mínimo Viable. ' +
     'Mi experiencia en DevOps (CI/CD y automatización como código) me ayuda a entregar con fiabilidad.',
 
-  motivation:
-    'Me gusta ayudar y resolver problemas: convierto datos complejos en productos claros y fiables, ' +
-    'desde APIs en Node hasta interfaces en React y Vue.',
+  motivation: 'Me gusta ayudar y resolver problemas: convierto datos complejos en productos claros y fiables.',
+  endToEnd:
+    'De punta a punta: desde las APIs en Node y la capa de datos hasta las interfaces en React y Vue.',
 
   experience: {
     octane11: {

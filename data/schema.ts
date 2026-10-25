@@ -82,8 +82,10 @@ const textsByIdSchema = <T extends z.ZodType>(item: T) => z.record(Id, item)
 export const CvTextsSchema = z.object({
   headline: NonEmptyText,
   summary: NonEmptyText,
-  /** «Qué me mueve»: frase corta con palabras clave reales. */
+  /** «Qué me mueve»: frase corta, también para la meta descripción. */
   motivation: NonEmptyText,
+  /** Tarjeta «End to end» («In my words»): lleva las palabras clave del stack. */
+  endToEnd: NonEmptyText,
   experience: textsByIdSchema(ExperienceTextSchema),
   education: textsByIdSchema(EducationTextSchema),
   projects: textsByIdSchema(ProjectTextSchema),
@@ -99,6 +101,7 @@ export const CvSchema = z.object({
   headline: NonEmptyText,
   summary: NonEmptyText,
   motivation: NonEmptyText,
+  endToEnd: NonEmptyText,
   resumeUrl: z.string().startsWith('/'),
   contactLinks: z.array(ContactLinkSchema),
   experience: z.array(
