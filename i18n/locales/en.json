@@ -1,0 +1,62 @@
+{
+  "nav": {
+    "profile": "Profile",
+    "skills": "Skills",
+    "experience": "Experience",
+    "projects": "Projects",
+    "education": "Education",
+    "main": "Main navigation"
+  },
+  "app": {
+    "skipToContent": "Skip to content",
+    "language": "Language",
+    "downloadPdf": "Download PDF",
+    "findMeOn": "Find me on",
+    "opensInNewTab": "opens in a new tab"
+  },
+  "period": {
+    "to": "to",
+    "present": "Present"
+  },
+  "profile": {
+    "summary": "About me",
+    "languages": "Languages",
+    "greeting": "Hi, I’m Maurizio",
+    "overview": "Overview of profile, figures and skills",
+    "heroCards": {
+      "now": "Now",
+      "path": "Path",
+      "stack": "Stack",
+      "education": "Education",
+      "languages": "Languages",
+      "end-to-end": "In my words",
+      "designer-eye": "In my words",
+      "motivation": "Motivation"
+    }
+  },
+  "skills": {
+    "subtitle": "Skill profile, years per area and tools",
+    "toolsTitle": "Tools & technologies"
+  },
+  "experience": {
+    "subtitle": "Roles, companies and what I did in each one",
+    "technologies": "Technologies"
+  },
+  "projects": {
+    "subtitle": "Personal and professional work",
+    "filterLabel": "Filter by type",
+    "all": "All",
+    "categories": {
+      "nuxt": "Nuxt.js",
+      "codepen": "CodePen",
+      "website": "Website"
+    },
+    "open": "Open {title}",
+    "closeDetail": "Close project details"
+  },
+  "education": {
+    "subtitle": "Studies and courses",
+    "certifications": "Certifications",
+    "studies": "Studies"
+  }
+}

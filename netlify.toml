@@ -1,0 +1,9 @@
+# Este archivo manda sobre la configuración de la UI de Netlify (comando de build y carpeta publicada).
+[build]
+  command = "npm run test && npm run generate"
+  publish = ".output/public"
+
+[build.environment]
+  NODE_VERSION = "24" # mismo valor que .nvmrc
+
+# El `noindex` fuera de producción lo añade scripts/build-headers.mjs en `_headers`.

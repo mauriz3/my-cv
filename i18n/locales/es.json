@@ -1,0 +1,62 @@
+{
+  "nav": {
+    "profile": "Perfil",
+    "skills": "Habilidades",
+    "experience": "Experiencia",
+    "projects": "Proyectos",
+    "education": "Formación",
+    "main": "Navegación principal"
+  },
+  "app": {
+    "skipToContent": "Saltar al contenido",
+    "language": "Idioma",
+    "downloadPdf": "Descargar PDF",
+    "findMeOn": "Encuéntrame en",
+    "opensInNewTab": "se abre en una pestaña nueva"
+  },
+  "period": {
+    "to": "a",
+    "present": "Actualidad"
+  },
+  "profile": {
+    "summary": "Sobre mí",
+    "languages": "Idiomas",
+    "greeting": "Hola, soy Maurizio",
+    "overview": "Resumen del perfil, cifras y habilidades",
+    "heroCards": {
+      "now": "Ahora",
+      "path": "Trayectoria",
+      "stack": "Stack",
+      "education": "Formación",
+      "languages": "Idiomas",
+      "end-to-end": "En mis palabras",
+      "designer-eye": "En mis palabras",
+      "motivation": "Qué me mueve"
+    }
+  },
+  "skills": {
+    "subtitle": "Perfil de habilidades, años por área y herramientas",
+    "toolsTitle": "Herramientas y tecnologías"
+  },
+  "experience": {
+    "subtitle": "Puestos, empresas y lo que hice en cada una",
+    "technologies": "Tecnologías"
+  },
+  "projects": {
+    "subtitle": "Trabajo personal y profesional",
+    "filterLabel": "Filtrar por tipo",
+    "all": "Todos",
+    "categories": {
+      "nuxt": "Nuxt.js",
+      "codepen": "CodePen",
+      "website": "Web"
+    },
+    "open": "Abrir {title}",
+    "closeDetail": "Cerrar el detalle del proyecto"
+  },
+  "education": {
+    "subtitle": "Estudios y cursos",
+    "certifications": "Certificaciones",
+    "studies": "Estudios"
+  }
+}
