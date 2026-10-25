@@ -13,5 +13,54 @@
     "downloadPdf": "Download PDF",
     "findMeOn": "Find me on",
     "opensInNewTab": "opens in a new tab"
+  },
+  "period": {
+    "to": "to",
+    "present": "Present"
+  },
+  "profile": {
+    "summary": "About me",
+    "motivation": "Motivation",
+    "inMyWords": "In my words",
+    "languages": "Languages",
+    "levels": {
+      "native": "Native"
+    }
+  },
+  "skills": {
+    "subtitle": "Skill profile, years per area and tools",
+    "filterLabel": "Filter by area",
+    "all": "All",
+    "radarTitle": "Skill profile",
+    "radarNote": "Relative profile",
+    "radarAxes": {
+      "frontend": "Front End",
+      "backend": "Back End",
+      "apisData": "APIs & data",
+      "cicd": "CI / CD",
+      "testing": "Testing",
+      "uxUi": "UX & UI"
+    },
+    "yearsTitle": "Years per area",
+    "yearsValue": "{years} yrs",
+    "yearsNote": "Computed from role dates.",
+    "toolsTitle": "Tools & technologies"
+  },
+  "experience": {
+    "subtitle": "Roles, companies and what I did in each one"
+  },
+  "projects": {
+    "subtitle": "Personal and professional work",
+    "filterLabel": "Filter by type",
+    "all": "All",
+    "categories": {
+      "nuxt": "Nuxt.js",
+      "codepen": "CodePen",
+      "website": "Website"
+    },
+    "open": "Open {title}"
+  },
+  "education": {
+    "subtitle": "Studies and courses"
   }
 }
