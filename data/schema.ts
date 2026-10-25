@@ -46,12 +46,12 @@ const EducationFactsSchema = z.object({
 export const PROJECT_CATEGORIES = ['nuxt', 'codepen', 'website'] as const
 export type ProjectCategory = (typeof PROJECT_CATEGORIES)[number]
 
-/** Escala del radar «Skill profile». Los niveles nunca se muestran: es un perfil relativo. */
-export const MAX_SKILL_LEVEL = 5
+/** Escala del radar «Skill profile» (0–1, valores relativos del Figma). Los niveles nunca se muestran. */
+export const MAX_SKILL_LEVEL = 1
 
 const SkillAxisFactsSchema = z.object({
   id: Id,
-  level: z.number().int().min(0).max(MAX_SKILL_LEVEL),
+  level: z.number().min(0).max(MAX_SKILL_LEVEL),
 })
 
 /** Certificación: el nombre es propio y no se traduce. */

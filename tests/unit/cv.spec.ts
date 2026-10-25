@@ -283,7 +283,7 @@ describe('filtro de proyectos', () => {
 
 describe('radar «Skill profile»', () => {
   /** Orden del Figma: el primer eje arriba y luego en sentido horario. */
-  const RADAR_AXIS_IDS = ['frontend', 'backend', 'apis-data', 'testing', 'ux-ui', 'ci-cd']
+  const RADAR_AXIS_IDS = ['frontend', 'backend', 'apis-data', 'ci-cd', 'testing', 'ux-ui']
 
   it('tiene los 6 ejes del Figma, en su orden y sin ids repetidos', () => {
     const ids = cvFacts.skillProfile.map((axis) => axis.id)
@@ -291,9 +291,8 @@ describe('radar «Skill profile»', () => {
     expect(new Set(ids).size).toBe(ids.length)
   })
 
-  it('los niveles son enteros entre 0 y MAX_SKILL_LEVEL', () => {
+  it('los niveles son valores relativos entre 0 y MAX_SKILL_LEVEL', () => {
     for (const { level } of cvFacts.skillProfile) {
-      expect(Number.isInteger(level)).toBe(true)
       expect(level).toBeGreaterThanOrEqual(0)
       expect(level).toBeLessThanOrEqual(MAX_SKILL_LEVEL)
     }
