@@ -7,7 +7,7 @@ export const textsEn: CvTexts = {
     'Senior software engineer with a full stack profile, working mostly on Back End and Front End. ' +
     'I build data-driven web platforms, dashboards, PWAs and CMS sites using serverless and JAMstack architectures. ' +
     'Creative thinking + UX + prototyping = Minimum Viable Product. ' +
-    'My DevOps background (CI/CD and automation as code) helps me ship reliably.',
+    'End to end: from Node APIs and the data layer to React and Vue interfaces.',
 
   tagline:
     'Full stack engineer focused on Back End and Front End: B2B data integration and enrichment at Octane11; ' +
