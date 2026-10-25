@@ -122,7 +122,7 @@ export const cvFacts: CvFacts = {
   ],
 
   languages: [
-    { id: 'spanish', level: 'native' },
+    { id: 'spanish', level: 'C2' },
     { id: 'english', level: 'B2' },
     { id: 'italian', level: 'B1' },
   ],

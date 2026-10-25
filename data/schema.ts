@@ -45,7 +45,8 @@ const ProjectFactsSchema = z.object({
 
 const LanguageFactsSchema = z.object({
   id: Id,
-  level: z.enum(['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'native']),
+  /** Nivel MCER, el mismo que en el PDF. */
+  level: z.enum(['A1', 'A2', 'B1', 'B2', 'C1', 'C2']),
 })
 
 const SkillAreaFactsSchema = z.object({

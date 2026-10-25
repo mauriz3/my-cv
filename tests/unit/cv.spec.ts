@@ -138,6 +138,16 @@ describe('habilidades', () => {
   })
 })
 
+describe('idiomas confirmados por Maurizio', () => {
+  it('Español C2 · Inglés B2 · Italiano B1, igual que en el PDF', () => {
+    expect(cvFacts.languages).toEqual([
+      { id: 'spanish', level: 'C2' },
+      { id: 'english', level: 'B2' },
+      { id: 'italian', level: 'B1' },
+    ])
+  })
+})
+
 describe('ubicaciones', () => {
   it.each(textBlocks)('«$name»: System73 está en San Cristóbal de La Laguna (Tenerife)', ({ texts }) => {
     expect(texts.experience.system73?.location).toBe('San Cristóbal de La Laguna (Tenerife)')

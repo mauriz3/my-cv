@@ -22,10 +22,7 @@
     "summary": "About me",
     "motivation": "Motivation",
     "inMyWords": "In my words",
-    "languages": "Languages",
-    "levels": {
-      "native": "Native"
-    }
+    "languages": "Languages"
   },
   "skills": {
     "subtitle": "Skill profile, years per area and tools",

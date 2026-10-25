@@ -3,9 +3,6 @@ const { t } = useI18n()
 const cv = useCv()
 
 usePageSeo(() => `${cv.value.fullName} · ${t('nav.profile')}`)
-
-/** «native» se traduce; el resto son niveles del MCER (B2, B1…) y se muestran tal cual. */
-const languageLevel = (level: string) => (level === 'native' ? t('profile.levels.native') : level)
 </script>
 
 <template>
@@ -41,7 +38,7 @@ const languageLevel = (level: string) => (level === 'native' ? t('profile.levels
       <h2 id="profile-languages" class="mb-3 text-lg font-semibold text-highlighted">{{ t('profile.languages') }}</h2>
       <ul class="flex flex-wrap gap-2">
         <li v-for="language in cv.languages" :key="language.id">
-          <UBadge color="neutral" variant="subtle" :label="`${language.name} · ${languageLevel(language.level)}`" />
+          <UBadge color="neutral" variant="subtle" :label="`${language.name} · ${language.level}`" />
         </li>
       </ul>
     </section>
