@@ -56,7 +56,8 @@
       "codepen": "CodePen",
       "website": "Web"
     },
-    "open": "Abrir {title}"
+    "open": "Abrir {title}",
+    "closeDetail": "Cerrar el detalle del proyecto"
   },
   "education": {
     "subtitle": "Estudios y cursos"

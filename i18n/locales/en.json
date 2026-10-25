@@ -56,7 +56,8 @@
       "codepen": "CodePen",
       "website": "Website"
     },
-    "open": "Open {title}"
+    "open": "Open {title}",
+    "closeDetail": "Close project details"
   },
   "education": {
     "subtitle": "Studies and courses"
