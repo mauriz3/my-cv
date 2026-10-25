@@ -5,7 +5,9 @@
     "experience": "Experience",
     "projects": "Projects",
     "education": "Education",
-    "main": "Main navigation"
+    "main": "Main navigation",
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar"
   },
   "app": {
     "skipToContent": "Skip to content",

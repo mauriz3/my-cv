@@ -5,7 +5,9 @@
     "experience": "Experiencia",
     "projects": "Proyectos",
     "education": "Formación",
-    "main": "Navegación principal"
+    "main": "Navegación principal",
+    "collapse": "Contraer barra lateral",
+    "expand": "Expandir barra lateral"
   },
   "app": {
     "skipToContent": "Saltar al contenido",
