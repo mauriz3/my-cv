@@ -2,9 +2,9 @@ import type { CvTexts } from './schema'
 
 /** Textos del CV en inglés. Las claves de cada bloque coinciden con los `id` de `cv.shared.ts`. */
 export const textsEn: CvTexts = {
-  headline: 'Senior Software Engineer · Full stack (backend and frontend)',
+  headline: 'Senior Software Engineer · Full stack (Back End and Front End)',
   summary:
-    'Senior software engineer with a full stack profile, working mostly on backend and frontend. ' +
+    'Senior software engineer with a full stack profile, working mostly on Back End and Front End. ' +
     'I build data-driven web platforms, dashboards, PWAs and CMS sites using serverless and JAMstack architectures. ' +
     'Creative thinking + UX + prototyping = Minimum Viable Product. ' +
     'My DevOps background (CI/CD and automation as code) helps me ship reliably.',
@@ -21,22 +21,22 @@ export const textsEn: CvTexts = {
       role: 'Senior Software Engineer',
       location: 'New York',
       summary:
-        'B2B platform for data integration and enrichment. Full stack work across backend and frontend.',
+        'B2B platform for data integration and enrichment. Full stack work across Back End and Front End.',
       highlights: [
         'Building a dashboard that shows analytics, and a CMS to configure it.',
-        'Building API endpoints and backend services in Node.js with Prisma.',
+        'Building API endpoints and Back End services in Node.js with Prisma.',
         'Using Chart.js for the charts.',
         'Implementing AI to analyze data, automate processes and assist customers.',
       ],
     },
     system73: {
-      role: 'Frontend & DevOps Engineer',
+      role: 'Front End & DevOps Engineer',
       location: 'San Cristóbal de La Laguna (Tenerife)',
       summary:
         'Software for OTT video delivery: highest resolution and guaranteed delivery for an unlimited ' +
         'number of concurrent linear video streams, with analytics.',
       highlights: [
-        'Frontend (2018–2022): Vue, Nuxt, WordPress, JavaScript, CSS, unit tests, documentation, git and Django.',
+        'Front End (2018–2022): Vue, Nuxt, WordPress, JavaScript, CSS, unit tests, documentation, git and Django.',
         'DevOps (2016–2018): Jenkins pipelines, integration tests, Docker, Python, Bash, Linux servers and AWS.',
       ],
     },

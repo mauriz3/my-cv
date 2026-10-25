@@ -199,7 +199,7 @@ describe('ubicaciones', () => {
 describe('áreas confirmadas por Maurizio', () => {
   const periodsOf = (areaId: string) => cvFacts.skillAreas.find((area) => area.id === areaId)?.periods
 
-  it('DevOps dura 2 años (feb 2016 – ene 2018) y Frontend empieza justo después', () => {
+  it('DevOps dura 2 años (feb 2016 – ene 2018) y Front End empieza justo después', () => {
     expect(periodsOf('devops')).toEqual([{ start: '2016-02', end: '2018-02' }])
     expect(periodsOf('frontend')).toEqual([{ start: '2018-02', end: null }])
   })
@@ -333,7 +333,7 @@ describe('tarjetas del hero', () => {
     const cv = getCv('en')
     const text = (id: HeroCardId) => buildHeroCards(cv, labels('en')).find((card) => card.id === id)?.text
     expect(text('now')).toBe('Senior Software Engineer · Octane11 · Feb 2022 – Present')
-    expect(text('path')).toBe('Frontend & DevOps Engineer (System73, 2016–2022) → Senior Software Engineer (Octane11, 2022–Present)')
+    expect(text('path')).toBe('Front End & DevOps Engineer (System73, 2016–2022) → Senior Software Engineer (Octane11, 2022–Present)')
     expect(text('languages')).toBe('Spanish C2 · English B2 · Italian B1')
     expect(text('end-to-end')).toBe(cv.endToEnd)
     expect(text('motivation')).toBe(cv.motivation)
