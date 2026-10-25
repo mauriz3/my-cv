@@ -60,6 +60,8 @@
     "closeDetail": "Cerrar el detalle del proyecto"
   },
   "education": {
-    "subtitle": "Estudios y cursos"
+    "subtitle": "Estudios y cursos",
+    "certifications": "Certificaciones",
+    "studies": "Estudios"
   }
 }

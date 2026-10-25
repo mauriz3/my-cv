@@ -23,7 +23,7 @@ export const cvFacts: CvFacts = {
       company: 'Octane11',
       companyUrl: 'https://www.octane11.com/',
       period: { start: '2022-02', end: null },
-      technologyGroups: [{ technologies: ['React', 'TypeScript', 'Node.js', 'Chart.js', 'Cypress', 'Next.js'] }],
+      technologyGroups: [{ technologies: ['React', 'TypeScript', 'Node.js', 'Prisma', 'Chart.js', 'Cypress', 'Next.js'] }],
     },
     {
       id: 'system73',
@@ -93,6 +93,9 @@ export const cvFacts: CvFacts = {
     },
   ],
 
+  /** Fuente: LinkedIn (2026). Allí no constan emisor ni fecha, así que no se ponen. */
+  certifications: [{ id: 'accelerated-es6', name: 'Accelerated ES6 JavaScript Training' }],
+
   projects: [
     { id: 'my-cv', url: 'https://github.com/mauriz3/my-cv', image: 'cv.png', category: 'nuxt' },
     { id: 'webtele', url: 'https://www.webtelehd.com/', image: 'webtele.jpg', category: 'website' },
@@ -151,7 +154,7 @@ export const cvFacts: CvFacts = {
     {
       id: 'backend',
       periods: [{ start: '2022-02', end: null }],
-      skills: ['Node.js', 'API REST'],
+      skills: ['Node.js', 'API REST', 'Prisma'],
     },
     {
       id: 'devops',

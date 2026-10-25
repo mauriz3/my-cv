@@ -36,6 +36,7 @@ export function getCv(locale: Locale): Cv {
       ...item,
       ...textFor(texts.education, item.id, locale, 'education'),
     })),
+    certifications: cvFacts.certifications,
     projects: cvFacts.projects.map((item) => ({
       ...item,
       ...textFor(texts.projects, item.id, locale, 'projects'),

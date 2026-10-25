@@ -121,8 +121,8 @@ describe('habilidades', () => {
 
   const skillsOf = (areaId: string) => cvFacts.skillAreas.find((area) => area.id === areaId)?.skills ?? []
 
-  it('el Back End solo tiene lo de Octane11: Node.js y API REST', () => {
-    expect(skillsOf('backend')).toEqual(['Node.js', 'API REST'])
+  it('el Back End solo tiene lo de Octane11: Node.js, API REST y Prisma', () => {
+    expect(skillsOf('backend')).toEqual(['Node.js', 'API REST', 'Prisma'])
   })
 
   it('Python va en DevOps (System73) y Django en Front End', () => {
@@ -149,7 +149,6 @@ describe('idiomas confirmados por Maurizio', () => {
 })
 
 describe('tecnologías por puesto', () => {
-  const FORBIDDEN_TECHNOLOGIES = ['Prisma']
   const areaIds = cvFacts.skillAreas.map((area) => area.id)
 
   it.each(cvFacts.experience)('«$id»: chips no vacíos, sin duplicados ni datos personales', ({ technologyGroups }) => {
@@ -157,7 +156,6 @@ describe('tecnologías por puesto', () => {
     expect(new Set(technologies).size).toBe(technologies.length)
     for (const technology of technologies) {
       expect(technology.trim()).not.toBe('')
-      expect(FORBIDDEN_TECHNOLOGIES).not.toContain(technology)
       for (const pattern of PERSONAL_DATA_PATTERNS) expect(technology).not.toMatch(pattern)
     }
   })
@@ -174,8 +172,19 @@ describe('tecnologías por puesto', () => {
     expect(system73?.technologyGroups[0]?.technologies).toContain('Jenkins')
   })
 
+  it('Octane11 incluye Prisma', () => {
+    const octane11 = cvFacts.experience.find((job) => job.id === 'octane11')
+    expect(octane11?.technologyGroups.flatMap((group) => group.technologies)).toContain('Prisma')
+  })
+
   it('el Hospital no lleva chips', () => {
     expect(cvFacts.experience.find((job) => job.id === 'huc')?.technologyGroups).toEqual([])
+  })
+})
+
+describe('certificaciones', () => {
+  it('incluye «Accelerated ES6 JavaScript Training» (sin emisor ni fecha: no constan en la fuente)', () => {
+    expect(cvFacts.certifications).toEqual([{ id: 'accelerated-es6', name: 'Accelerated ES6 JavaScript Training' }])
   })
 })
 

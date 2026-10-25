@@ -46,6 +46,9 @@ const EducationFactsSchema = z.object({
 export const PROJECT_CATEGORIES = ['nuxt', 'codepen', 'website'] as const
 export type ProjectCategory = (typeof PROJECT_CATEGORIES)[number]
 
+/** Certificación: el nombre es propio y no se traduce. */
+const CertificationSchema = z.object({ id: Id, name: NonEmptyText })
+
 const ProjectFactsSchema = z.object({
   id: Id,
   url: HttpsUrl,
@@ -71,6 +74,7 @@ export const CvFactsSchema = z.object({
   contactLinks: z.array(ContactLinkSchema).min(1),
   experience: z.array(ExperienceFactsSchema).min(1),
   education: z.array(EducationFactsSchema).min(1),
+  certifications: z.array(CertificationSchema),
   projects: z.array(ProjectFactsSchema).min(1),
   languages: z.array(LanguageFactsSchema).min(1),
   skillAreas: z.array(SkillAreaFactsSchema).min(1),
@@ -124,6 +128,7 @@ export const CvSchema = z.object({
     ExperienceFactsSchema.extend(ExperienceTextSchema.shape),
   ),
   education: z.array(EducationFactsSchema.extend(EducationTextSchema.shape)),
+  certifications: z.array(CertificationSchema),
   projects: z.array(ProjectFactsSchema.extend(ProjectTextSchema.shape)),
   languages: z.array(LanguageFactsSchema.extend({ name: NonEmptyText })),
   skillAreas: z.array(SkillAreaFactsSchema.extend({ name: NonEmptyText })),

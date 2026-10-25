@@ -20,7 +20,7 @@ export const textsEn: CvTexts = {
         'B2B platform for data integration and enrichment. Full stack work across backend and frontend.',
       highlights: [
         'Building a dashboard that shows analytics, and a CMS to configure it.',
-        'Building API endpoints and backend services in Node.js.',
+        'Building API endpoints and backend services in Node.js with Prisma.',
         'Using Chart.js for the charts.',
         'Implementing AI to analyze data, automate processes and assist customers.',
       ],
