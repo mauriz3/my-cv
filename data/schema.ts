@@ -78,7 +78,7 @@ const SkillAreaFactsSchema = z.object({
 
 export const CvFactsSchema = z.object({
   fullName: NonEmptyText,
-  resumeUrl: z.string().startsWith('/'),
+  resumeUrls: z.object({ en: z.string().startsWith('/'), es: z.string().startsWith('/') }),
   contactLinks: z.array(ContactLinkSchema).min(1),
   experience: z.array(ExperienceFactsSchema).min(1),
   education: z.array(EducationFactsSchema).min(1),

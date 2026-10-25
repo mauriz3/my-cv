@@ -28,7 +28,7 @@ export function getCv(locale: Locale): Cv {
     designerEye: texts.designerEye,
     motivation: texts.motivation,
     endToEnd: texts.endToEnd,
-    resumeUrl: cvFacts.resumeUrl,
+    resumeUrl: cvFacts.resumeUrls[locale],
     contactLinks: cvFacts.contactLinks,
     experience: cvFacts.experience.map((item) => ({
       ...item,

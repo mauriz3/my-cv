@@ -9,7 +9,11 @@ import type { CvFacts } from './schema'
  */
 export const cvFacts: CvFacts = {
   fullName: 'Maurizio Rendon',
-  resumeUrl: '/Resume-Maurizio-Rendon.pdf',
+  /** PDF por idioma (Resume-Maurizio-Rendon-{en,es}.pdf en `public/`). */
+  resumeUrls: {
+    en: '/Resume-Maurizio-Rendon-en.pdf',
+    es: '/Resume-Maurizio-Rendon-es.pdf',
+  },
 
   contactLinks: [
     { label: 'LinkedIn', url: 'https://www.linkedin.com/in/rendon7/' },
