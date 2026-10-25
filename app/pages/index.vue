@@ -1,46 +1,39 @@
 <script setup lang="ts">
+import { buildHeroCards, HERO_CARD_IDS } from '~~/data/hero'
+
 const { t } = useI18n()
 const cv = useCv()
 
 usePageSeo(() => `${cv.value.fullName} · ${t('nav.profile')}`)
+
+const heroCards = computed(() =>
+  buildHeroCards(cv.value, {
+    present: t('period.present'),
+    cards: Object.fromEntries(HERO_CARD_IDS.map((id) => [id, t(`profile.heroCards.${id}`)])) as Record<
+      (typeof HERO_CARD_IDS)[number],
+      string
+    >,
+  }),
+)
 </script>
 
 <template>
   <div class="space-y-6">
-    <PageHeader :title="cv.fullName" :subtitle="cv.headline" />
+    <!-- El h1 de esta página es el nombre del hero. -->
+    <PageHeader :title="t('profile.greeting')" :subtitle="t('profile.overview')" title-tag="p" />
 
-    <!-- Hero con holograma y cifras: lo hace Programador2 (va aquí, encima del resumen). -->
+    <ProfileHero :eyebrow="cv.headline" :tagline="cv.tagline" :cards="heroCards" />
 
-    <section aria-labelledby="profile-summary" class="rounded-xl border border-default bg-elevated p-6">
-      <h2 id="profile-summary" class="mb-2 text-lg font-semibold text-highlighted">{{ t('profile.summary') }}</h2>
+    <Panel :title="t('profile.summary')">
       <p class="max-w-prose text-muted">{{ cv.summary }}</p>
-      <ContactLinks labels="always" class="mt-4 md:hidden" />
-    </section>
+    </Panel>
 
-    <div class="grid gap-4 md:grid-cols-2">
-      <UCard as="section" aria-labelledby="profile-in-my-words" data-testid="end-to-end">
-        <h2 id="profile-in-my-words" class="mb-2 flex items-center gap-2 text-sm font-normal text-muted">
-          <UIcon name="i-lucide-user-round" class="size-4" aria-hidden="true" />
-          {{ t('profile.inMyWords') }}
-        </h2>
-        <p class="font-medium text-highlighted">{{ cv.endToEnd }}</p>
-      </UCard>
-      <UCard as="section" aria-labelledby="profile-motivation" data-testid="motivation">
-        <h2 id="profile-motivation" class="mb-2 flex items-center gap-2 text-sm font-normal text-muted">
-          <UIcon name="i-lucide-info" class="size-4" aria-hidden="true" />
-          {{ t('profile.motivation') }}
-        </h2>
-        <p class="font-medium text-highlighted">{{ cv.motivation }}</p>
-      </UCard>
-    </div>
-
-    <section aria-labelledby="profile-languages" class="rounded-xl border border-default bg-elevated p-6">
-      <h2 id="profile-languages" class="mb-3 text-lg font-semibold text-highlighted">{{ t('profile.languages') }}</h2>
+    <Panel :title="t('profile.languages')">
       <ul class="flex flex-wrap gap-2">
         <li v-for="language in cv.languages" :key="language.id">
           <UBadge color="neutral" variant="subtle" :label="`${language.name} · ${language.level}`" />
         </li>
       </ul>
-    </section>
+    </Panel>
   </div>
 </template>

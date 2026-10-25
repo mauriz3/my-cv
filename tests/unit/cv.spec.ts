@@ -7,7 +7,7 @@ import { textsEs } from '../../data/cv.es'
 import { buildHeroCards, HERO_CARD_IDS, type HeroCardId } from '../../data/hero'
 import { CvFactsSchema, CvSchema, CvTextsSchema, LOCALES, MAX_SKILL_LEVEL, PROJECT_CATEGORIES } from '../../data/schema'
 import { formatPartialDate, isSingleDate } from '../../lib/period'
-import { monthsInPeriod, toMonthIndex, yearsInPeriods, yearsLabel } from '../../lib/years'
+import { monthsInPeriod, toMonthIndex, yearsInPeriods } from '../../lib/years'
 
 const ALLOWED_CONTACT_HOSTS = ['www.linkedin.com', 'github.com', 'codepen.io']
 const GENERIC_ALT_TEXTS = ['image', 'imagen', 'img', 'photo', 'foto', 'screenshot', 'captura']
@@ -244,16 +244,6 @@ describe('años por área', () => {
       expect(value).toBeGreaterThan(0)
       expect(value).toBeLessThan(MAX_AREA_YEARS)
     }
-  })
-})
-
-describe('etiquetas de años', () => {
-  const now = new Date(2026, 9, 24) // 24 oct 2026
-
-  it('un área abierta muestra el mínimo con «+» y una cerrada el valor aproximado', () => {
-    expect(yearsLabel([{ start: '2018-02', end: null }], now)).toBe('8+')
-    expect(yearsLabel([{ start: '2022-02', end: null }], now)).toBe('4+')
-    expect(yearsLabel([{ start: '2016-02', end: '2018-02' }], now)).toBe('~2')
   })
 })
 

@@ -11,10 +11,11 @@ export interface SkillAxis {
   level: number
 }
 
-export const MAX_SKILL_LEVEL = 5
+export { MAX_SKILL_LEVEL } from '~~/data/schema'
 </script>
 
 <script setup lang="ts">
+import { MAX_SKILL_LEVEL } from '~~/data/schema'
 import type { ChartData, ChartOptions } from 'chart.js'
 import { Radar } from 'vue-chartjs'
 import { isMotionReduced } from './ReduceMotionToggle.vue'

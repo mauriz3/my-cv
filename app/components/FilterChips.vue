@@ -20,6 +20,7 @@ const selectedId = defineModel<string>({ required: true })
       :color="option.id === selectedId ? 'primary' : 'neutral'"
       :variant="option.id === selectedId ? 'soft' : 'outline'"
       :data-testid="`filter-${option.id}`"
+      class="min-h-11"
       @click="selectedId = option.id"
     />
   </div>

@@ -20,27 +20,22 @@
   },
   "profile": {
     "summary": "About me",
-    "motivation": "Motivation",
-    "inMyWords": "In my words",
-    "languages": "Languages"
+    "languages": "Languages",
+    "greeting": "Hi, I’m Maurizio",
+    "overview": "Overview of profile, figures and skills",
+    "heroCards": {
+      "now": "Now",
+      "path": "Path",
+      "stack": "Stack",
+      "education": "Education",
+      "languages": "Languages",
+      "end-to-end": "In my words",
+      "designer-eye": "In my words",
+      "motivation": "Motivation"
+    }
   },
   "skills": {
     "subtitle": "Skill profile, years per area and tools",
-    "filterLabel": "Filter by area",
-    "all": "All",
-    "radarTitle": "Skill profile",
-    "radarNote": "Relative profile",
-    "radarAxes": {
-      "frontend": "Front End",
-      "backend": "Back End",
-      "apisData": "APIs & data",
-      "cicd": "CI / CD",
-      "testing": "Testing",
-      "uxUi": "UX & UI"
-    },
-    "yearsTitle": "Years per area",
-    "yearsValue": "{years} yrs",
-    "yearsNote": "Computed from role dates.",
     "toolsTitle": "Tools & technologies"
   },
   "experience": {

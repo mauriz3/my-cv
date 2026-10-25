@@ -20,27 +20,22 @@
   },
   "profile": {
     "summary": "Sobre mí",
-    "motivation": "Qué me mueve",
-    "inMyWords": "En mis palabras",
-    "languages": "Idiomas"
+    "languages": "Idiomas",
+    "greeting": "Hola, soy Maurizio",
+    "overview": "Resumen del perfil, cifras y habilidades",
+    "heroCards": {
+      "now": "Ahora",
+      "path": "Trayectoria",
+      "stack": "Stack",
+      "education": "Formación",
+      "languages": "Idiomas",
+      "end-to-end": "En mis palabras",
+      "designer-eye": "En mis palabras",
+      "motivation": "Qué me mueve"
+    }
   },
   "skills": {
     "subtitle": "Perfil de habilidades, años por área y herramientas",
-    "filterLabel": "Filtrar por área",
-    "all": "Todas",
-    "radarTitle": "Perfil de habilidades",
-    "radarNote": "Perfil relativo",
-    "radarAxes": {
-      "frontend": "Front End",
-      "backend": "Back End",
-      "apisData": "APIs y datos",
-      "cicd": "CI / CD",
-      "testing": "Testing",
-      "uxUi": "UX y UI"
-    },
-    "yearsTitle": "Años por área",
-    "yearsValue": "{years} años",
-    "yearsNote": "Calculado a partir de las fechas de cada puesto.",
     "toolsTitle": "Herramientas y tecnologías"
   },
   "experience": {

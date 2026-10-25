@@ -151,6 +151,7 @@ onBeforeUnmount(() => observer?.disconnect())
       <li
         v-for="(card, index) in props.cards"
         :key="card.id"
+        :data-testid="card.id"
         class="profile-hero__reveal rounded-xl border border-default bg-default p-4"
         :style="{ '--reveal-index': index }"
       >

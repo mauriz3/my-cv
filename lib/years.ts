@@ -24,13 +24,3 @@ export function yearsInPeriods(periods: Period[], now: Date): number {
   const totalMonths = periods.reduce((sum, period) => sum + monthsInPeriod(period, now), 0)
   return Math.round((totalMonths / MONTHS_PER_YEAR) * DECIMALS_FACTOR) / DECIMALS_FACTOR
 }
-
-/**
- * Etiqueta corta de años para la interfaz: un área todavía abierta muestra el mínimo con «+»
- * (8,7 → «8+»); una cerrada, el valor aproximado (2 → «~2»).
- */
-export function yearsLabel(periods: Period[], now: Date): string {
-  const years = yearsInPeriods(periods, now)
-  const isOngoing = periods.some((period) => period.end === null)
-  return isOngoing ? `${Math.floor(years)}+` : `~${Math.round(years)}`
-}
