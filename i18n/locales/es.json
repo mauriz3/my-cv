@@ -44,7 +44,8 @@
     "toolsTitle": "Herramientas y tecnologías"
   },
   "experience": {
-    "subtitle": "Puestos, empresas y lo que hice en cada una"
+    "subtitle": "Puestos, empresas y lo que hice en cada una",
+    "technologies": "Tecnologías"
   },
   "projects": {
     "subtitle": "Trabajo personal y profesional",

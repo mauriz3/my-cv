@@ -18,11 +18,21 @@ const Period = z.object({ start: PartialDate, end: PartialDate.nullable() })
 
 export const ContactLinkSchema = z.object({ label: NonEmptyText, url: HttpsUrl }).strict()
 
+/**
+ * Tecnologías de un puesto (no se traducen). `areaId` (id de `skillAreas`) solo hace falta
+ * cuando el puesto tuvo varias etapas, como System73 (DevOps y luego Front End).
+ */
+const TechnologyGroupSchema = z.object({
+  areaId: Id.optional(),
+  technologies: z.array(NonEmptyText).min(1),
+})
+
 const ExperienceFactsSchema = z.object({
   id: Id,
   company: NonEmptyText,
   companyUrl: HttpsUrl,
   period: Period,
+  technologyGroups: z.array(TechnologyGroupSchema),
 })
 
 const EducationFactsSchema = z.object({
@@ -122,4 +132,5 @@ export const CvSchema = z.object({
 export type CvFacts = z.infer<typeof CvFactsSchema>
 export type CvTexts = z.infer<typeof CvTextsSchema>
 export type Cv = z.infer<typeof CvSchema>
+export type TechnologyGroup = z.infer<typeof TechnologyGroupSchema>
 export type ContactLink = z.infer<typeof ContactLinkSchema>

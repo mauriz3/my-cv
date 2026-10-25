@@ -148,6 +148,37 @@ describe('idiomas confirmados por Maurizio', () => {
   })
 })
 
+describe('tecnologías por puesto', () => {
+  const FORBIDDEN_TECHNOLOGIES = ['Prisma']
+  const areaIds = cvFacts.skillAreas.map((area) => area.id)
+
+  it.each(cvFacts.experience)('«$id»: chips no vacíos, sin duplicados ni datos personales', ({ technologyGroups }) => {
+    const technologies = technologyGroups.flatMap((group) => group.technologies)
+    expect(new Set(technologies).size).toBe(technologies.length)
+    for (const technology of technologies) {
+      expect(technology.trim()).not.toBe('')
+      expect(FORBIDDEN_TECHNOLOGIES).not.toContain(technology)
+      for (const pattern of PERSONAL_DATA_PATTERNS) expect(technology).not.toMatch(pattern)
+    }
+  })
+
+  it('los grupos por área apuntan a un área existente', () => {
+    for (const { technologyGroups } of cvFacts.experience) {
+      for (const { areaId } of technologyGroups) if (areaId) expect(areaIds).toContain(areaId)
+    }
+  })
+
+  it('System73 agrupa DevOps (con Jenkins, dato histórico) y Front End', () => {
+    const system73 = cvFacts.experience.find((job) => job.id === 'system73')
+    expect(system73?.technologyGroups.map((group) => group.areaId)).toEqual(['devops', 'frontend'])
+    expect(system73?.technologyGroups[0]?.technologies).toContain('Jenkins')
+  })
+
+  it('el Hospital no lleva chips', () => {
+    expect(cvFacts.experience.find((job) => job.id === 'huc')?.technologyGroups).toEqual([])
+  })
+})
+
 describe('ubicaciones', () => {
   it.each(textBlocks)('«$name»: System73 está en San Cristóbal de La Laguna (Tenerife)', ({ texts }) => {
     expect(texts.experience.system73?.location).toBe('San Cristóbal de La Laguna (Tenerife)')

@@ -23,24 +23,31 @@ export const cvFacts: CvFacts = {
       company: 'Octane11',
       companyUrl: 'https://www.octane11.com/',
       period: { start: '2022-02', end: null },
+      technologyGroups: [{ technologies: ['React', 'TypeScript', 'Node.js', 'Chart.js', 'Cypress', 'Next.js'] }],
     },
     {
       id: 'system73',
       company: 'System73',
       companyUrl: 'https://system73.com/',
       period: { start: '2016-02', end: '2022-02' },
+      technologyGroups: [
+        { areaId: 'devops', technologies: ['Jenkins', 'Docker', 'Python', 'Bash', 'Linux', 'AWS'] },
+        { areaId: 'frontend', technologies: ['Vue.js', 'Nuxt.js', 'WordPress', 'JavaScript', 'CSS', 'Django'] },
+      ],
     },
     {
       id: 'fasican',
       company: 'FASICAN',
       companyUrl: 'https://fasican.org/',
       period: { start: '2014-12', end: '2015-06' },
+      technologyGroups: [{ technologies: ['HTML', 'CSS', 'JavaScript', 'PHP'] }],
     },
     {
       id: 'open-canarias',
       company: 'Open Canarias',
       companyUrl: 'https://www.opencanarias.com/',
       period: { start: '2014-03', end: '2014-06' },
+      technologyGroups: [{ technologies: ['Java', 'Eclipse'] }],
     },
     {
       id: 'huc',
@@ -48,6 +55,7 @@ export const cvFacts: CvFacts = {
       companyUrl:
         'https://www3.gobiernodecanarias.org/sanidad/scs/organica.jsp?idCarpeta=3da5f513-541b-11de-9665-998e1388f7ed',
       period: { start: '2010-03', end: '2010-06' },
+      technologyGroups: [],
     },
   ],
 

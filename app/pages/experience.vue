@@ -23,6 +23,7 @@ usePageSeo(() => t('nav.experience'))
           <ul v-if="job.highlights.length" class="mt-3 list-disc space-y-1 pl-5 text-sm">
             <li v-for="highlight in job.highlights" :key="highlight">{{ highlight }}</li>
           </ul>
+          <TechnologyChips :groups="job.technologyGroups" class="mt-4" />
         </UCard>
       </li>
     </ol>
