@@ -272,6 +272,15 @@ describe('fechas según el idioma', () => {
   })
 })
 
+describe('proyectos', () => {
+  it('son 6: sin «Responsive YouTube» ni «Status lights» (decisión de Maurizio)', () => {
+    const ids = cvFacts.projects.map((project) => project.id)
+    expect(ids).toHaveLength(6)
+    expect(ids).not.toContain('responsive-youtube')
+    expect(ids).not.toContain('status-lights')
+  })
+})
+
 describe('filtro de proyectos', () => {
   it('cada categoría del filtro (Nuxt.js · CodePen · Website) tiene al menos un proyecto', () => {
     for (const category of PROJECT_CATEGORIES) {

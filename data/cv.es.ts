@@ -105,16 +105,6 @@ export const textsEs: CvTexts = {
       description: 'Una maqueta de un buscador personalizado.',
       imageAlt: 'Captura de la maqueta del buscador personalizado',
     },
-    'responsive-youtube': {
-      title: 'YouTube responsive',
-      description: 'Cómo insertar un iframe de YouTube adaptable en tu web.',
-      imageAlt: 'Captura de una demo de iframe de YouTube adaptable',
-    },
-    'status-lights': {
-      title: 'Luces de estado',
-      description: 'Luces de estado con efecto al pasar el ratón.',
-      imageAlt: 'Captura de luces de estado con efecto al pasar el ratón',
-    },
   },
 
   languages: { spanish: 'Español', english: 'Inglés', italian: 'Italiano' },

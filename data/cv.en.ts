@@ -104,16 +104,6 @@ export const textsEn: CvTexts = {
       description: 'A mock of a custom search engine.',
       imageAlt: 'Screenshot of the custom search engine mock',
     },
-    'responsive-youtube': {
-      title: 'Responsive YouTube',
-      description: 'How to insert a responsive YouTube iframe in your website.',
-      imageAlt: 'Screenshot of a responsive YouTube iframe demo',
-    },
-    'status-lights': {
-      title: 'Status lights',
-      description: 'Status lights with hover effect.',
-      imageAlt: 'Screenshot of status lights with hover effect',
-    },
   },
 
   languages: { spanish: 'Spanish', english: 'English', italian: 'Italian' },

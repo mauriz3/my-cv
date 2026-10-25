@@ -118,18 +118,6 @@ export const cvFacts: CvFacts = {
       category: 'codepen',
     },
     { id: 'search-mock', url: 'https://codepen.io/maurirz3/full/JjyYRXq', image: 'sm.png', category: 'codepen' },
-    {
-      id: 'responsive-youtube',
-      url: 'https://codepen.io/maurirz3/pen/OJVwbNv?editors=1000',
-      image: 'ri.png',
-      category: 'codepen',
-    },
-    {
-      id: 'status-lights',
-      url: 'https://codepen.io/maurirz3/pen/OJJoKXp?editors=1100',
-      image: 'sl.png',
-      category: 'codepen',
-    },
   ],
 
   languages: [
