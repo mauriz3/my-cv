@@ -29,3 +29,4 @@ Sin teléfono, email ni dirección en ningún sitio: contacto solo por LinkedIn,
 - Excepción consciente: `style-src 'unsafe-inline'`, porque Nuxt UI y Vue generan estilos inline. Solo afecta a estilos, no a scripts.
 - Fuera de producción (`CONTEXT` distinto de `production` en Netlify) se añade `X-Robots-Tag: noindex`.
 - Las acciones de GitHub se fijan por SHA de commit y Dependabot las actualiza cada semana.
+- `npm run audit:check` (CI) falla ante vulnerabilidades high/critical salvo las aceptadas y justificadas en `scripts/audit.mjs`.
