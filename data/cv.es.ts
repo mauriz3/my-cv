@@ -117,8 +117,8 @@ export const textsEs: CvTexts = {
     frontend: 'Front End',
     backend: 'Back End',
     'apis-data': 'APIs y datos',
-    'ci-cd': 'CI / CD',
     testing: 'Testing',
     'ux-ui': 'UX y UI',
+    'ci-cd': 'CI / CD',
   },
 }

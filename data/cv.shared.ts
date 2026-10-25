@@ -152,7 +152,7 @@ export const cvFacts: CvFacts = {
   ],
 
   /**
-   * Radar «Skill profile» (6 ejes del Figma).
+   * Radar «Skill profile» (6 ejes, en el orden del Figma: el primero arriba y en sentido horario).
    * ⚠️ NIVELES PROVISIONALES DE EJEMPLO (0–5), pendientes de que Maurizio dé los reales.
    * Nunca se muestran como números: el radar no lleva cifras, ticks, tooltip ni leyenda.
    */
@@ -160,8 +160,8 @@ export const cvFacts: CvFacts = {
     { id: 'frontend', level: 5 },
     { id: 'backend', level: 4 },
     { id: 'apis-data', level: 4 },
-    { id: 'ci-cd', level: 2 },
     { id: 'testing', level: 3 },
     { id: 'ux-ui', level: 3 },
+    { id: 'ci-cd', level: 2 },
   ],
 }
