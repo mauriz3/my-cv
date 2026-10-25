@@ -11,7 +11,7 @@ export const textsEn: CvTexts = {
 
   tagline:
     'Full stack engineer focused on Back End and Front End: B2B data integration and enrichment at Octane11; ' +
-    'PWAs, CMS and dashboards at System73.',
+    'PWAs, CMS and dashboards.',
   designerEye: 'A designer’s eye with a developer’s hands.',
   motivation: 'I enjoy helping people and solving problems: I turn complex data into clear, reliable products.',
   endToEnd: 'End to end: from Node APIs and the data layer to React and Vue interfaces.',

@@ -9,10 +9,9 @@ export const textsEs: CvTexts = {
     'Pensamiento creativo + UX + prototipado = Producto Mínimo Viable. ' +
     'Mi experiencia en DevOps (CI/CD y automatización como código) me ayuda a entregar con fiabilidad.',
 
-  // Traducción de la tagline y de «designerEye»: pendiente de que Maurizio la apruebe (solo hay versión EN aprobada).
   tagline:
-    'Ingeniero full stack centrado en Back End y Front End: integración y enriquecimiento de datos B2B en Octane11; ' +
-    'PWAs, CMS y dashboards en System73.',
+    'Perfil full stack centrado en Back End y Front End: integración y enriquecimiento de datos B2B en Octane11; ' +
+    'PWAs, CMS y dashboards.',
   designerEye: 'Ojo de diseñador y manos de desarrollador.',
   motivation: 'Me gusta ayudar y resolver problemas: convierto datos complejos en productos claros y fiables.',
   endToEnd:
