@@ -119,9 +119,28 @@ describe('habilidades', () => {
     expect(allSkills).not.toContain('Jenkins')
   })
 
+  const skillsOf = (areaId: string) => cvFacts.skillAreas.find((area) => area.id === areaId)?.skills ?? []
+
+  it('el Back End solo tiene lo de Octane11: Node.js y API REST', () => {
+    expect(skillsOf('backend')).toEqual(['Node.js', 'API REST'])
+  })
+
+  it('Python va en DevOps (System73) y Django en Front End', () => {
+    expect(skillsOf('devops')).toContain('Python')
+    expect(skillsOf('frontend')).toContain('Django')
+    expect(skillsOf('backend')).not.toContain('Python')
+    expect(skillsOf('backend')).not.toContain('Django')
+  })
+
   it('el backend empieza en Octane11 (feb 2022)', () => {
     const backend = cvFacts.skillAreas.find((area) => area.id === 'backend')
     expect(backend?.periods).toEqual([{ start: '2022-02', end: null }])
+  })
+})
+
+describe('ubicaciones', () => {
+  it.each(textBlocks)('«$name»: System73 está en San Cristóbal de La Laguna (Tenerife)', ({ texts }) => {
+    expect(texts.experience.system73?.location).toBe('San Cristóbal de La Laguna (Tenerife)')
   })
 })
 

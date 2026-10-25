@@ -28,7 +28,7 @@ export const textsEs: CvTexts = {
     },
     system73: {
       role: 'Ingeniero Frontend y DevOps',
-      location: 'Tenerife',
+      location: 'San Cristóbal de La Laguna (Tenerife)',
       summary:
         'Software para distribución de vídeo OTT: máxima resolución y entrega garantizada para un número ' +
         'ilimitado de streams lineales simultáneos, con analíticas.',

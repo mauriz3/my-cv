@@ -138,17 +138,17 @@ export const cvFacts: CvFacts = {
     {
       id: 'frontend',
       periods: [{ start: '2018-02', end: null }],
-      skills: ['JavaScript', 'TypeScript', 'HTML', 'CSS', 'Vue.js', 'Nuxt.js', 'React', 'Next.js', 'Chart.js', 'Cypress', 'WordPress', 'JAMstack'],
+      skills: ['JavaScript', 'TypeScript', 'HTML', 'CSS', 'Vue.js', 'Nuxt.js', 'React', 'Next.js', 'Chart.js', 'Cypress', 'WordPress', 'JAMstack', 'Django'],
     },
     {
       id: 'backend',
       periods: [{ start: '2022-02', end: null }],
-      skills: ['Node.js', 'API REST', 'Python', 'Django'],
+      skills: ['Node.js', 'API REST'],
     },
     {
       id: 'devops',
       periods: [{ start: '2016-02', end: '2018-02' }],
-      skills: ['Docker', 'AWS', 'Linux', 'Bash', 'Git'],
+      skills: ['Docker', 'AWS', 'Linux', 'Bash', 'Python', 'Git'],
     },
   ],
 }
