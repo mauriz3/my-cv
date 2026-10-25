@@ -10,6 +10,7 @@ usePageSeo(() => `${cv.value.fullName} · ${t('nav.profile')}`)
     <PageHeader :title="cv.fullName" :subtitle="cv.headline" />
     <section class="rounded-xl border border-default bg-elevated p-6">
       <p class="max-w-prose text-muted">{{ cv.summary }}</p>
+      <ContactLinks labels="always" class="mt-4 md:hidden" />
     </section>
   </div>
 </template>

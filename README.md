@@ -22,3 +22,10 @@ npm run generate   # sitio estático en .output/public + hashes CSP
 - `tests/unit/` Vitest. Netlify ejecuta `npm run test && npm run generate`; si falla un test, no hay deploy.
 
 Sin teléfono, email ni dirección en ningún sitio: contacto solo por LinkedIn, CodePen y GitHub.
+
+## Seguridad
+
+- CSP estricta en `public/_headers`: los scripts inline llevan hash (lo calcula `scripts/build-headers.mjs` tras cada `generate`). No hay dominios externos.
+- Excepción consciente: `style-src 'unsafe-inline'`, porque Nuxt UI y Vue generan estilos inline. Solo afecta a estilos, no a scripts.
+- Fuera de producción (`CONTEXT` distinto de `production` en Netlify) se añade `X-Robots-Tag: noindex`.
+- Las acciones de GitHub se fijan por SHA de commit y Dependabot las actualiza cada semana.

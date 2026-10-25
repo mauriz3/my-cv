@@ -9,7 +9,8 @@ defineProps<{ title: string; subtitle?: string }>()
       <p v-if="subtitle" class="text-sm text-muted">{{ subtitle }}</p>
     </div>
     <div class="flex flex-wrap items-center gap-2">
-      <ContactLinks class="hidden lg:flex" />
+      <!-- En móvil los enlaces van en la tarjeta de perfil (ver pages/index.vue). -->
+      <ContactLinks labels="wide-only" class="hidden md:flex" />
       <LanguageSwitch />
       <UColorModeButton />
     </div>

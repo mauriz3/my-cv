@@ -11,6 +11,7 @@
     "skipToContent": "Skip to content",
     "language": "Language",
     "downloadPdf": "Download PDF",
-    "findMeOn": "Find me on"
+    "findMeOn": "Find me on",
+    "opensInNewTab": "opens in a new tab"
   }
 }

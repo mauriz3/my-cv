@@ -15,6 +15,7 @@ export function usePageSeo(pageTitle: () => string) {
       jobTitle: cv.value.headline,
       description: cv.value.motivation,
       inLanguage: cv.value.locale,
+      knowsAbout: cv.value.skillAreas.flatMap((area) => area.skills),
       sameAs: cv.value.contactLinks.map((link) => link.url)
     }).replace(HTML_UNSAFE_CHARACTERS, '\\u003c')
   )
