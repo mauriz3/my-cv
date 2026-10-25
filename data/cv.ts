@@ -24,6 +24,8 @@ export function getCv(locale: Locale): Cv {
     fullName: cvFacts.fullName,
     headline: texts.headline,
     summary: texts.summary,
+    tagline: texts.tagline,
+    designerEye: texts.designerEye,
     motivation: texts.motivation,
     endToEnd: texts.endToEnd,
     resumeUrl: cvFacts.resumeUrl,
@@ -48,6 +50,10 @@ export function getCv(locale: Locale): Cv {
     skillAreas: cvFacts.skillAreas.map((item) => ({
       ...item,
       name: textFor(texts.skillAreas, item.id, locale, 'skillAreas'),
+    })),
+    skillProfile: cvFacts.skillProfile.map((axis) => ({
+      ...axis,
+      label: textFor(texts.skillProfile, axis.id, locale, 'skillProfile'),
     })),
   }
 }

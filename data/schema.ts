@@ -46,6 +46,14 @@ const EducationFactsSchema = z.object({
 export const PROJECT_CATEGORIES = ['nuxt', 'codepen', 'website'] as const
 export type ProjectCategory = (typeof PROJECT_CATEGORIES)[number]
 
+/** Escala del radar «Skill profile». Los niveles nunca se muestran: es un perfil relativo. */
+export const MAX_SKILL_LEVEL = 5
+
+const SkillAxisFactsSchema = z.object({
+  id: Id,
+  level: z.number().int().min(0).max(MAX_SKILL_LEVEL),
+})
+
 /** Certificación: el nombre es propio y no se traduce. */
 const CertificationSchema = z.object({ id: Id, name: NonEmptyText })
 
@@ -78,6 +86,7 @@ export const CvFactsSchema = z.object({
   projects: z.array(ProjectFactsSchema).min(1),
   languages: z.array(LanguageFactsSchema).min(1),
   skillAreas: z.array(SkillAreaFactsSchema).min(1),
+  skillProfile: z.array(SkillAxisFactsSchema).min(3),
 })
 
 /* ---------- Textos por idioma ---------- */
@@ -102,6 +111,10 @@ const textsByIdSchema = <T extends z.ZodType>(item: T) => z.record(Id, item)
 export const CvTextsSchema = z.object({
   headline: NonEmptyText,
   summary: NonEmptyText,
+  /** Frase del hero, aprobada por Maurizio. */
+  tagline: NonEmptyText,
+  /** Tarjeta «In my words» del hero, aprobada por Maurizio. */
+  designerEye: NonEmptyText,
   /** «Qué me mueve»: frase corta, también para la meta descripción. */
   motivation: NonEmptyText,
   /** Tarjeta «End to end» («In my words»): lleva las palabras clave del stack. */
@@ -111,6 +124,8 @@ export const CvTextsSchema = z.object({
   projects: textsByIdSchema(ProjectTextSchema),
   languages: textsByIdSchema(NonEmptyText),
   skillAreas: textsByIdSchema(NonEmptyText),
+  /** Nombre de cada eje del radar. */
+  skillProfile: textsByIdSchema(NonEmptyText),
 })
 
 /* ---------- CV final (datos + textos de un idioma) ---------- */
@@ -120,6 +135,8 @@ export const CvSchema = z.object({
   fullName: NonEmptyText,
   headline: NonEmptyText,
   summary: NonEmptyText,
+  tagline: NonEmptyText,
+  designerEye: NonEmptyText,
   motivation: NonEmptyText,
   endToEnd: NonEmptyText,
   resumeUrl: z.string().startsWith('/'),
@@ -132,6 +149,7 @@ export const CvSchema = z.object({
   projects: z.array(ProjectFactsSchema.extend(ProjectTextSchema.shape)),
   languages: z.array(LanguageFactsSchema.extend({ name: NonEmptyText })),
   skillAreas: z.array(SkillAreaFactsSchema.extend({ name: NonEmptyText })),
+  skillProfile: z.array(SkillAxisFactsSchema.extend({ label: NonEmptyText })),
 })
 
 export type CvFacts = z.infer<typeof CvFactsSchema>

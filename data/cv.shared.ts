@@ -150,4 +150,18 @@ export const cvFacts: CvFacts = {
       skills: ['Docker', 'AWS', 'Linux', 'Bash', 'Python', 'Git'],
     },
   ],
+
+  /**
+   * Radar «Skill profile» (6 ejes del Figma).
+   * ⚠️ NIVELES PROVISIONALES DE EJEMPLO (0–5), pendientes de que Maurizio dé los reales.
+   * Nunca se muestran como números: el radar no lleva cifras, ticks, tooltip ni leyenda.
+   */
+  skillProfile: [
+    { id: 'frontend', level: 5 },
+    { id: 'backend', level: 4 },
+    { id: 'apis-data', level: 4 },
+    { id: 'ci-cd', level: 2 },
+    { id: 'testing', level: 3 },
+    { id: 'ux-ui', level: 3 },
+  ],
 }

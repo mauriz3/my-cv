@@ -1,9 +1,11 @@
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { getCv } from '../../data/cv'
 import { cvFacts } from '../../data/cv.shared'
 import { textsEn } from '../../data/cv.en'
 import { textsEs } from '../../data/cv.es'
-import { CvFactsSchema, CvSchema, CvTextsSchema, LOCALES, PROJECT_CATEGORIES } from '../../data/schema'
+import { buildHeroCards, HERO_CARD_IDS, type HeroCardId } from '../../data/hero'
+import { CvFactsSchema, CvSchema, CvTextsSchema, LOCALES, MAX_SKILL_LEVEL, PROJECT_CATEGORIES } from '../../data/schema'
 import { formatPartialDate, isSingleDate } from '../../lib/period'
 import { monthsInPeriod, toMonthIndex, yearsInPeriods, yearsLabel } from '../../lib/years'
 
@@ -286,5 +288,63 @@ describe('filtro de proyectos', () => {
     for (const category of PROJECT_CATEGORIES) {
       expect(cvFacts.projects.some((project) => project.category === category)).toBe(true)
     }
+  })
+})
+
+describe('radar «Skill profile»', () => {
+  const RADAR_AXIS_IDS = ['frontend', 'backend', 'apis-data', 'ci-cd', 'testing', 'ux-ui']
+
+  it('tiene los 6 ejes del Figma, sin ids repetidos', () => {
+    const ids = cvFacts.skillProfile.map((axis) => axis.id)
+    expect(ids).toEqual(RADAR_AXIS_IDS)
+    expect(new Set(ids).size).toBe(ids.length)
+  })
+
+  it('los niveles son enteros entre 0 y MAX_SKILL_LEVEL', () => {
+    for (const { level } of cvFacts.skillProfile) {
+      expect(Number.isInteger(level)).toBe(true)
+      expect(level).toBeGreaterThanOrEqual(0)
+      expect(level).toBeLessThanOrEqual(MAX_SKILL_LEVEL)
+    }
+  })
+
+  it.each(textBlocks)('«$name»: cada eje tiene nombre y ninguno lleva cifras', ({ texts }) => {
+    expect(byIdSorted(Object.keys(texts.skillProfile))).toEqual(byIdSorted(RADAR_AXIS_IDS))
+    for (const label of Object.values(texts.skillProfile)) expect(label).not.toMatch(/\d/)
+  })
+
+  it('SkillChart no pinta números: sin ticks, sin tooltip ni eventos', () => {
+    const source = readFileSync(new URL('../../app/components/SkillChart.vue', import.meta.url), 'utf8')
+    expect(source).toMatch(/ticks:\s*\{\s*display:\s*false\s*\}/)
+    expect(source).toMatch(/events:\s*\[\]/)
+    expect(source).not.toMatch(/Tooltip|Legend/)
+  })
+})
+
+describe('tarjetas del hero', () => {
+  const labels = (locale: string) => ({
+    present: locale === 'es' ? 'Actualidad' : 'Present',
+    cards: Object.fromEntries(HERO_CARD_IDS.map((id) => [id, `label-${id}`])) as Record<HeroCardId, string>,
+  })
+
+  it.each(LOCALES)('«%s»: las 8 tarjetas, en orden y con texto', (locale) => {
+    const cards = buildHeroCards(getCv(locale), labels(locale))
+    expect(cards.map((card) => card.id)).toEqual([
+      'now', 'path', 'stack', 'education', 'languages', 'end-to-end', 'designer-eye', 'motivation',
+    ])
+    for (const card of cards) {
+      expect(card.text.trim()).not.toBe('')
+      for (const pattern of PERSONAL_DATA_PATTERNS) expect(card.text).not.toMatch(pattern)
+    }
+  })
+
+  it('usa los textos aprobados y los datos (sin hechos nuevos)', () => {
+    const cv = getCv('en')
+    const text = (id: HeroCardId) => buildHeroCards(cv, labels('en')).find((card) => card.id === id)?.text
+    expect(text('now')).toBe('Senior Software Engineer · Octane11 · Feb 2022 – Present')
+    expect(text('path')).toBe('Frontend & DevOps Engineer (System73, 2016–2022) → Senior Software Engineer (Octane11, 2022–Present)')
+    expect(text('languages')).toBe('Spanish C2 · English B2 · Italian B1')
+    expect(text('end-to-end')).toBe(cv.endToEnd)
+    expect(text('motivation')).toBe(cv.motivation)
   })
 })

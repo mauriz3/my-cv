@@ -9,6 +9,10 @@ export const textsEn: CvTexts = {
     'Creative thinking + UX + prototyping = Minimum Viable Product. ' +
     'My DevOps background (CI/CD and automation as code) helps me ship reliably.',
 
+  tagline:
+    'Full stack engineer focused on Back End and Front End: B2B data integration and enrichment at Octane11; ' +
+    'PWAs, CMS and dashboards at System73.',
+  designerEye: 'A designer’s eye with a developer’s hands.',
   motivation: 'I enjoy helping people and solving problems: I turn complex data into clear, reliable products.',
   endToEnd: 'End to end: from Node APIs and the data layer to React and Vue interfaces.',
 
@@ -108,4 +112,12 @@ export const textsEn: CvTexts = {
 
   languages: { spanish: 'Spanish', english: 'English', italian: 'Italian' },
   skillAreas: { frontend: 'Front End', backend: 'Back End', devops: 'DevOps' },
+  skillProfile: {
+    frontend: 'Front End',
+    backend: 'Back End',
+    'apis-data': 'APIs & data',
+    'ci-cd': 'CI / CD',
+    testing: 'Testing',
+    'ux-ui': 'UX & UI',
+  },
 }
