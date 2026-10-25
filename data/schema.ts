@@ -32,10 +32,15 @@ const EducationFactsSchema = z.object({
   period: Period,
 })
 
+/** Categorías del filtro de Proyectos (Figma): Nuxt.js · CodePen · Website. */
+export const PROJECT_CATEGORIES = ['nuxt', 'codepen', 'website'] as const
+export type ProjectCategory = (typeof PROJECT_CATEGORIES)[number]
+
 const ProjectFactsSchema = z.object({
   id: Id,
   url: HttpsUrl,
   image: NonEmptyText,
+  category: z.enum(PROJECT_CATEGORIES),
 })
 
 const LanguageFactsSchema = z.object({

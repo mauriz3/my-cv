@@ -86,21 +86,38 @@ export const cvFacts: CvFacts = {
   ],
 
   projects: [
-    { id: 'my-cv', url: 'https://github.com/mauriz3/my-cv', image: 'cv.png' },
-    { id: 'webtele', url: 'https://www.webtelehd.com/', image: 'webtele.jpg' },
-    { id: 'balance-of-the-force', url: 'https://codepen.io/maurirz3/full/KKVdYgV', image: 'bf.png' },
-    { id: 'feature-flags-panel', url: 'https://codepen.io/maurirz3/full/eYzMyWe', image: 'ff.png' },
-    { id: 'streaming-analytics', url: 'https://codepen.io/maurirz3/full/JjYLMrZ', image: 'sa.png' },
-    { id: 'search-mock', url: 'https://codepen.io/maurirz3/full/JjyYRXq', image: 'sm.png' },
+    { id: 'my-cv', url: 'https://github.com/mauriz3/my-cv', image: 'cv.png', category: 'nuxt' },
+    { id: 'webtele', url: 'https://www.webtelehd.com/', image: 'webtele.jpg', category: 'website' },
+    {
+      id: 'balance-of-the-force',
+      url: 'https://codepen.io/maurirz3/full/KKVdYgV',
+      image: 'bf.png',
+      category: 'codepen',
+    },
+    {
+      id: 'feature-flags-panel',
+      url: 'https://codepen.io/maurirz3/full/eYzMyWe',
+      image: 'ff.png',
+      category: 'codepen',
+    },
+    {
+      id: 'streaming-analytics',
+      url: 'https://codepen.io/maurirz3/full/JjYLMrZ',
+      image: 'sa.png',
+      category: 'codepen',
+    },
+    { id: 'search-mock', url: 'https://codepen.io/maurirz3/full/JjyYRXq', image: 'sm.png', category: 'codepen' },
     {
       id: 'responsive-youtube',
       url: 'https://codepen.io/maurirz3/pen/OJVwbNv?editors=1000',
       image: 'ri.png',
+      category: 'codepen',
     },
     {
       id: 'status-lights',
       url: 'https://codepen.io/maurirz3/pen/OJJoKXp?editors=1100',
       image: 'sl.png',
+      category: 'codepen',
     },
   ],
 

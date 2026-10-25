@@ -3,8 +3,9 @@ import { getCv } from '../../data/cv'
 import { cvFacts } from '../../data/cv.shared'
 import { textsEn } from '../../data/cv.en'
 import { textsEs } from '../../data/cv.es'
-import { CvFactsSchema, CvSchema, CvTextsSchema, LOCALES } from '../../data/schema'
-import { monthsInPeriod, toMonthIndex, yearsInPeriods } from '../../lib/years'
+import { CvFactsSchema, CvSchema, CvTextsSchema, LOCALES, PROJECT_CATEGORIES } from '../../data/schema'
+import { formatPartialDate, isSingleDate } from '../../lib/period'
+import { monthsInPeriod, toMonthIndex, yearsInPeriods, yearsLabel } from '../../lib/years'
 
 const ALLOWED_CONTACT_HOSTS = ['www.linkedin.com', 'github.com', 'codepen.io']
 const GENERIC_ALT_TEXTS = ['image', 'imagen', 'img', 'photo', 'foto', 'screenshot', 'captura']
@@ -171,6 +172,41 @@ describe('años por área', () => {
     for (const value of Object.values(years)) {
       expect(value).toBeGreaterThan(0)
       expect(value).toBeLessThan(MAX_AREA_YEARS)
+    }
+  })
+})
+
+describe('etiquetas de años', () => {
+  const now = new Date(2026, 9, 24) // 24 oct 2026
+
+  it('un área abierta muestra el mínimo con «+» y una cerrada el valor aproximado', () => {
+    expect(yearsLabel([{ start: '2018-02', end: null }], now)).toBe('8+')
+    expect(yearsLabel([{ start: '2022-02', end: null }], now)).toBe('4+')
+    expect(yearsLabel([{ start: '2016-02', end: '2018-02' }], now)).toBe('~2')
+  })
+})
+
+describe('fechas según el idioma', () => {
+  it('formatea mes y año en inglés y en español', () => {
+    expect(formatPartialDate('2022-02', 'en')).toBe('Feb 2022')
+    expect(formatPartialDate('2022-02', 'es')).toBe('feb 2022')
+  })
+
+  it('una fecha con solo año se muestra como año', () => {
+    expect(formatPartialDate('2014', 'en')).toBe('2014')
+  })
+
+  it('detecta los periodos de una sola fecha', () => {
+    expect(isSingleDate({ start: '2014', end: '2014' })).toBe(true)
+    expect(isSingleDate({ start: '2010', end: '2014' })).toBe(false)
+    expect(isSingleDate({ start: '2022-02', end: null })).toBe(false)
+  })
+})
+
+describe('filtro de proyectos', () => {
+  it('cada categoría del filtro (Nuxt.js · CodePen · Website) tiene al menos un proyecto', () => {
+    for (const category of PROJECT_CATEGORIES) {
+      expect(cvFacts.projects.some((project) => project.category === category)).toBe(true)
     }
   })
 })

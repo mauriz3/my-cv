@@ -118,5 +118,5 @@ export const textsEs: CvTexts = {
   },
 
   languages: { spanish: 'Español', english: 'Inglés', italian: 'Italiano' },
-  skillAreas: { frontend: 'Frontend', backend: 'Backend', devops: 'DevOps' },
+  skillAreas: { frontend: 'Front End', backend: 'Back End', devops: 'DevOps' },
 }
