@@ -14,8 +14,7 @@ const { state: revealState } = useRevealOnce(list, BOOKS_REVEAL_THRESHOLD)
 
 <template>
   <section id="books" aria-labelledby="books-title" class="books scroll-mt-6" data-testid="books">
-    <p class="text-xs font-semibold text-primary">{{ t('books.eyebrow') }}</p>
-    <h2 id="books-title" class="mt-2 font-display text-2xl font-bold text-highlighted">{{ t('books.title') }}</h2>
+    <h2 id="books-title" class="font-display text-2xl font-bold text-highlighted">{{ t('books.title') }}</h2>
     <p class="mt-2 text-sm text-muted">{{ t('books.intro') }}</p>
 
     <ul ref="list" class="mt-4 grid gap-4 xl:grid-cols-2" :data-reveal="revealState">
