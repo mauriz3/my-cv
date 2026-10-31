@@ -61,6 +61,8 @@ jobs:
       group: deploy-production
       cancel-in-progress: false
     steps:
+      # El código del repo hace falta para que Netlify CLI empaquete la Edge Function `/geo` (netlify/edge-functions).
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: site
@@ -73,7 +75,7 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-      - name: Comprobar cabeceras de producción
+      - name: Comprobar cabeceras de producción y la Edge Function /geo
         run: |
           headers=$(curl -sSI --retry 3 --retry-delay 5 https://www.mauriziorendon.com/en/)
           echo "$headers"
@@ -81,4 +83,8 @@ jobs:
           echo "$headers" | grep -qiE '^x-robots-tag:.*noindex' && { echo "::error::Producción lleva noindex"; fail=1; }
           echo "$headers" | grep -qiE "^content-security-policy:.*script-src 'self'" || { echo "::error::Falta la CSP"; fail=1; }
           echo "$headers" | grep -qiE '^cross-origin-opener-policy: *same-origin' || { echo "::error::Falta COOP same-origin"; fail=1; }
+          geo=$(curl -sS -D - --retry 3 --retry-delay 5 https://www.mauriziorendon.com/geo)
+          echo "$geo"
+          echo "$geo" | grep -qiE '^cache-control:.*no-store' || { echo "::error::/geo sin Cache-Control no-store"; fail=1; }
+          echo "$geo" | grep -qE '"country":' || { echo "::error::/geo no devuelve {country}"; fail=1; }
           exit $fail

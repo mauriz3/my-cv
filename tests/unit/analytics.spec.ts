@@ -4,7 +4,9 @@ import {
   ANALYTICS_CSP_SOURCES,
   ANALYTICS_MEASUREMENT_ID,
   CONSENT_STORAGE_KEY,
+  CONSENT_WAIT_FOR_UPDATE_MS,
   applyConsent,
+  updateConsent,
   buildAnalyticsInlineScript,
   readConsent,
 } from '../../lib/analytics'
@@ -33,7 +35,13 @@ describe('Consent Mode v2 (script inline)', () => {
     expect(consentDefault).toEqual([
       'consent',
       'default',
-      { ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', analytics_storage: 'denied' },
+      {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+        wait_for_update: CONSENT_WAIT_FOR_UPDATE_MS,
+      },
     ])
     expect(config?.[0]).toBe('config')
     expect(config?.[1]).toBe(ANALYTICS_MEASUREMENT_ID)
@@ -94,6 +102,13 @@ describe('aviso de consentimiento', () => {
       { analytics_storage: 'denied' },
       { analytics_storage: 'granted' },
     ])
+  })
+
+  it('fuera de la zona con aviso: concede sin guardar la elección', () => {
+    const calls: unknown[][] = []
+    updateConsent('granted', (...args) => void calls.push(args))
+    expect(calls).toEqual([['consent', 'update', { analytics_storage: 'granted' }]])
+    expect(() => updateConsent('granted', undefined)).not.toThrow()
   })
 
   it('si localStorage está bloqueado no rompe', () => {
