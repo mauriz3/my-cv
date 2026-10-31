@@ -2,7 +2,7 @@ import { ANALYTICS_MEASUREMENT_ID } from './lib/analytics'
 import { PRIVACY_PATH } from './lib/privacy'
 import { VISITS_RANGES, visitsEndpoint } from './lib/visits'
 
-// Solo el build de producción (CI en push a master) lleva Google Analytics: ni develop, ni preview, ni local.
+// Solo el build de producción (CI en push a master) lleva Google Analytics: ni pull requests, ni preview, ni local.
 const IS_PRODUCTION_BUILD = process.env.CONTEXT === 'production'
 
 export default defineNuxtConfig({
