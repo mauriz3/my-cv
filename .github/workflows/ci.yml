@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [master, develop]
+    branches: [master]
   pull_request:
 
 permissions:
@@ -46,7 +46,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   deploy-production:
-    # Solo en push a master y si pasan verify y secrets. Nunca desde develop ni desde pull_request.
+    # Solo en push a master y si pasan verify y secrets. Nunca desde pull_request.
     # El environment «production» permite exigir aprobación manual (Settings → Environments), sin tocar este archivo.
     needs: [verify, secrets]
     if: github.event_name == 'push' && github.ref_name == 'master'
