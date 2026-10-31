@@ -197,5 +197,12 @@
       "title": "Tus opciones",
       "text": "Puedes cambiar tu elección cuando quieras desde «Preferencias de analítica» en el pie o con el botón de abajo, y borrar las cookies desde tu navegador."
     }
+  },
+  "error": {
+    "notFound": "Página no encontrada",
+    "notFoundText": "Esta dirección no existe o ha cambiado.",
+    "title": "Algo ha fallado",
+    "text": "No se ha podido cargar esta página.",
+    "back": "Volver al perfil"
   }
 }

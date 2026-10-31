@@ -16,7 +16,12 @@ export default defineNuxtConfig({
 
   // Fuentes e iconos van empaquetados en local: nada se pide a dominios externos (CSP estricta).
   ui: { fonts: false },
-  icon: { fallbackToApi: false, clientBundle: { scan: true } },
+  // Los iconos de `app/utils` (menú, enlaces) también van al bundle del cliente: la página de error
+  // se pinta solo en el cliente (404.html) y no puede pedirlos a la API de Iconify.
+  icon: {
+    fallbackToApi: false,
+    clientBundle: { scan: { globInclude: ['**/*.{vue,jsx,tsx,md,mdc,mdx,yml,yaml}', 'app/utils/**/*.ts'] } }
+  },
 
   i18n: {
     // Netlify expone la URL de cada despliegue; en local y en producción cae al dominio real.

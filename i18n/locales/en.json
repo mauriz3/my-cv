@@ -197,5 +197,12 @@
       "title": "Your options",
       "text": "You can change your choice at any time from «Analytics preferences» in the footer or with the button below, and delete the cookies from your browser."
     }
+  },
+  "error": {
+    "notFound": "Page not found",
+    "notFoundText": "This address does not exist or has changed.",
+    "title": "Something went wrong",
+    "text": "This page could not be loaded.",
+    "back": "Back to profile"
   }
 }
