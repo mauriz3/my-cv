@@ -5,6 +5,7 @@ import {
   STABLE_STAGE_ID,
   STORY_BACKGROUNDS,
   STORY_TIMING,
+  isToneSwitch,
   storyTimingCssVars,
 } from '~~/lib/story'
 
@@ -35,21 +36,24 @@ const pathCards = computed(() => cardsFor(PATH_CARD_IDS))
 
 const section = useTemplateRef<HTMLElement>('section')
 const { stage, isOnScreen, isPageHidden } = useStoryScroll(section)
-useRevealFallback(section, REVEAL_SELECTOR)
+useReveal(section, REVEAL_SELECTOR)
 
+/** El último cambio de tramo cambió de tono: el fondo cambia sin fundido, a la vez que el texto. */
+const isToneSwitching = ref(false)
 /** Pérdida de señal breve (400 ms) al entrar en el tramo del stack. */
 const isGlitching = ref(false)
 let glitchTimer: ReturnType<typeof setTimeout> | undefined
 
-watch(
-  () => stage.value.id,
-  (stageId) => {
-    if (stageId !== GLITCH_STAGE_ID) return
-    isGlitching.value = true
-    clearTimeout(glitchTimer)
-    glitchTimer = setTimeout(() => (isGlitching.value = false), STORY_TIMING.glitchMs)
-  },
-)
+function startGlitch() {
+  isGlitching.value = true
+  clearTimeout(glitchTimer)
+  glitchTimer = setTimeout(() => (isGlitching.value = false), STORY_TIMING.glitchMs)
+}
+
+watch(stage, (current, previous) => {
+  isToneSwitching.value = isToneSwitch(previous, current)
+  if (current.id === GLITCH_STAGE_ID) startGlitch()
+})
 
 onBeforeUnmount(() => clearTimeout(glitchTimer))
 </script>
@@ -58,7 +62,8 @@ onBeforeUnmount(() => clearTimeout(glitchTimer))
   <section
     ref="section"
     class="story"
-    :class="{ 'is-on-screen': isOnScreen }"
+    :class="{ 'is-on-screen': isOnScreen, 'story--tone-switch': isToneSwitching }"
+    :data-tone="stage.tone"
     :style="TIMING_CSS_VARS"
     aria-labelledby="hero-title"
     data-testid="profile-story"
@@ -245,30 +250,15 @@ onBeforeUnmount(() => clearTimeout(glitchTimer))
   }
 }
 
-/* Entradas de capas ligadas al scroll (view()); si el navegador no puede, las revela el observador. */
+/* Entradas de capas por tiempo (useReveal): el estado oculto solo existe con JS y con movimiento. */
 @media (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: view()) {
-    :root.has-js:not(.reduce-motion) .story__reveal {
-      animation: story-fade-up linear both;
-      animation-timeline: view();
-      animation-range: entry calc(10% + var(--reveal-index, 0) * 4%) cover calc(30% + var(--reveal-index, 0) * 4%);
-    }
-  }
-
-  :root.has-js:not(.reduce-motion) .story.reveal-fallback .story__reveal {
+  :root.has-js:not(.reduce-motion) .story.reveal-enabled .story__reveal {
     transition:
       opacity var(--story-layer-duration) var(--story-layer-ease) calc(var(--reveal-index, 0) * var(--story-stagger)),
       transform var(--story-layer-duration) var(--story-layer-ease) calc(var(--reveal-index, 0) * var(--story-stagger));
   }
 
-  :root.has-js:not(.reduce-motion) .story.reveal-fallback .story__reveal:not(.is-revealed) {
-    opacity: 0;
-    transform: translateY(var(--story-layer-offset));
-  }
-}
-
-@keyframes story-fade-up {
-  from {
+  :root.has-js:not(.reduce-motion) .story.reveal-enabled .story__reveal:not(.is-revealed) {
     opacity: 0;
     transform: translateY(var(--story-layer-offset));
   }
@@ -342,6 +332,24 @@ onBeforeUnmount(() => clearTimeout(glitchTimer))
 
   :root.has-js:not(.reduce-motion) .story__step--end {
     margin-left: 50%;
+  }
+
+  /*
+   * Contraste en todo el scroll: el texto del tono contrario al fondo actual se oculta al instante
+   * y reaparece (fundido de entrada) cuando su fondo ya está puesto. Al cambiar de tono, el fondo tampoco funde.
+   */
+  :root.has-js:not(.reduce-motion) .story__step {
+    transition: opacity var(--story-layer-duration) var(--story-layer-ease);
+  }
+
+  :root.has-js:not(.reduce-motion) .story[data-tone='dark'] .story__step.tone-light:not(:focus-within),
+  :root.has-js:not(.reduce-motion) .story[data-tone='light'] .story__step.tone-dark:not(:focus-within) {
+    opacity: 0;
+    transition: none;
+  }
+
+  :root.has-js:not(.reduce-motion) .story--tone-switch .story__bg-layer {
+    transition: none;
   }
 }
 

@@ -20,7 +20,17 @@
   --color-graphite-900: #161b22;
   --color-graphite-950: #0d1117;
 
-  /* Escala «brand» azul (Tanda C): 700 = brand claro, 400 = brand oscuro, 500 = vivid, 800 / 300 = hover. */
+  /* Medidas de la navegación (Figma): sidebar en escritorio, raíl en tablet. */
+  --size-sidebar: 264px;
+  --size-rail: 88px;
+  --size-bottom-bar: 64px;
+}
+
+/*
+ * Escala «brand» azul (Tanda C): 700 = brand claro, 400 = brand oscuro, 500 = vivid, 800 / 300 = hover.
+ * `static`: Nuxt UI la referencia en tiempo de ejecución (primary), así Tailwind no la recorta.
+ */
+@theme static {
   --color-brand-50: #e6f6fd;
   --color-brand-100: #cceefc;
   --color-brand-200: #99dcf9;
@@ -32,11 +42,6 @@
   --color-brand-800: #016898;
   --color-brand-900: #0b4766;
   --color-brand-950: #0b2a3a;
-
-  /* Medidas de la navegación (Figma): sidebar en escritorio, raíl en tablet. */
-  --size-sidebar: 264px;
-  --size-rail: 88px;
-  --size-bottom-bar: 64px;
 }
 
 /* Sidebar colapsado (solo escritorio): `<html class="sidebar-collapsed">` lo pone el script anterior al pintado. */

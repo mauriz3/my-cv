@@ -97,6 +97,14 @@ export function stageAt(progress: number): StoryStage {
   return STORY_STAGES.find((stage) => clamped < stage.end) ?? lastStage
 }
 
+/**
+ * ¿Cambia el tono (oscuro ↔ claro) entre dos tramos? Entonces fondo y texto cambian a la vez y sin fundido:
+ * un fundido mezclaría texto y fondo de tonos opuestos (contraste < 4,5:1 a mitad de camino).
+ */
+export function isToneSwitch(from: StoryStage, to: StoryStage): boolean {
+  return from.tone !== to.tone
+}
+
 /** Pose del holograma: escala, desplazamiento horizontal (% del escenario) y vertical (px). */
 export interface HoloPose {
   scale: number

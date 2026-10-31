@@ -5,6 +5,7 @@ import {
   STORY_STAGES,
   STORY_TIMING,
   countUpValue,
+  isToneSwitch,
   holoPoseAt,
   scrollProgress,
   stageAt,
@@ -33,6 +34,28 @@ describe('tramos del storytelling', () => {
   it('fuera de rango se queda en el primer o el último tramo', () => {
     expect(stageAt(-0.5).id).toBe('intro')
     expect(stageAt(1.5).id).toBe('cta')
+  })
+})
+
+describe('cambio de tono (contraste en las transiciones)', () => {
+  const stage = (id: string) => STORY_STAGES.find((candidate) => candidate.id === id)!
+
+  it('Números → Stack y Trayectoria → CTA cambian de tono', () => {
+    expect(isToneSwitch(stage('numbers'), stage('stack'))).toBe(true)
+    expect(isToneSwitch(stage('path'), stage('cta'))).toBe(true)
+  })
+
+  it('entre tramos del mismo tono el fondo puede fundirse', () => {
+    expect(isToneSwitch(stage('intro'), stage('scale'))).toBe(false)
+    expect(isToneSwitch(stage('stack'), stage('path'))).toBe(false)
+  })
+
+  it('cada fondo pertenece a un solo tono', () => {
+    const toneByBackground = new Map<string, string>()
+    for (const { background, tone } of STORY_STAGES) {
+      expect(toneByBackground.get(background) ?? tone).toBe(tone)
+      toneByBackground.set(background, tone)
+    }
   })
 })
 
