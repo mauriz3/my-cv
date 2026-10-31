@@ -24,17 +24,7 @@
     "summary": "About me",
     "languages": "Languages",
     "greeting": "Hi, I’m Maurizio",
-    "overview": "Overview of profile, figures and skills",
-    "heroCards": {
-      "now": "Now",
-      "path": "Path",
-      "stack": "Stack",
-      "education": "Education",
-      "languages": "Languages",
-      "end-to-end": "In my words",
-      "designer-eye": "In my words",
-      "motivation": "Motivation"
-    }
+    "overview": "Overview of profile, figures and skills"
   },
   "skills": {
     "subtitle": "Skill profile, years per area and tools",

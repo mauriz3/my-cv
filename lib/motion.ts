@@ -1,22 +1,35 @@
 /**
- * Preferencia «Reduce motion» y clases de `<html>` que el CSS usa para decidir si anima.
- * Lógica pura (sin Vue) para probar el script anterior al pintado en Vitest.
+ * Preferencia de movimiento de la web (botón del Inicio). Lógica pura, sin Vue ni DOM global.
+ * El estado vive en `<html data-motion="full | reduced">`: el CSS solo anima con `full`.
+ * Sin JS no hay atributo y todo queda estático.
  */
 
-/** En `<html>` cuando el usuario pide menos movimiento con el botón de la web. */
-export const REDUCE_MOTION_CLASS = 'reduce-motion'
-/** En `<html>` cuando hay JS: sin ella el CSS deja todo visible y estático. */
-export const SCRIPTING_CLASS = 'has-js'
-export const REDUCE_MOTION_STORAGE_KEY = 'reduce-motion'
-export const STORED_ON = '1'
-export const STORED_OFF = '0'
+export const MOTION_PREFERENCES = ['full', 'reduced'] as const
+export type MotionPreference = (typeof MOTION_PREFERENCES)[number]
+
+export const MOTION_ATTRIBUTE = 'data-motion'
+export const MOTION_STORAGE_KEY = 'motion'
+export const SYSTEM_REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
+
+/** Lo guardado solo vale si es una preferencia conocida. */
+export function parseStoredMotion(stored: string | null): MotionPreference | null {
+  return MOTION_PREFERENCES.find((preference) => preference === stored) ?? null
+}
+
+/** Manda la elección manual; si no la hay, el sistema (prefers-reduced-motion). */
+export function resolveMotion(stored: MotionPreference | null, systemPrefersReduced: boolean): MotionPreference {
+  return stored ?? (systemPrefersReduced ? 'reduced' : 'full')
+}
+
+export function toggledMotion(current: MotionPreference): MotionPreference {
+  return current === 'full' ? 'reduced' : 'full'
+}
 
 /**
- * Script inline que corre antes del primer pintado: marca que hay JS y aplica «Reduce motion» guardado.
- * Así el storytelling elige su maqueta (con o sin pin) sin saltos de diseño (CLS 0).
- * Su hash entra en la CSP con `scripts/build-headers.mjs`.
+ * Script inline que corre antes del primer pintado y fija `data-motion`, así el Inicio elige su maqueta
+ * (recorrido con pin o versión estática) sin saltos de diseño. Su hash entra en la CSP con `scripts/build-headers.mjs`.
  */
 export const MOTION_NO_FLASH_SCRIPT =
-  `document.documentElement.classList.add('${SCRIPTING_CLASS}');` +
-  `try{if(localStorage.getItem('${REDUCE_MOTION_STORAGE_KEY}')==='${STORED_ON}')` +
-  `document.documentElement.classList.add('${REDUCE_MOTION_CLASS}')}catch(e){}`
+  `var m=null;try{m=localStorage.getItem('${MOTION_STORAGE_KEY}')}catch(e){}` +
+  `if(m!=='full'&&m!=='reduced')m=matchMedia('${SYSTEM_REDUCED_MOTION_QUERY}').matches?'reduced':'full';` +
+  `document.documentElement.setAttribute('${MOTION_ATTRIBUTE}',m)`

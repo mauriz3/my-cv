@@ -51,13 +51,8 @@
   --size-sidebar-current: var(--size-sidebar);
 }
 
-/*
- * Tokens de color (claro / oscuro). Mismos nombres que en el Figma (paleta azul, Tanda C).
- * `.tone-light` / `.tone-dark` fijan un tono en un bloque concreto (el storytelling del Perfil),
- * sea cual sea el modo de color de la web.
- */
-:root,
-.tone-light {
+/* Tokens de color (claro / oscuro). Mismos nombres que en el Figma (paleta azul, Tanda C). */
+:root {
   --ui-primary: var(--ui-color-primary-700);
   --ui-secondary: var(--ui-color-secondary-700);
   --ui-bg: #f6f8fa;
@@ -66,14 +61,6 @@
   --ui-text: #1f2328;
   --ui-text-muted: #57606a;
   --ui-text-inverted: #ffffff;
-  /* Resto de tokens de Nuxt UI (mismos valores que trae): hacen falta para que `.tone-light` sea completo. */
-  --ui-text-dimmed: var(--ui-color-neutral-400);
-  --ui-text-toned: var(--ui-color-neutral-600);
-  --ui-text-highlighted: var(--ui-color-neutral-900);
-  --ui-bg-muted: var(--ui-color-neutral-50);
-  --ui-bg-accented: var(--ui-color-neutral-200);
-  --ui-border-muted: var(--ui-color-neutral-200);
-  --ui-border-accented: var(--ui-color-neutral-300);
   --brand-hover: var(--color-brand-800);
   --brand-soft: var(--color-brand-50);
   --brand-vivid: var(--color-brand-500);
@@ -84,8 +71,7 @@
   --chart-5: #475569;
 }
 
-.dark,
-.tone-dark {
+.dark {
   --ui-primary: var(--ui-color-primary-400);
   --ui-secondary: var(--ui-color-secondary-400);
   --ui-bg: #0d1117;
@@ -94,13 +80,6 @@
   --ui-text: #e6edf3;
   --ui-text-muted: #9da7b3;
   --ui-text-inverted: #0d1117;
-  --ui-text-dimmed: var(--ui-color-neutral-500);
-  --ui-text-toned: var(--ui-color-neutral-300);
-  --ui-text-highlighted: #ffffff;
-  --ui-bg-muted: var(--ui-color-neutral-800);
-  --ui-bg-accented: var(--ui-color-neutral-700);
-  --ui-border-muted: var(--ui-color-neutral-700);
-  --ui-border-accented: var(--ui-color-neutral-700);
   --brand-hover: var(--color-brand-300);
   --brand-soft: var(--color-brand-950);
   --brand-vivid: var(--color-brand-500);
@@ -125,11 +104,23 @@ h3 {
   font-family: var(--font-display);
 }
 
-/* «Reducir movimiento»: nada se anima si el sistema lo pide. */
+/*
+ * Movimiento reducido: nada se anima si se pide con el botón (`data-motion="reduced"`)
+ * o el sistema lo pide y no se ha elegido «Aumentar movimiento».
+ */
+:root[data-motion='reduced'] *,
+:root[data-motion='reduced'] *::before,
+:root[data-motion='reduced'] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  :root:not([data-motion='full']) *,
+  :root:not([data-motion='full']) *::before,
+  :root:not([data-motion='full']) *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
