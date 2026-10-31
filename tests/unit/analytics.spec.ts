@@ -5,6 +5,7 @@ import {
   ANALYTICS_MEASUREMENT_ID,
   CONSENT_STORAGE_KEY,
   CONSENT_WAIT_FOR_UPDATE_MS,
+  GTAG_SCRIPT_URL,
   applyConsent,
   updateConsent,
   buildAnalyticsInlineScript,
@@ -126,10 +127,18 @@ describe('aviso de consentimiento', () => {
 })
 
 describe('CSP de analytics', () => {
-  it('permite solo los orígenes de Google Analytics por https', () => {
-    expect(ANALYTICS_CSP_SOURCES.every((source) => source.startsWith('https://'))).toBe(true)
-    expect(ANALYTICS_CSP_SOURCES).toContain('https://*.googletagmanager.com')
-    expect(ANALYTICS_CSP_SOURCES).toContain('https://*.google-analytics.com')
-    expect(ANALYTICS_CSP_SOURCES).toContain('https://*.analytics.google.com')
+  it('script-src solo admite el host exacto de gtag.js', () => {
+    expect(ANALYTICS_CSP_SOURCES['script-src']).toEqual(['https://www.googletagmanager.com'])
+    expect(GTAG_SCRIPT_URL.startsWith(`${ANALYTICS_CSP_SOURCES['script-src'][0]}/`)).toBe(true)
+  })
+
+  it('las peticiones de medición van a los orígenes de Google Analytics por https', () => {
+    for (const directive of ['connect-src', 'img-src'] as const) {
+      const sources = ANALYTICS_CSP_SOURCES[directive]
+      expect(sources.every((source) => source.startsWith('https://'))).toBe(true)
+      expect(sources).toEqual(
+        expect.arrayContaining(['https://*.googletagmanager.com', 'https://*.google-analytics.com', 'https://*.analytics.google.com']),
+      )
+    }
   })
 })
