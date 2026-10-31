@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { countUpValue } from '~~/lib/story'
 import { isMotionReduced } from './ReduceMotionToggle.vue'
 
 /**
@@ -7,24 +8,17 @@ import { isMotionReduced } from './ReduceMotionToggle.vue'
  */
 const props = withDefaults(defineProps<{ value: number; animate?: boolean }>(), { animate: false })
 
-const COUNT_UP_DURATION_MS = 900
 const VISIBLE_THRESHOLD = 0.2
-const EASE_OUT_POWER = 3
 
 const displayedValue = ref(props.value)
 const root = useTemplateRef<HTMLElement>('root')
 let observer: IntersectionObserver | undefined
 
-function easeOut(progress: number): number {
-  return 1 - Math.pow(1 - progress, EASE_OUT_POWER)
-}
-
 function countUp() {
   const startTime = performance.now()
   const step = (time: number) => {
-    const progress = Math.min(1, (time - startTime) / COUNT_UP_DURATION_MS)
-    displayedValue.value = Math.round(props.value * easeOut(progress))
-    if (progress < 1) requestAnimationFrame(step)
+    displayedValue.value = countUpValue(props.value, time - startTime)
+    if (displayedValue.value < props.value) requestAnimationFrame(step)
   }
   requestAnimationFrame(step)
 }
