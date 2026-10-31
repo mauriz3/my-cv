@@ -111,6 +111,23 @@ export const textsEs: CvTexts = {
     },
   },
 
+  books: {
+    'enigma-room-622': {
+      title: 'El enigma de la habitación 622',
+      genre: 'Novela',
+      reason:
+        'Además de engancharme como novela, Dicker va dejando dentro de la historia consejos sobre cómo escribir un libro. Me gustó aprender así, casi sin darme cuenta.',
+      coverAlt: 'Portada de El enigma de la habitación 622, de Joël Dicker',
+    },
+    'surrounded-by-idiots': {
+      title: 'Rodeados de idiotas',
+      genre: 'Ensayo · comunicación',
+      reason:
+        'Me hizo pensar que, si de verdad nos esforzamos en entender a los demás, a lo mejor el idiota resulta ser uno mismo.',
+      coverAlt: 'Portada de Rodeados de idiotas, de Thomas Erikson',
+    },
+  },
+
   languages: { spanish: 'Español', english: 'Inglés', italian: 'Italiano' },
   skillAreas: { frontend: 'Front End', backend: 'Back End', devops: 'DevOps' },
   skillProfile: {

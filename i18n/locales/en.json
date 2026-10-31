@@ -27,6 +27,11 @@
     "greeting": "Hi, I’m Maurizio",
     "overview": "Overview of profile, figures and skills"
   },
+  "books": {
+    "eyebrow": "Off the screen",
+    "title": "Books I recommend",
+    "intro": "Two books I keep coming back to, and why."
+  },
   "skills": {
     "subtitle": "Skill profile, years per area and tools",
     "toolsTitle": "Tools & technologies"

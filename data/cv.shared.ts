@@ -124,6 +124,20 @@ export const cvFacts: CvFacts = {
     { id: 'search-mock', url: 'https://codepen.io/maurirz3/full/JjyYRXq', image: 'sm.png', category: 'codepen' },
   ],
 
+  /** Portadas de la edición en español (Tanda D), optimizadas en `public/books/`. */
+  books: [
+    {
+      id: 'enigma-room-622',
+      author: 'Joël Dicker',
+      cover: { src: '/books/enigma-habitacion-622.jpg', width: 317, height: 500 },
+    },
+    {
+      id: 'surrounded-by-idiots',
+      author: 'Thomas Erikson',
+      cover: { src: '/books/rodeados-de-idiotas.jpg', width: 333, height: 500 },
+    },
+  ],
+
   languages: [
     { id: 'spanish', level: 'C2' },
     { id: 'english', level: 'B2' },

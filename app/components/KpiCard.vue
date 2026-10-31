@@ -27,12 +27,12 @@ const DIRECTION_ICONS = { up: 'i-lucide-arrow-up-right', down: 'i-lucide-arrow-d
   <div class="visits-card rounded-xl border border-default bg-elevated p-4">
     <p class="text-sm text-muted">{{ label }}</p>
     <p class="mt-1 font-display text-2xl font-bold text-highlighted tabular-nums">
-      <span v-if="loading" class="visits-skeleton inline-block h-[1em] w-24 rounded align-middle" />
+      <span v-if="loading" class="skeleton inline-block h-[1em] w-24 rounded align-middle" />
       <AnimatedNumber v-else :value="value" :format="format" animate />
     </p>
     <!-- Cambio y comparación en líneas propias: el alto es el mismo con datos y sin ellos. -->
     <p class="mt-1 text-xs">
-      <span v-if="loading" class="visits-skeleton inline-block h-[1em] w-12 rounded align-middle" />
+      <span v-if="loading" class="skeleton inline-block h-[1em] w-12 rounded align-middle" />
       <span v-else class="inline-flex items-center gap-1 font-medium tabular-nums" :class="`kpi-trend--${trend}`">
         <UIcon :name="DIRECTION_ICONS[changeDirection(change)]" class="size-3.5" aria-hidden="true" />
         {{ changeText }}

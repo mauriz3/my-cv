@@ -110,6 +110,22 @@ export const textsEn: CvTexts = {
     },
   },
 
+  books: {
+    'enigma-room-622': {
+      title: 'The Enigma of Room 622',
+      genre: 'Novel',
+      reason:
+        'Besides hooking me as a novel, Dicker slips tips on how to write a book into the story itself. I loved learning that way, almost without noticing.',
+      coverAlt: 'Cover of The Enigma of Room 622 by Joël Dicker (Spanish edition)',
+    },
+    'surrounded-by-idiots': {
+      title: 'Surrounded by Idiots',
+      genre: 'Non-fiction · communication',
+      reason: 'It made me realise that if we truly try to understand other people, the idiot may turn out to be me.',
+      coverAlt: 'Cover of Surrounded by Idiots by Thomas Erikson (Spanish edition)',
+    },
+  },
+
   languages: { spanish: 'Spanish', english: 'English', italian: 'Italian' },
   skillAreas: { frontend: 'Front End', backend: 'Back End', devops: 'DevOps' },
   skillProfile: {

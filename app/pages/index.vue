@@ -12,6 +12,9 @@ usePageSeo(() => `${cv.value.fullName} · ${t('nav.profile')}`)
 
     <ProfileJourney />
 
+    <!-- Tras el recorrido (que acaba en Proyectos y Visitas), en el flujo normal de la página. -->
+    <BooksSection />
+
     <Panel :title="t('profile.summary')">
       <p class="max-w-prose text-muted">{{ cv.summary }}</p>
     </Panel>

@@ -135,7 +135,7 @@ h3 {
   }
 }
 
-/* ---------- Visitas: entrada escalonada de tarjetas y marcadores de carga ---------- */
+/* ---------- Visitas: entrada escalonada de tarjetas · marcador de carga compartido (visitas y libros) ---------- */
 
 /* Solo con movimiento completo: con «reducido» las tarjetas ya están en su sitio. */
 :root[data-motion='full'] .visits-card {
@@ -150,7 +150,7 @@ h3 {
   }
 }
 
-.visits-skeleton {
+.skeleton {
   background: linear-gradient(
     90deg,
     var(--ui-border) 25%,
@@ -161,12 +161,12 @@ h3 {
   opacity: 0.5;
 }
 
-:root[data-motion='full'] .visits-skeleton {
+:root[data-motion='full'] .skeleton {
   opacity: 1;
-  animation: visits-shimmer 1.4s linear infinite;
+  animation: skeleton-shimmer 1.4s linear infinite;
 }
 
-@keyframes visits-shimmer {
+@keyframes skeleton-shimmer {
   to {
     background-position: -200% 0;
   }
