@@ -5,6 +5,7 @@
     "experience": "Experience",
     "projects": "Projects",
     "education": "Education",
+    "visits": "Visits",
     "main": "Main navigation",
     "collapse": "Collapse sidebar",
     "expand": "Expand sidebar"
@@ -50,5 +51,113 @@
     "subtitle": "Studies and courses",
     "certifications": "Certifications",
     "studies": "Studies"
+  },
+  "visits": {
+    "subtitle": "Aggregated Google Analytics data",
+    "sampleNote": "Sample data (mock) · aggregated only, no IPs or identifiers",
+    "rangeLabel": "Period",
+    "range": {
+      "1d": "1 day",
+      "7d": "1 week",
+      "30d": "1 month"
+    },
+    "comparison": {
+      "1d": "vs previous day",
+      "7d": "vs previous 7 days",
+      "30d": "vs previous 30 days"
+    },
+    "kpiLabel": "Key figures",
+    "kpi": {
+      "visits": "Visits",
+      "visitors": "Visitors",
+      "avgDurationSec": "Avg. duration",
+      "bounceRate": "Bounce rate"
+    },
+    "trend": {
+      "better": "better",
+      "worse": "worse",
+      "flat": "no change"
+    },
+    "share": "Share",
+    "showTable": "View table",
+    "hideTable": "Hide table",
+    "loading": "Loading visits…",
+    "empty": {
+      "title": "No data yet",
+      "description": "There are no visits in this period. Try another range."
+    },
+    "error": {
+      "title": "Couldn't load visits",
+      "description": "Check your connection and try again.",
+      "retry": "Retry"
+    },
+    "timeline": {
+      "title": "Visits over time",
+      "description": {
+        "1d": "Visits per hour, compared with the previous day",
+        "7d": "Visits per day, compared with the previous week",
+        "30d": "Visits per day, compared with the previous 30 days"
+      },
+      "current": "This period",
+      "previous": "Previous period",
+      "column": {
+        "1d": "Hour",
+        "7d": "Day",
+        "30d": "Date"
+      },
+      "summary": {
+        "1d": "Hourly visits over the last day: total {total}, peak {peak} at {at}.",
+        "7d": "Daily visits over the last 7 days: total {total}, peak {peak} on {at}.",
+        "30d": "Daily visits over the last 30 days: total {total}, peak {peak} on {at}."
+      }
+    },
+    "devices": {
+      "title": "Devices",
+      "description": "Share of visits by device type",
+      "total": "visits",
+      "column": "Device",
+      "summary": "Visits by device: {list}.",
+      "names": {
+        "mobile": "Mobile",
+        "desktop": "Desktop",
+        "tablet": "Tablet"
+      }
+    },
+    "countries": {
+      "title": "Countries",
+      "description": "Where visits come from (countries under 5 visits are grouped)",
+      "other": "Other",
+      "column": "Country",
+      "summary": "Visits by country: {list}."
+    },
+    "sources": {
+      "title": "Traffic sources",
+      "description": "How visitors arrive",
+      "column": "Source",
+      "summary": "Visits by source: {list}.",
+      "names": {
+        "organic": "Organic search",
+        "direct": "Direct",
+        "linkedin": "LinkedIn",
+        "referral": "Referral",
+        "other": "Other"
+      }
+    },
+    "pages": {
+      "title": "Top pages",
+      "description": "Most viewed pages",
+      "column": "Page",
+      "views": "Views",
+      "resume": "Resume (PDF)",
+      "summary": "Page views: {list}."
+    },
+    "hours": {
+      "title": "Busiest hours",
+      "description": "Visits by weekday and 3-hour slot",
+      "column": "Day",
+      "less": "Less",
+      "more": "More",
+      "summary": "Visits by weekday and time slot; busiest: {day} at {slot}, {value} visits."
+    }
   }
 }

@@ -65,10 +65,12 @@
   --brand-soft: var(--color-brand-50);
   --brand-vivid: var(--color-brand-500);
   --chart-1: #02a0e9;
-  --chart-2: #d97706;
+  --chart-2: #b45309;
   --chart-3: #0f766e;
-  --chart-4: #be123c;
-  --chart-5: #475569;
+  --chart-4: #a2457e;
+  --chart-5: #57606a;
+  --trend-better: #1a7f37;
+  --trend-worse: #cf222e;
 }
 
 .dark {
@@ -84,10 +86,12 @@
   --brand-soft: var(--color-brand-950);
   --brand-vivid: var(--color-brand-500);
   --chart-1: #4ec6fd;
-  --chart-2: #fcd34d;
+  --chart-2: #fbbf24;
   --chart-3: #2dd4bf;
-  --chart-4: #f87171;
-  --chart-5: #8b949e;
+  --chart-4: #e5a0c6;
+  --chart-5: #9da7b3;
+  --trend-better: #3fb950;
+  --trend-worse: #ff7b72;
 }
 
 :root.sidebar-collapsed {
@@ -128,5 +132,42 @@ h3 {
     transition-duration: 0s !important;
     transition-delay: 0s !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- Visitas: entrada escalonada de tarjetas y marcadores de carga ---------- */
+
+/* Solo con movimiento completo: con «reducido» las tarjetas ya están en su sitio. */
+:root[data-motion='full'] .visits-card {
+  animation: visits-card-in 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--stagger, 0) * 60ms);
+}
+
+@keyframes visits-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.visits-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--ui-border) 25%,
+    color-mix(in srgb, var(--ui-border) 40%, transparent) 50%,
+    var(--ui-border) 75%
+  );
+  background-size: 200% 100%;
+  opacity: 0.5;
+}
+
+:root[data-motion='full'] .visits-skeleton {
+  opacity: 1;
+  animation: visits-shimmer 1.4s linear infinite;
+}
+
+@keyframes visits-shimmer {
+  to {
+    background-position: -200% 0;
   }
 }

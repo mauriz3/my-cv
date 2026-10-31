@@ -5,6 +5,7 @@
     "experience": "Experiencia",
     "projects": "Proyectos",
     "education": "Formación",
+    "visits": "Visitas",
     "main": "Navegación principal",
     "collapse": "Contraer barra lateral",
     "expand": "Expandir barra lateral"
@@ -50,5 +51,113 @@
     "subtitle": "Estudios y cursos",
     "certifications": "Certificaciones",
     "studies": "Estudios"
+  },
+  "visits": {
+    "subtitle": "Datos agregados de Google Analytics",
+    "sampleNote": "Datos de ejemplo (mock) · solo agregados, sin IPs ni identificadores",
+    "rangeLabel": "Periodo",
+    "range": {
+      "1d": "1 día",
+      "7d": "1 semana",
+      "30d": "1 mes"
+    },
+    "comparison": {
+      "1d": "frente al día anterior",
+      "7d": "frente a los 7 días anteriores",
+      "30d": "frente a los 30 días anteriores"
+    },
+    "kpiLabel": "Cifras clave",
+    "kpi": {
+      "visits": "Visitas",
+      "visitors": "Visitantes",
+      "avgDurationSec": "Duración media",
+      "bounceRate": "Tasa de rebote"
+    },
+    "trend": {
+      "better": "mejor",
+      "worse": "peor",
+      "flat": "sin cambios"
+    },
+    "share": "Porcentaje",
+    "showTable": "Ver tabla",
+    "hideTable": "Ocultar tabla",
+    "loading": "Cargando visitas…",
+    "empty": {
+      "title": "Aún no hay datos",
+      "description": "No hay visitas en este periodo. Prueba con otro rango."
+    },
+    "error": {
+      "title": "No se pudieron cargar las visitas",
+      "description": "Comprueba la conexión y vuelve a intentarlo.",
+      "retry": "Reintentar"
+    },
+    "timeline": {
+      "title": "Visitas en el tiempo",
+      "description": {
+        "1d": "Visitas por hora, frente al día anterior",
+        "7d": "Visitas por día, frente a la semana anterior",
+        "30d": "Visitas por día, frente a los 30 días anteriores"
+      },
+      "current": "Este periodo",
+      "previous": "Periodo anterior",
+      "column": {
+        "1d": "Hora",
+        "7d": "Día",
+        "30d": "Fecha"
+      },
+      "summary": {
+        "1d": "Visitas por hora del último día: total {total}, máximo {peak} a las {at}.",
+        "7d": "Visitas diarias de los últimos 7 días: total {total}, máximo {peak} el {at}.",
+        "30d": "Visitas diarias de los últimos 30 días: total {total}, máximo {peak} el {at}."
+      }
+    },
+    "devices": {
+      "title": "Dispositivos",
+      "description": "Reparto de visitas por tipo de dispositivo",
+      "total": "visitas",
+      "column": "Dispositivo",
+      "summary": "Visitas por dispositivo: {list}.",
+      "names": {
+        "mobile": "Móvil",
+        "desktop": "Escritorio",
+        "tablet": "Tableta"
+      }
+    },
+    "countries": {
+      "title": "Países",
+      "description": "De dónde llegan las visitas (los países con menos de 5 se agrupan)",
+      "other": "Otros",
+      "column": "País",
+      "summary": "Visitas por país: {list}."
+    },
+    "sources": {
+      "title": "Fuentes de tráfico",
+      "description": "Cómo llegan los visitantes",
+      "column": "Fuente",
+      "summary": "Visitas por fuente: {list}.",
+      "names": {
+        "organic": "Búsqueda orgánica",
+        "direct": "Directo",
+        "linkedin": "LinkedIn",
+        "referral": "Referencia",
+        "other": "Otras"
+      }
+    },
+    "pages": {
+      "title": "Páginas más vistas",
+      "description": "Páginas con más visualizaciones",
+      "column": "Página",
+      "views": "Vistas",
+      "resume": "CV (PDF)",
+      "summary": "Vistas por página: {list}."
+    },
+    "hours": {
+      "title": "Horas de más visitas",
+      "description": "Visitas por día de la semana y franja de 3 h",
+      "column": "Día",
+      "less": "Menos",
+      "more": "Más",
+      "summary": "Visitas por día y franja horaria; la de más visitas: {day} a las {slot}, {value} visitas."
+    }
   }
 }

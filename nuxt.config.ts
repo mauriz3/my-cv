@@ -1,4 +1,5 @@
 import { ANALYTICS_MEASUREMENT_ID } from './lib/analytics'
+import { VISITS_RANGES, visitsEndpoint } from './lib/visits'
 
 // Solo el build de producción (CI en push a master) lleva Google Analytics: ni develop, ni preview, ni local.
 const IS_PRODUCTION_BUILD = process.env.CONTEXT === 'production'
@@ -36,6 +37,7 @@ export default defineNuxtConfig({
   },
 
   nitro: {
-    prerender: { routes: ['/en', '/es'], crawlLinks: true }
+    // El JSON de visitas (mock) sale como fichero estático del mismo origen: cumple `connect-src 'self'`.
+    prerender: { routes: ['/en', '/es', ...VISITS_RANGES.map(visitsEndpoint)], crawlLinks: true }
   }
 })

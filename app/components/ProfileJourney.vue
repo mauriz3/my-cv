@@ -1,16 +1,24 @@
 <script setup lang="ts">
-import { JOURNEY_POINTS, cardStateAt, isPointing, journeyTimingCssVars, markerStateAt } from '~~/lib/journey'
+import {
+  JOURNEY_POINTS,
+  LAST_POINT_INDEX,
+  cardStateAt,
+  isPointing,
+  journeyTimingCssVars,
+  markerStateAt,
+} from '~~/lib/journey'
 import { mobileCardStateAt, pointingArmOf } from '~~/lib/mobileJourney'
 import { yearsInPeriods } from '~~/lib/years'
 
 /**
- * Inicio como recorrido (Holograma C): el holograma camina por un timeline de 5 puntos (Profile, Skills,
- * Experience, Education, Projects) y en cada uno se para, señala y muestra su tarjeta. Lógica: `lib/journey.ts`.
- * Con pin: 600vh en escritorio (timeline horizontal) y 400vh en tablet (vertical). En móvil, 380svh con el
+ * Inicio como recorrido (Holograma C): el holograma camina por un timeline de 6 puntos (Profile, Skills,
+ * Experience, Education, Projects, Visits) y en cada uno se para, señala y muestra su tarjeta. Lógica: `lib/journey.ts`.
+ * Con pin: 720vh en escritorio (timeline horizontal) y 480vh en tablet (vertical). En móvil, 420svh con el
  * holograma arriba y una sola tarjeta debajo que cambia en el sitio, todo ligado al scroll (`lib/mobileJourney.ts`):
- * las 5 tarjetas siguen en el DOM (las ocultas, solo con opacidad: los lectores de pantalla las leen todas)
+ * las 6 tarjetas siguen en el DOM (las ocultas, solo con opacidad: los lectores de pantalla las leen todas)
  * y la que recibe el foco del teclado se muestra en lugar de la actual.
- * Sin JS, con movimiento reducido o si fallan las guardas del móvil: holograma fijo y las 5 tarjetas visibles.
+ * La 6.ª (Visitas) es la única con acción: mini-gráficas, KPI que cuentan y botón «Ver visitas»; no sale.
+ * Sin JS, con movimiento reducido o si fallan las guardas del móvil: holograma fijo y las 6 tarjetas visibles.
  * El nombre es el h1 real, en la tarjeta 1, visible desde la carga y sin animar (LCP).
  */
 const { t } = useI18n({ useScope: 'local' })
@@ -25,7 +33,7 @@ const TIMING_CSS_VARS = journeyTimingCssVars()
 
 const section = useTemplateRef<HTMLElement>('section')
 const { isMobilePinned } = useMobilePin(section)
-const { state, isStepping, isOnScreen, isPageHidden } = useJourney(section, isMobilePinned)
+const { state, isStepping, isOnScreen, isPageHidden, visitsDraw, revealLastPoint } = useJourney(section, isMobilePinned)
 
 const currentPoint = computed(() => JOURNEY_POINTS[state.value.pointIndex]!)
 const markerStates = computed(() => JOURNEY_POINTS.map((_, index) => markerStateAt(index, state.value)))
@@ -34,6 +42,11 @@ const cardStates = computed(() =>
     isMobilePinned.value ? mobileCardStateAt(index, state.value) : cardStateAt(index, state.value),
   ),
 )
+const visitsCard = useVisitsCardDraw({
+  cardState: computed(() => cardStates.value[LAST_POINT_INDEX]!),
+  isMobilePinned,
+  mobileDraw: visitsDraw,
+})
 const sectionLabel = (index: number) => tGlobal(`nav.${JOURNEY_POINTS[index]!.id}`)
 const status = computed(() => t('status', { point: state.value.pointIndex + 1, total: JOURNEY_POINTS.length }))
 /** «Profile» parado en un punto; «Skills → Experience» mientras camina entre dos. */
@@ -70,6 +83,7 @@ const courses = computed(() =>
     :style="TIMING_CSS_VARS"
     :data-phase="state.phase"
     :data-facing="currentPoint.cardSide"
+    :data-point="currentPoint.id"
     :data-arm="pointingArmOf(state.pointIndex)"
     aria-labelledby="hero-title"
     data-testid="profile-journey"
@@ -189,6 +203,10 @@ const courses = computed(() =>
             </li>
           </ul>
         </JourneyCard>
+
+        <JourneyCard :index="5" :state="cardStates[5]!" own-action @focusin="revealLastPoint">
+          <JourneyVisits :draw="visitsCard.draw.value" :pulse="visitsCard.pulse.value" />
+        </JourneyCard>
       </ol>
     </div>
   </section>
@@ -216,7 +234,7 @@ const courses = computed(() =>
   --facing: -1;
 }
 
-/* Versión estática (móvil, sin JS o movimiento reducido): holograma fijo y las 5 tarjetas en orden. */
+/* Versión estática (móvil, sin JS o movimiento reducido): holograma fijo y las 6 tarjetas en orden. */
 .journey__stage {
   position: relative;
   display: grid;
@@ -780,6 +798,71 @@ const courses = computed(() =>
   /* La tarjeta de Profile lleva más contenido y empieza junto al primer punto: más ancha. */
   :root[data-motion='full'] .journey__card[data-point-index='0'] {
     width: min(560px, 50cqw);
+  }
+}
+
+/* ---------- Punto 6 «Visitas»: la única tarjeta con acción (borde brand-vivid) ---------- */
+.journey__card[data-point-index='5'] > article {
+  border-color: var(--brand-vivid);
+}
+
+/* Anillo del marcador 6: se expande una vez al pararse en él. */
+.journey__marker:last-child .journey__dot {
+  position: relative;
+}
+
+.journey__marker:last-child .journey__dot::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border: 2px solid var(--brand-vivid);
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  :root[data-motion='full'] .journey__marker:last-child[data-state='current'] .journey__dot::after {
+    animation: journey-ring 500ms cubic-bezier(0.16, 1, 0.3, 1) 1;
+  }
+
+  /* La tarjeta entra con scale 0,96 (las demás, 0,98). */
+  :root[data-motion='full'] .journey__card[data-point-index='5']:not([data-state='current'], :focus-within) {
+    transform: translateY(16px) scale(0.96);
+  }
+
+  /* «Tap» del brazo al terminar de señalar: 100° → 92° → 100°. */
+  :root[data-motion='full']
+    .journey[data-point='visits']:is([data-phase='reveal'], [data-phase='read'])
+    .holo__arm--right
+    .holo__swing {
+    animation: journey-tap 200ms cubic-bezier(0.34, 1.56, 0.64, 1) var(--point-duration) 1;
+  }
+}
+
+/* Móvil con pin: el anillo sigue al scroll (variables del fotograma). */
+@media (max-width: 767.98px) and (min-height: 520px) and (max-height: 950px) {
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__marker:last-child .journey__dot::after {
+    opacity: var(--ring-opacity, 0);
+    scale: var(--ring-scale, 1);
+  }
+}
+
+@keyframes journey-ring {
+  from {
+    opacity: 0.6;
+    scale: 1;
+  }
+
+  to {
+    opacity: 0;
+    scale: 2;
+  }
+}
+
+@keyframes journey-tap {
+  50% {
+    transform: rotate(8deg);
   }
 }
 </style>

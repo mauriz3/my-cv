@@ -4,8 +4,12 @@ import { countUpValue } from '~~/lib/easing'
 /**
  * Número que cuenta de 0 a `value` al entrar en pantalla (si `animate` y el usuario no pide menos movimiento).
  * El HTML generado ya trae el valor final: sin JS o con menos movimiento no cambia nada.
+ * `format` da forma al número (miles, «1m 46s»…); si `value` cambia después, se muestra al momento.
  */
-const props = withDefaults(defineProps<{ value: number; animate?: boolean }>(), { animate: false })
+const props = withDefaults(defineProps<{ value: number; animate?: boolean; format?: (value: number) => string }>(), {
+  animate: false,
+  format: String,
+})
 
 const VISIBLE_THRESHOLD = 0.2
 
@@ -36,12 +40,19 @@ onMounted(() => {
   observer.observe(root.value)
 })
 
+watch(
+  () => props.value,
+  (value) => {
+    displayedValue.value = value
+  },
+)
+
 onBeforeUnmount(() => observer?.disconnect())
 </script>
 
 <template>
   <span ref="root">
-    <span aria-hidden="true">{{ displayedValue }}</span>
-    <span class="sr-only">{{ value }}</span>
+    <span aria-hidden="true">{{ format(displayedValue) }}</span>
+    <span class="sr-only">{{ format(value) }}</span>
   </span>
 </template>

@@ -1,5 +1,5 @@
 /**
- * Recorrido del Inicio (Holograma C): el holograma camina por un timeline de 5 puntos y se detiene en cada uno.
+ * Recorrido del Inicio (Holograma C): el holograma camina por un timeline de 6 puntos y se detiene en cada uno.
  * Lógica pura, sin Vue ni DOM: reparto en tramos, fases, posición, marcadores y pausa del ciclo de caminar.
  */
 import { clamp01, easeInOutSine, lerp } from './easing'
@@ -7,13 +7,14 @@ import { clamp01, easeInOutSine, lerp } from './easing'
 /** Lado de la tarjeta respecto al holograma (en escritorio); el holograma mira hacia ella. */
 export type CardSide = 'end' | 'start'
 
-/** Los 5 puntos, en orden de recorrido, con la ruta de su sección. */
+/** Los 6 puntos, en orden de recorrido, con la ruta de su sección. El último (Visitas) no tiene salida. */
 export const JOURNEY_POINTS = [
   { id: 'profile', path: '/', cardSide: 'end' },
   { id: 'skills', path: '/skills', cardSide: 'end' },
   { id: 'experience', path: '/experience', cardSide: 'end' },
   { id: 'education', path: '/education', cardSide: 'start' },
   { id: 'projects', path: '/projects', cardSide: 'start' },
+  { id: 'visits', path: '/visits', cardSide: 'start' },
 ] as const satisfies readonly {
   id: string
   path: string
@@ -22,12 +23,12 @@ export const JOURNEY_POINTS = [
 
 export type JourneyPointId = (typeof JOURNEY_POINTS)[number]['id']
 
-const LAST_POINT_INDEX = JOURNEY_POINTS.length - 1
+export const LAST_POINT_INDEX = JOURNEY_POINTS.length - 1
 
-/** Alto de la sección con pin (vh). */
-export const JOURNEY_HEIGHT_VH = { desktop: 600, tablet: 400 } as const
+/** Alto de la sección con pin (vh): el mismo scroll por punto que con 5 (120vh en escritorio, 80vh en tablet). */
+export const JOURNEY_HEIGHT_VH = { desktop: 720, tablet: 480 } as const
 /** En móvil, en svh (alto con la barra del navegador visible): no cambia al mostrarse u ocultarse. */
-export const MOBILE_JOURNEY_HEIGHT_SVH = 380
+export const MOBILE_JOURNEY_HEIGHT_SVH = 420
 
 export type JourneyPhase = 'walk' | 'stop' | 'point' | 'reveal' | 'read' | 'leave'
 
@@ -91,11 +92,11 @@ export interface JourneyTimeline {
   startsReading: boolean
 }
 
-/** Tablet y escritorio: 5 tramos del 20 %, sin entrada. */
+/** Tablet y escritorio: un tramo igual por punto, sin entrada. */
 export const PINNED_TIMELINE: JourneyTimeline = { entryShare: 0, phaseEnds: PHASE_ENDS, startsReading: true }
 
 /**
- * Móvil (spec «Holograma móvil fijo con scroll»): entrada 0–0,14 (el holograma se materializa) y 5 tramos de 0,172.
+ * Móvil (spec «Holograma móvil fijo con scroll»): entrada 0–0,14 (el holograma se materializa) y 6 tramos de 0,1433.
  * Fases por tramo: caminar 0–0,30, parada –0,38, señalar y zoom –0,48, línea y tarjeta –0,62, lectura –0,88, salida.
  */
 export const MOBILE_TIMELINE: JourneyTimeline = {
