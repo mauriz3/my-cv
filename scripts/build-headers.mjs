@@ -2,16 +2,19 @@
  * Tras `nuxt generate`, completa `.output/public/_headers`:
  *  1. Añade a `script-src` el hash SHA-256 de cada script inline del HTML generado,
  *     así la CSP no necesita 'unsafe-inline'.
- *  2. Añade `X-Robots-Tag: noindex` en todo despliegue que no sea producción
+ *  2. En producción (el único build con Google Analytics) permite sus orígenes en script-src, connect-src e img-src.
+ *  3. Añade `X-Robots-Tag: noindex` en todo despliegue que no sea producción
  *     (Netlify expone CONTEXT = production | branch-deploy | deploy-preview).
  */
 import { createHash } from 'node:crypto'
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { ANALYTICS_CSP_SOURCES } from '../lib/analytics.ts'
 
 const OUTPUT_DIR = '.output/public'
 const HEADERS_FILE = join(OUTPUT_DIR, '_headers')
 const SCRIPT_SRC_PLACEHOLDER = "script-src 'self'"
+const ANALYTICS_DIRECTIVES = ["script-src 'self'", "connect-src 'self'", "img-src 'self'"]
 const PRODUCTION_CONTEXT = 'production'
 const NOINDEX_HEADER = '  X-Robots-Tag: noindex, nofollow'
 const ALL_PATHS_RULE = '/*\n'
@@ -41,6 +44,14 @@ function withScriptHashes(headers, hashes) {
   return headers.replace(SCRIPT_SRC_PLACEHOLDER, `${SCRIPT_SRC_PLACEHOLDER} ${hashes.join(' ')}`)
 }
 
+function withAnalyticsSources(headers) {
+  const sources = ANALYTICS_CSP_SOURCES.join(' ')
+  return ANALYTICS_DIRECTIVES.reduce((result, directive) => {
+    if (!result.includes(directive)) throw new Error(`Falta «${directive}» en _headers`)
+    return result.replace(directive, `${directive} ${sources}`)
+  }, headers)
+}
+
 function withNoindex(headers) {
   if (!headers.startsWith(ALL_PATHS_RULE)) throw new Error('_headers debe empezar por la regla «/*»')
   return headers.replace(ALL_PATHS_RULE, `${ALL_PATHS_RULE}${NOINDEX_HEADER}\n`)
@@ -49,7 +60,8 @@ function withNoindex(headers) {
 const hashes = collectInlineScriptHashes()
 let headers = withScriptHashes(readFileSync(HEADERS_FILE, 'utf8'), hashes)
 const isProduction = process.env.CONTEXT === PRODUCTION_CONTEXT
-if (!isProduction) headers = withNoindex(headers)
+if (isProduction) headers = withAnalyticsSources(headers)
+else headers = withNoindex(headers)
 
 writeFileSync(HEADERS_FILE, headers)
 console.log(`Cabeceras: ${hashes.length} hashes CSP; noindex ${isProduction ? 'NO' : 'sí'} (CONTEXT=${process.env.CONTEXT ?? 'sin definir'})`)

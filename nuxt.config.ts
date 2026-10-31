@@ -1,9 +1,16 @@
+import { ANALYTICS_MEASUREMENT_ID } from './lib/analytics'
+
+// Solo el build de producción (CI en push a master) lleva Google Analytics: ni develop, ni preview, ni local.
+const IS_PRODUCTION_BUILD = process.env.CONTEXT === 'production'
+
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: false },
   modules: ['@nuxt/ui', '@nuxtjs/i18n'],
   css: ['~/assets/css/main.css'],
   ssr: true,
+
+  runtimeConfig: { public: { analyticsId: IS_PRODUCTION_BUILD ? ANALYTICS_MEASUREMENT_ID : '' } },
 
   // Fuentes e iconos van empaquetados en local: nada se pide a dominios externos (CSP estricta).
   ui: { fonts: false },

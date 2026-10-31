@@ -13,7 +13,7 @@ usePageSeo(() => t('nav.experience'))
       <li v-for="job in cv.experience" :key="job.id" class="relative">
         <span class="absolute top-6 -left-[calc(1.5rem+5px)] size-2.5 rounded-full bg-primary" aria-hidden="true" />
         <UCard as="article" :aria-labelledby="`job-${job.id}`">
-          <PeriodTime :period="job.period" />
+          <PeriodTime :period="job.period" show-duration />
           <h2 :id="`job-${job.id}`" class="mt-1 text-lg font-semibold text-highlighted">{{ job.role }}</h2>
           <p class="text-sm">
             <ExternalLink :href="job.companyUrl">{{ job.company }}</ExternalLink>
