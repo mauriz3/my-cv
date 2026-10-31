@@ -5,7 +5,7 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <a :href="href" target="_blank" rel="noopener noreferrer" class="text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-primary">
+  <a :href="href" target="_blank" rel="noopener noreferrer" class="text-primary underline underline-offset-4 hover:decoration-2 focus-visible:outline-2 focus-visible:outline-primary">
     <slot />
     <span class="sr-only"> ({{ t('app.opensInNewTab') }})</span>
   </a>

@@ -1,14 +1,10 @@
 <script lang="ts">
-/** Clase que se pone en `<html>` cuando el usuario pide menos movimiento con este botón. */
-export const REDUCE_MOTION_CLASS = 'reduce-motion'
+import { REDUCE_MOTION_CLASS, REDUCE_MOTION_STORAGE_KEY, STORED_OFF, STORED_ON } from '~~/lib/motion'
 
-const STORAGE_KEY = 'reduce-motion'
-const STORED_ON = '1'
-const STORED_OFF = '0'
 const SYSTEM_REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
 
 function readStoredPreference(): boolean {
-  return localStorage.getItem(STORAGE_KEY) === STORED_ON
+  return localStorage.getItem(REDUCE_MOTION_STORAGE_KEY) === STORED_ON
 }
 
 /** ¿Hay que evitar animaciones? Sí si lo pide el sistema o el botón «Reduce motion». Solo en cliente. */
@@ -32,7 +28,7 @@ function applyPreference(reduced: boolean) {
 
 function toggle() {
   const reduced = !isReduced.value
-  localStorage.setItem(STORAGE_KEY, reduced ? STORED_ON : STORED_OFF)
+  localStorage.setItem(REDUCE_MOTION_STORAGE_KEY, reduced ? STORED_ON : STORED_OFF)
   applyPreference(reduced)
 }
 

@@ -22,7 +22,7 @@ const heroCards = computed(() =>
     <!-- El h1 de esta página es el nombre del hero. -->
     <PageHeader :title="t('profile.greeting')" :subtitle="t('profile.overview')" title-tag="p" />
 
-    <ProfileHero :eyebrow="cv.headline" :tagline="cv.tagline" :cards="heroCards" />
+    <ProfileStory :eyebrow="cv.headline" :tagline="cv.tagline" :cards="heroCards" />
 
     <Panel :title="t('profile.summary')">
       <p class="max-w-prose text-muted">{{ cv.summary }}</p>
