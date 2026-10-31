@@ -10,3 +10,8 @@
 # Informe de visitas (JSON prerrenderizado sin extensión).
 /api/visits/*
   Content-Type: application/json; charset=utf-8
+
+# Assets de Nuxt con hash en el nombre: caché de un año. `:file` es un solo segmento,
+# así no entra `/_nuxt/builds/latest.json` (sin hash; avisa de despliegues nuevos).
+/_nuxt/:file
+  Cache-Control: public, max-age=31536000, immutable
