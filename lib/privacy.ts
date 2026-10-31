@@ -8,10 +8,10 @@ export const PRIVACY_PATH = '/privacy'
 /** Vida máxima de las cookies de GA4 (`_ga`, `_ga_<ID>`), según Google. */
 export const GA_COOKIE_MAX_AGE_MONTHS = 24
 /**
- * Retención de datos de GA4 a nivel de usuario/evento.
- * PENDIENTE: confirmar en la interfaz de GA (Admin → Recogida de datos → Retención) que está en 2 meses.
+ * Retención de datos de GA4 a nivel de usuario/evento. Debe coincidir con la interfaz de GA
+ * (Admin → Recogida de datos → Retención de datos): 14 meses.
  */
-export const GA_DATA_RETENTION_MONTHS = 2
+export const GA_DATA_RETENTION_MONTHS = 14
 
 /** Nombres de las cookies que crea GA4 al aceptar: `_ga` y `_ga_` + el ID sin el prefijo «G-». */
 export function analyticsCookieNames(measurementId: string = ANALYTICS_MEASUREMENT_ID): [string, string] {

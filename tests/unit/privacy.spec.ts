@@ -13,6 +13,10 @@ describe('analyticsCookieNames', () => {
 })
 
 describe('plazos', () => {
+  it('la retención de GA es de 14 meses', () => {
+    expect(GA_DATA_RETENTION_MONTHS).toBe(14)
+  })
+
   it('la retención de datos es más corta que la vida de la cookie', () => {
     expect(GA_DATA_RETENTION_MONTHS).toBeLessThan(GA_COOKIE_MAX_AGE_MONTHS)
   })
