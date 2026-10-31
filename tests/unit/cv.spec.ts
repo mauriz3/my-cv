@@ -4,7 +4,6 @@ import { getCv } from '../../data/cv'
 import { cvFacts } from '../../data/cv.shared'
 import { textsEn } from '../../data/cv.en'
 import { textsEs } from '../../data/cv.es'
-import { buildHeroCards, HERO_CARD_IDS, type HeroCardId } from '../../data/hero'
 import { CvFactsSchema, CvSchema, CvTextsSchema, LOCALES, MAX_SKILL_LEVEL, PROJECT_CATEGORIES } from '../../data/schema'
 import { formatPartialDate, isSingleDate } from '../../lib/period'
 import { monthsInPeriod, toMonthIndex, yearsInPeriods } from '../../lib/years'
@@ -308,33 +307,5 @@ describe('radar «Skill profile»', () => {
     expect(source).toMatch(/ticks:\s*\{\s*display:\s*false\s*\}/)
     expect(source).toMatch(/events:\s*\[\]/)
     expect(source).not.toMatch(/Tooltip|Legend/)
-  })
-})
-
-describe('tarjetas del hero', () => {
-  const labels = (locale: string) => ({
-    present: locale === 'es' ? 'Actualidad' : 'Present',
-    cards: Object.fromEntries(HERO_CARD_IDS.map((id) => [id, `label-${id}`])) as Record<HeroCardId, string>,
-  })
-
-  it.each(LOCALES)('«%s»: las 8 tarjetas, en orden y con texto', (locale) => {
-    const cards = buildHeroCards(getCv(locale), labels(locale))
-    expect(cards.map((card) => card.id)).toEqual([
-      'now', 'path', 'stack', 'education', 'languages', 'end-to-end', 'designer-eye', 'motivation',
-    ])
-    for (const card of cards) {
-      expect(card.text.trim()).not.toBe('')
-      for (const pattern of PERSONAL_DATA_PATTERNS) expect(card.text).not.toMatch(pattern)
-    }
-  })
-
-  it('usa los textos aprobados y los datos (sin hechos nuevos)', () => {
-    const cv = getCv('en')
-    const text = (id: HeroCardId) => buildHeroCards(cv, labels('en')).find((card) => card.id === id)?.text
-    expect(text('now')).toBe('Senior Software Engineer · Octane11 · Feb 2022 – Present')
-    expect(text('path')).toBe('Front End & DevOps Engineer (System73, 2016–2022) → Senior Software Engineer (Octane11, 2022–Present)')
-    expect(text('languages')).toBe('Spanish C2 · English B2 · Italian B1')
-    expect(text('end-to-end')).toBe(cv.endToEnd)
-    expect(text('motivation')).toBe(cv.motivation)
   })
 })

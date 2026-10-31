@@ -18,7 +18,6 @@ export { MAX_SKILL_LEVEL } from '~~/data/schema'
 import { MAX_SKILL_LEVEL } from '~~/data/schema'
 import type { ChartData, ChartOptions } from 'chart.js'
 import { Radar } from 'vue-chartjs'
-import { isMotionReduced } from './ReduceMotionToggle.vue'
 
 /** Radar «Skill profile» sin números: solo los nombres de los ejes y la nota gris «Relative profile». */
 const props = defineProps<{ axes: SkillAxis[] }>()
@@ -83,7 +82,7 @@ const chartData = computed<ChartData<'radar'>>(() => ({
 const chartOptions = computed<ChartOptions<'radar'>>(() => ({
   responsive: true,
   maintainAspectRatio: false,
-  animation: isMotionReduced() ? false : { duration: CHART_DRAW_DURATION_MS },
+  animation: readDocumentMotion() === 'reduced' ? false : { duration: CHART_DRAW_DURATION_MS },
   events: [], // sin hover ni tooltip: no hay cifras que enseñar
   scales: {
     r: {

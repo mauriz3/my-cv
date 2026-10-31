@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { countUpValue } from '~~/lib/story'
-import { isMotionReduced } from './ReduceMotionToggle.vue'
+import { countUpValue } from '~~/lib/easing'
 
 /**
  * Número que cuenta de 0 a `value` al entrar en pantalla (si `animate` y el usuario no pide menos movimiento).
@@ -24,7 +23,7 @@ function countUp() {
 }
 
 onMounted(() => {
-  if (!props.animate || isMotionReduced() || !root.value) return
+  if (!props.animate || readDocumentMotion() === 'reduced' || !root.value) return
   displayedValue.value = 0
   observer = new IntersectionObserver(
     ([entry]) => {

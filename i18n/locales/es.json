@@ -24,17 +24,7 @@
     "summary": "Sobre mí",
     "languages": "Idiomas",
     "greeting": "Hola, soy Maurizio",
-    "overview": "Resumen del perfil, cifras y habilidades",
-    "heroCards": {
-      "now": "Ahora",
-      "path": "Trayectoria",
-      "stack": "Stack",
-      "education": "Formación",
-      "languages": "Idiomas",
-      "end-to-end": "En mis palabras",
-      "designer-eye": "En mis palabras",
-      "motivation": "Qué me mueve"
-    }
+    "overview": "Resumen del perfil, cifras y habilidades"
   },
   "skills": {
     "subtitle": "Perfil de habilidades, años por área y herramientas",
