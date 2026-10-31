@@ -23,11 +23,11 @@ export const JOURNEY_POINTS = [
 export type JourneyPointId = (typeof JOURNEY_POINTS)[number]['id']
 
 const LAST_POINT_INDEX = JOURNEY_POINTS.length - 1
-/** Cada punto ocupa un tramo igual del scroll (20 %). */
-export const SEGMENT_SHARE = 1 / JOURNEY_POINTS.length
 
-/** Alto de la sección con pin (vh). En móvil (< 768 px) no hay pin. */
+/** Alto de la sección con pin (vh). */
 export const JOURNEY_HEIGHT_VH = { desktop: 600, tablet: 400 } as const
+/** En móvil, en svh (alto con la barra del navegador visible): no cambia al mostrarse u ocultarse. */
+export const MOBILE_JOURNEY_HEIGHT_SVH = 380
 
 export type JourneyPhase = 'walk' | 'stop' | 'point' | 'reveal' | 'read' | 'leave'
 
@@ -43,10 +43,6 @@ export const PHASE_ENDS: readonly (readonly [JourneyPhase, number])[] = [
   ['read', 0.9],
   ['leave', 1],
 ]
-
-const WALK_SHARE = 0.4
-/** Mitad de la fase de lectura (14–18 % del tramo): punto seguro para reanudar. */
-const READING_MIDDLE = 0.8
 
 /** El ciclo de caminar se pausa este tiempo después del último evento de scroll. */
 export const WALK_IDLE_MS = 120
@@ -81,7 +77,38 @@ export function journeyTimingCssVars(): Record<string, string> {
     '--holo-scan-duration': `${JOURNEY_TIMING.scanCycleMs}ms`,
     '--journey-height-desktop': `${JOURNEY_HEIGHT_VH.desktop}vh`,
     '--journey-height-tablet': `${JOURNEY_HEIGHT_VH.tablet}vh`,
+    '--journey-height-mobile': `${MOBILE_JOURNEY_HEIGHT_SVH}svh`,
   }
+}
+
+/** Cómo se reparte el scroll: entrada opcional, luego un tramo igual por punto dividido en fases. */
+export interface JourneyTimeline {
+  /** Fracción inicial del scroll antes del primer punto (entrada del holograma). */
+  entryShare: number
+  /** Fin de cada fase como fracción del tramo de un punto. */
+  phaseEnds: readonly (readonly [JourneyPhase, number])[]
+  /** Empieza parado y leyendo en el punto 1 (su tarjeta lleva el h1, visible desde la carga). */
+  startsReading: boolean
+}
+
+/** Tablet y escritorio: 5 tramos del 20 %, sin entrada. */
+export const PINNED_TIMELINE: JourneyTimeline = { entryShare: 0, phaseEnds: PHASE_ENDS, startsReading: true }
+
+/**
+ * Móvil (spec «Holograma móvil fijo con scroll»): entrada 0–0,14 (el holograma se materializa) y 5 tramos de 0,172.
+ * Fases por tramo: caminar 0–0,30, parada –0,38, señalar y zoom –0,48, línea y tarjeta –0,62, lectura –0,88, salida.
+ */
+export const MOBILE_TIMELINE: JourneyTimeline = {
+  entryShare: 0.14,
+  phaseEnds: [
+    ['walk', 0.3],
+    ['stop', 0.38],
+    ['point', 0.48],
+    ['reveal', 0.62],
+    ['read', 0.88],
+    ['leave', 1],
+  ],
+  startsReading: false,
 }
 
 export interface JourneyState {
@@ -89,6 +116,8 @@ export interface JourneyState {
   phase: JourneyPhase
   /** Posición del holograma a lo largo del timeline (0 = primer punto, 1 = último). */
   position: number
+  /** Avance (0–1) dentro del tramo del punto actual. */
+  segmentProgress: number
 }
 
 /** Posición (0–1) de un punto en el timeline. */
@@ -96,27 +125,40 @@ export function pointPosition(index: number): number {
   return index / LAST_POINT_INDEX
 }
 
-function phaseWithin(segmentProgress: number): JourneyPhase {
-  return PHASE_ENDS.find(([, end]) => segmentProgress < end)?.[0] ?? 'leave'
+/** Fracción del scroll de cada punto (tramos iguales tras la entrada). */
+export function segmentShareOf(timeline: JourneyTimeline): number {
+  return (1 - timeline.entryShare) / JOURNEY_POINTS.length
+}
+
+/** Inicio y fin (fracción del tramo) de una fase. */
+function phaseRange(timeline: JourneyTimeline, phase: JourneyPhase): [number, number] {
+  const index = timeline.phaseEnds.findIndex(([name]) => name === phase)
+  return [timeline.phaseEnds[index - 1]?.[1] ?? 0, timeline.phaseEnds[index]![1]]
+}
+
+function phaseWithin(timeline: JourneyTimeline, segmentProgress: number): JourneyPhase {
+  return timeline.phaseEnds.find(([, end]) => segmentProgress < end)?.[0] ?? 'leave'
 }
 
 /**
- * Estado del recorrido para un progreso de scroll (0–1). El holograma empieza ya parado en el punto 1
- * (su tarjeta lleva el h1, visible desde la carga) y se queda leyendo en el último.
+ * Estado del recorrido para un progreso de scroll (0–1). Durante la entrada está en el inicio del punto 1;
+ * se queda leyendo en el último. Con `startsReading` empieza ya parado y leyendo en el punto 1.
  */
-export function journeyStateAt(progress: number): JourneyState {
-  const clamped = clamp01(progress)
-  const pointIndex = Math.min(Math.floor(clamped / SEGMENT_SHARE), LAST_POINT_INDEX)
-  const segmentProgress = (clamped - pointIndex * SEGMENT_SHARE) / SEGMENT_SHARE
-  let phase = phaseWithin(segmentProgress)
-  if (pointIndex === 0 && phase !== 'leave') phase = 'read'
+export function journeyStateAt(progress: number, timeline: JourneyTimeline = PINNED_TIMELINE): JourneyState {
+  const journeyProgress = clamp01((clamp01(progress) - timeline.entryShare) / (1 - timeline.entryShare))
+  const pointShare = 1 / JOURNEY_POINTS.length
+  const pointIndex = Math.min(Math.floor(journeyProgress / pointShare), LAST_POINT_INDEX)
+  const segmentProgress = (journeyProgress - pointIndex * pointShare) / pointShare
+  let phase = phaseWithin(timeline, segmentProgress)
+  if (timeline.startsReading && pointIndex === 0 && phase !== 'leave') phase = 'read'
   if (pointIndex === LAST_POINT_INDEX && phase === 'leave') phase = 'read'
 
+  const [, walkEnd] = phaseRange(timeline, 'walk')
   const position =
-    phase === 'walk'
-      ? lerp(pointPosition(pointIndex - 1), pointPosition(pointIndex), easeInOutSine(segmentProgress / WALK_SHARE))
+    phase === 'walk' && pointIndex > 0
+      ? lerp(pointPosition(pointIndex - 1), pointPosition(pointIndex), easeInOutSine(segmentProgress / walkEnd))
       : pointPosition(pointIndex)
-  return { pointIndex, phase, position }
+  return { pointIndex, phase, position, segmentProgress }
 }
 
 export type MarkerState = 'done' | 'current' | 'pending'
@@ -154,11 +196,15 @@ export function isStepping(phase: JourneyPhase, msSinceLastScroll: number): bool
   return phase === 'walk' && msSinceLastScroll < WALK_IDLE_MS
 }
 
-/** Progreso en el que se lee la tarjeta de un punto: para reanudar ahí sin repetir los anteriores. */
-export function readingProgressOf(pointIndex: number): number {
-  if (pointIndex <= 0) return 0
-  const index = Math.min(pointIndex, LAST_POINT_INDEX)
-  return (index + READING_MIDDLE) * SEGMENT_SHARE
+/**
+ * Progreso en el que se lee la tarjeta de un punto (mitad de su fase de lectura):
+ * para reanudar ahí sin repetir los anteriores.
+ */
+export function readingProgressOf(pointIndex: number, timeline: JourneyTimeline = PINNED_TIMELINE): number {
+  if (timeline.startsReading && pointIndex <= 0) return 0
+  const index = Math.min(Math.max(pointIndex, 0), LAST_POINT_INDEX)
+  const [readStart, readEnd] = phaseRange(timeline, 'read')
+  return timeline.entryShare + (index + (readStart + readEnd) / 2) * segmentShareOf(timeline)
 }
 
 /** Progreso (0–1) del scroll dentro de una sección más alta que la ventana (top relativo a la ventana). */

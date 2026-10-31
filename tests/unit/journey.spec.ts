@@ -2,13 +2,15 @@ import { describe, expect, it } from 'vitest'
 import {
   JOURNEY_POINTS,
   PHASE_ENDS,
-  SEGMENT_SHARE,
   WALK_IDLE_MS,
   cardStateAt,
   isCardShown,
   isPointing,
   isStepping,
   journeyStateAt,
+  MOBILE_TIMELINE,
+  PINNED_TIMELINE,
+  segmentShareOf,
   journeyTimingCssVars,
   markerStateAt,
   pointPosition,
@@ -17,7 +19,8 @@ import {
 } from '../../lib/journey'
 
 /** Progreso a una fracción dada dentro del tramo de un punto. */
-const at = (pointIndex: number, segmentProgress: number) => (pointIndex + segmentProgress) * SEGMENT_SHARE
+const at = (pointIndex: number, segmentProgress: number) =>
+  (pointIndex + segmentProgress) * segmentShareOf(PINNED_TIMELINE)
 
 describe('reparto del recorrido', () => {
   it('5 puntos en orden: Profile, Skills, Experience, Education, Projects', () => {
@@ -31,7 +34,7 @@ describe('reparto del recorrido', () => {
   })
 
   it('cada punto ocupa un 20 % del scroll y sus fases cubren el tramo entero', () => {
-    expect(SEGMENT_SHARE).toBeCloseTo(0.2)
+    expect(segmentShareOf(PINNED_TIMELINE)).toBeCloseTo(0.2)
     expect(PHASE_ENDS.map(([phase]) => phase)).toEqual(['walk', 'stop', 'point', 'reveal', 'read', 'leave'])
     expect(PHASE_ENDS.at(-1)?.[1]).toBe(1)
   })
@@ -43,11 +46,7 @@ describe('reparto del recorrido', () => {
 
 describe('fases y posición', () => {
   it('empieza parado y leyendo en el punto 1 (tarjeta con el h1 visible)', () => {
-    expect(journeyStateAt(0)).toEqual({
-      pointIndex: 0,
-      phase: 'read',
-      position: 0,
-    })
+    expect(journeyStateAt(0)).toMatchObject({ pointIndex: 0, phase: 'read', position: 0 })
     expect(journeyStateAt(at(0, 0.5)).phase).toBe('read')
     expect(journeyStateAt(at(0, 0.95)).phase).toBe('leave')
   })
@@ -69,11 +68,7 @@ describe('fases y posición', () => {
   })
 
   it('se queda leyendo en el último punto hasta el final', () => {
-    expect(journeyStateAt(1)).toEqual({
-      pointIndex: 4,
-      phase: 'read',
-      position: 1,
-    })
+    expect(journeyStateAt(1)).toMatchObject({ pointIndex: 4, phase: 'read', position: 1 })
     expect(journeyStateAt(at(4, 0.95)).phase).toBe('read')
   })
 
@@ -131,12 +126,48 @@ describe('estado de las tarjetas', () => {
 })
 
 describe('reanudar sin repetir puntos', () => {
-  it('el progreso de lectura de cada punto cae en su fase de lectura', () => {
+  it.each([
+    ['tablet y escritorio', PINNED_TIMELINE],
+    ['móvil', MOBILE_TIMELINE],
+  ])('%s: el progreso de lectura de cada punto cae en su fase de lectura', (_, timeline) => {
     JOURNEY_POINTS.forEach((_, index) => {
-      const state = journeyStateAt(readingProgressOf(index))
+      const state = journeyStateAt(readingProgressOf(index, timeline), timeline)
       expect(state.pointIndex).toBe(index)
       expect(state.phase).toBe('read')
     })
+  })
+})
+
+describe('recorrido móvil', () => {
+  const mobileAt = (pointIndex: number, segmentProgress: number) =>
+    MOBILE_TIMELINE.entryShare + (pointIndex + segmentProgress) * segmentShareOf(MOBILE_TIMELINE)
+
+  it('entrada de 0,14 y después 5 tramos de 0,172', () => {
+    expect(MOBILE_TIMELINE.entryShare).toBe(0.14)
+    expect(segmentShareOf(MOBILE_TIMELINE)).toBeCloseTo(0.172)
+    expect(MOBILE_TIMELINE.phaseEnds.at(-1)?.[1]).toBe(1)
+  })
+
+  it('durante la entrada espera al inicio del punto 1, sin leer todavía', () => {
+    expect(journeyStateAt(0.07, MOBILE_TIMELINE)).toMatchObject({ pointIndex: 0, phase: 'walk', segmentProgress: 0 })
+  })
+
+  it('fases de la spec en cada tramo', () => {
+    const phaseAt = (segmentProgress: number) => journeyStateAt(mobileAt(2, segmentProgress), MOBILE_TIMELINE).phase
+    expect([0.1, 0.34, 0.42, 0.55, 0.75, 0.95].map(phaseAt)).toEqual([
+      'walk',
+      'stop',
+      'point',
+      'reveal',
+      'read',
+      'leave',
+    ])
+  })
+
+  it('el primer punto camina en el sitio y el último se queda leyendo', () => {
+    expect(journeyStateAt(mobileAt(0, 0.2), MOBILE_TIMELINE).position).toBe(0)
+    expect(journeyStateAt(1, MOBILE_TIMELINE)).toMatchObject({ pointIndex: 4, phase: 'read' })
+    expect(journeyStateAt(1, MOBILE_TIMELINE).segmentProgress).toBeCloseTo(1)
   })
 })
 
@@ -157,5 +188,6 @@ describe('tiempos como variables CSS', () => {
     expect(vars['--point-duration']).toBe('450ms')
     expect(vars['--journey-height-desktop']).toBe('600vh')
     expect(vars['--journey-height-tablet']).toBe('400vh')
+    expect(vars['--journey-height-mobile']).toBe('380svh')
   })
 })

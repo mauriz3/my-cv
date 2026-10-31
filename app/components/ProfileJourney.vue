@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { JOURNEY_POINTS, cardStateAt, isPointing, journeyTimingCssVars, markerStateAt } from '~~/lib/journey'
+import { mobileCardStateAt, pointingArmOf } from '~~/lib/mobileJourney'
 import { yearsInPeriods } from '~~/lib/years'
 
 /**
  * Inicio como recorrido (Holograma C): el holograma camina por un timeline de 5 puntos (Profile, Skills,
  * Experience, Education, Projects) y en cada uno se para, señala y muestra su tarjeta. Lógica: `lib/journey.ts`.
- * Con pin: 600vh en escritorio (timeline horizontal) y 400vh en tablet (vertical).
- * Móvil, sin JS o con movimiento reducido: holograma fijo y las 5 tarjetas visibles, en orden de lectura.
+ * Con pin: 600vh en escritorio (timeline horizontal) y 400vh en tablet (vertical). En móvil, 380svh con el
+ * holograma arriba y una sola tarjeta debajo que cambia en el sitio, todo ligado al scroll (`lib/mobileJourney.ts`):
+ * las 5 tarjetas siguen en el DOM (las ocultas, solo con opacidad: los lectores de pantalla las leen todas)
+ * y la que recibe el foco del teclado se muestra en lugar de la actual.
+ * Sin JS, con movimiento reducido o si fallan las guardas del móvil: holograma fijo y las 5 tarjetas visibles.
  * El nombre es el h1 real, en la tarjeta 1, visible desde la carga y sin animar (LCP).
  */
 const { t } = useI18n({ useScope: 'local' })
@@ -20,11 +24,16 @@ const DEGREE_ID = 'ull-degree'
 const TIMING_CSS_VARS = journeyTimingCssVars()
 
 const section = useTemplateRef<HTMLElement>('section')
-const { state, isStepping, isOnScreen, isPageHidden } = useJourney(section)
+const { isMobilePinned } = useMobilePin(section)
+const { state, isStepping, isOnScreen, isPageHidden } = useJourney(section, isMobilePinned)
 
 const currentPoint = computed(() => JOURNEY_POINTS[state.value.pointIndex]!)
 const markerStates = computed(() => JOURNEY_POINTS.map((_, index) => markerStateAt(index, state.value)))
-const cardStates = computed(() => JOURNEY_POINTS.map((_, index) => cardStateAt(index, state.value)))
+const cardStates = computed(() =>
+  JOURNEY_POINTS.map((_, index) =>
+    isMobilePinned.value ? mobileCardStateAt(index, state.value) : cardStateAt(index, state.value),
+  ),
+)
 const sectionLabel = (index: number) => tGlobal(`nav.${JOURNEY_POINTS[index]!.id}`)
 const status = computed(() => t('status', { point: state.value.pointIndex + 1, total: JOURNEY_POINTS.length }))
 /** «Profile» parado en un punto; «Skills → Experience» mientras camina entre dos. */
@@ -61,6 +70,7 @@ const courses = computed(() =>
     :style="TIMING_CSS_VARS"
     :data-phase="state.phase"
     :data-facing="currentPoint.cardSide"
+    :data-arm="pointingArmOf(state.pointIndex)"
     aria-labelledby="hero-title"
     data-testid="profile-journey"
   >
@@ -82,10 +92,12 @@ const courses = computed(() =>
           <HoloFigure
             :walking="state.phase === 'walk'"
             :stepping="isStepping"
-            :pointing="isPointing(state.phase)"
+            :pointing="isPointing(state.phase) && !isMobilePinned"
             :breathing="state.phase === 'read'"
             :paused="!isOnScreen || isPageHidden"
           />
+          <span class="journey__curtain" aria-hidden="true" />
+          <span class="journey__ray" aria-hidden="true" />
         </div>
         <span class="journey__line" aria-hidden="true" />
       </div>
@@ -224,7 +236,9 @@ const courses = computed(() =>
 
 .journey__status,
 .journey__line,
-.journey__timeline {
+.journey__timeline,
+.journey__curtain,
+.journey__ray {
   display: none;
 }
 
@@ -346,6 +360,194 @@ const courses = computed(() =>
     height: 1px;
     overflow: hidden;
     clip-path: inset(50%);
+  }
+}
+
+/*
+ * Móvil con pin (spec «movil-scroll.md»): escenario sticky con el holograma arriba y UNA tarjeta debajo que cambia
+ * en el sitio. Guardas: ancho de móvil, alto de ventana 520–950 px (mismos valores que MOBILE_PIN_QUERY),
+ * movimiento activo y que las tarjetas quepan (`data-cards-fit`, lo pone useMobilePin).
+ * El JS escribe las variables del fotograma (lib/mobileJourney.ts); sus valores por defecto son los de p = 0:
+ * holograma por materializar y tarjeta 1 visible (lleva el h1). El escenario descuenta la barra de navegación inferior.
+ */
+@media (max-width: 767.98px) and (min-height: 520px) and (max-height: 950px) {
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) {
+    --holo-height: 26cqh;
+    /* Hueco para el zoom de 1,12 (crece hacia arriba desde los pies). */
+    --holo-top: 1.75rem;
+    --timeline-top: calc(var(--holo-top) + var(--holo-height) + 0.5rem);
+    --cards-top: calc(var(--timeline-top) + 3.25rem);
+    /* Mano con el brazo a 55° y el zoom de 1,12, en fracciones del alto del holograma. */
+    --mobile-hand-reach: 0.36;
+    --mobile-hand-drop: 0.34;
+    --arm-direction: 1;
+
+    height: var(--journey-height-mobile);
+  }
+
+  :root[data-motion='full'] .journey[data-arm='left']:not([data-cards-fit='false']) {
+    --arm-direction: -1;
+  }
+
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__stage {
+    position: sticky;
+    top: 0;
+    display: block;
+    height: calc(100svh - var(--size-bottom-bar));
+    padding: 0;
+    overflow: clip;
+    contain: layout paint;
+    container-type: size;
+  }
+
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__walker {
+    position: absolute;
+    top: var(--holo-top);
+    left: 50%;
+    justify-self: auto;
+    width: 0;
+    height: var(--holo-height);
+  }
+
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__holo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    aspect-ratio: 1 / 2;
+    translate: -50% var(--holo-shift, 0px);
+    scale: var(--holo-scale, 1.2);
+    transform-origin: 50% 100%;
+    opacity: var(--holo-reveal, 0);
+  }
+
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__holo .holo {
+    height: 100%;
+  }
+
+  /* Entrada «materializa»: la cortina (color del fondo) se retira de abajo arriba y el rayo sigue su borde. */
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__curtain {
+    display: block;
+    position: absolute;
+    inset: 0;
+    background: var(--ui-bg-elevated);
+    transform-origin: top;
+    transform: scaleY(var(--curtain, 1));
+  }
+
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__ray {
+    display: block;
+    position: absolute;
+    inset: 0;
+    border-top: 2px solid var(--color-brand-400);
+    opacity: var(--ray-opacity, 1);
+    transform: translateY(calc(var(--curtain, 1) * 100%));
+  }
+
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .holo__lines {
+    opacity: var(--scanlines-opacity, 1);
+  }
+
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .holo__cone {
+    opacity: var(--glow-opacity, 0);
+  }
+
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .holo__base {
+    opacity: var(--glow-opacity, 0);
+    scale: var(--glow-scale, 0.6);
+  }
+
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .holo__arm--right {
+    rotate: var(--arm-right, 0deg);
+  }
+
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .holo__arm--left {
+    rotate: var(--arm-left, 0deg);
+  }
+
+  /* Línea de proyección: baja de la mano a la tarjeta. */
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__line {
+    display: block;
+    position: absolute;
+    top: calc(var(--holo-height) * var(--mobile-hand-drop));
+    left: calc(var(--arm-direction) * var(--holo-height) * var(--mobile-hand-reach));
+    height: calc(var(--cards-top) - var(--holo-top) - var(--holo-height) * var(--mobile-hand-drop));
+    border-left: 2px dashed var(--brand-vivid);
+    transform-origin: top;
+    transform: scaleY(var(--line-scale, 0));
+  }
+
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__timeline {
+    position: absolute;
+    top: var(--timeline-top);
+    /* Margen para que la etiqueta centrada del primer y del último punto no se corte. */
+    right: 3rem;
+    left: 3rem;
+    margin: 0;
+    opacity: var(--timeline-opacity, 0);
+  }
+
+  :root[data-motion='full']
+    .journey:not([data-cards-fit='false'])
+    .journey__marker[data-state='current']
+    .journey__dot {
+    scale: 1.4;
+  }
+
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__dot {
+    transition: scale var(--stop-duration) var(--ease-out);
+  }
+
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__cards {
+    position: absolute;
+    inset: var(--cards-top) 0.5rem 0.75rem;
+    display: block;
+  }
+
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__card {
+    position: absolute;
+    inset: 0 0 auto;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__card > article {
+    min-height: 36cqh;
+  }
+
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__card[data-state='current'] {
+    opacity: var(--card-opacity, 1);
+    translate: 0 var(--card-shift, 0px);
+    scale: var(--card-scale, 1);
+    pointer-events: auto;
+  }
+
+  /* Con el teclado: se ve la tarjeta que tiene el foco, en lugar de la actual. */
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__cards:focus-within .journey__card {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  :root[data-motion='full']
+    .journey:not([data-cards-fit='false'])
+    .journey__cards:focus-within
+    .journey__card:focus-within {
+    opacity: 1;
+    translate: none;
+    scale: none;
+    pointer-events: auto;
+  }
+
+  /* Profile lleva más contenido: cifras en una fila para que quepa en la zona de la tarjeta. */
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .profile-counters__list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.375rem;
+  }
+
+  :root[data-motion='full']
+    .journey.is-on-screen:not([data-cards-fit='false'])
+    :is(.journey__holo, .journey__curtain, .journey__line, .journey__card[data-state='current'], .holo__arm) {
+    will-change: transform, opacity;
   }
 }
 

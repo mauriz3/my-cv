@@ -1,5 +1,7 @@
 import type { Ref } from 'vue'
 import {
+  MOBILE_TIMELINE,
+  PINNED_TIMELINE,
   WALK_IDLE_MS,
   isStepping,
   journeyStateAt,
@@ -7,18 +9,23 @@ import {
   scrollProgress,
   type JourneyState,
 } from '~~/lib/journey'
+import { mobileFrameAt, mobileFrameCssVars } from '~~/lib/mobileJourney'
 
 /** Umbrales del observador de la sección (handoff: 0 / 0,3 / 0,6). */
 const VISIBILITY_THRESHOLDS = [0, 0.3, 0.6]
 const CARD_SELECTOR = '[data-point-index]'
+/** En móvil solo se repinta si el progreso cambia más que esto (spec). */
+const MIN_PROGRESS_CHANGE = 0.001
 
 /**
  * Sigue el scroll del recorrido: una vez por fotograma (rAF) y solo con la sección en pantalla,
  * escribe la posición del holograma como variable CSS (`--journey-position`, sin pasar por Vue)
  * y expone el estado (punto, fase), si la zancada avanza, si está en pantalla y si la pestaña está oculta.
+ * Con el pin móvil usa su reparto (entrada + 5 tramos) y escribe además las variables del fotograma (scrub).
  * Al pausar o reanudar el movimiento mantiene al usuario en el mismo punto, sin repetir los anteriores.
  */
-export function useJourney(section: Readonly<Ref<HTMLElement | null>>) {
+export function useJourney(section: Readonly<Ref<HTMLElement | null>>, isMobilePinned: Readonly<Ref<boolean>>) {
+  const timeline = computed(() => (isMobilePinned.value ? MOBILE_TIMELINE : PINNED_TIMELINE))
   const state = ref<JourneyState>(journeyStateAt(0))
   const isSteppingNow = ref(false)
   const isOnScreen = ref(false)
@@ -27,6 +34,7 @@ export function useJourney(section: Readonly<Ref<HTMLElement | null>>) {
 
   let frame = 0
   let lastScrollAt = 0
+  let lastMobileProgress = Number.NEGATIVE_INFINITY
   let idleTimer: ReturnType<typeof setTimeout> | undefined
   let observer: IntersectionObserver | undefined
 
@@ -39,10 +47,21 @@ export function useJourney(section: Readonly<Ref<HTMLElement | null>>) {
     frame = 0
     const element = section.value
     if (!element) return
-    const next = journeyStateAt(readProgress(element))
+    const progress = readProgress(element)
+    const next = isMobilePinned.value ? paintMobileFrame(element, progress) : journeyStateAt(progress)
     element.style.setProperty('--journey-position', next.position.toFixed(4))
     if (next.pointIndex !== state.value.pointIndex || next.phase !== state.value.phase) state.value = next
     isSteppingNow.value = isStepping(next.phase, performance.now() - lastScrollAt)
+  }
+
+  function paintMobileFrame(element: HTMLElement, progress: number): JourneyState {
+    const mobileFrame = mobileFrameAt(progress)
+    if (Math.abs(progress - lastMobileProgress) >= MIN_PROGRESS_CHANGE) {
+      lastMobileProgress = progress
+      for (const [name, value] of Object.entries(mobileFrameCssVars(mobileFrame)))
+        element.style.setProperty(name, value)
+    }
+    return mobileFrame.state
   }
 
   function requestUpdate() {
@@ -101,7 +120,7 @@ export function useJourney(section: Readonly<Ref<HTMLElement | null>>) {
         const sectionTop = element.getBoundingClientRect().top + window.scrollY
         const scrollable = element.offsetHeight - window.innerHeight
         window.scrollTo({
-          top: sectionTop + readingProgressOf(pointIndex) * scrollable,
+          top: sectionTop + readingProgressOf(pointIndex, timeline.value) * scrollable,
           behavior: 'instant',
         })
       } else {
@@ -120,6 +139,12 @@ export function useJourney(section: Readonly<Ref<HTMLElement | null>>) {
     },
     { flush: 'sync' },
   )
+
+  // Al entrar o salir del pin móvil cambia el reparto: repintar todo el fotograma.
+  watch(isMobilePinned, () => {
+    lastMobileProgress = Number.NEGATIVE_INFINITY
+    requestUpdate()
+  })
 
   onMounted(() => {
     if (!section.value) return
