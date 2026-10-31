@@ -10,11 +10,27 @@ export interface GeoContext {
   geo?: { country?: { code?: string } }
 }
 
-export default function geo(_request: Request, context: GeoContext): Response {
-  return Response.json(
-    { country: context.geo?.country?.code ?? null },
-    { headers: { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' } },
-  )
+/** Solo lectura: cualquier otro método recibe 405. */
+export const GEO_ALLOWED_METHODS = ['GET', 'HEAD'] as const
+/**
+ * Las cabeceras de `_headers` no llegan a las Edge Functions: se repiten aquí las que aplican.
+ * HSTS es el mismo valor que ya envía todo el sitio (solo cubre www.mauriziorendon.com y sus subdominios).
+ */
+const SECURITY_HEADERS = {
+  'cache-control': 'no-store',
+  'x-content-type-options': 'nosniff',
+  'strict-transport-security': 'max-age=31536000; includeSubDomains',
+}
+const METHOD_NOT_ALLOWED = 405
+
+export default function geo(request: Request, context: GeoContext): Response {
+  if (!(GEO_ALLOWED_METHODS as readonly string[]).includes(request.method)) {
+    return new Response(null, {
+      status: METHOD_NOT_ALLOWED,
+      headers: { ...SECURITY_HEADERS, allow: GEO_ALLOWED_METHODS.join(', ') },
+    })
+  }
+  return Response.json({ country: context.geo?.country?.code ?? null }, { headers: SECURITY_HEADERS })
 }
 
 export const config = { path: '/geo' }

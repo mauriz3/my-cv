@@ -74,6 +74,19 @@ describe('Edge Function /geo', () => {
     expect(await withoutCountry.json()).toEqual({ country: null })
   })
 
+  it('lleva HSTS (las cabeceras de _headers no llegan a la Edge Function)', () => {
+    const response = geo(new Request('https://example.test/geo'), {})
+    expect(response.headers.get('strict-transport-security')).toBe('max-age=31536000; includeSubDomains')
+  })
+
+  it('acepta GET y HEAD y responde 405 con Allow al resto', () => {
+    expect(geo(new Request('https://example.test/geo', { method: 'HEAD' }), {}).status).toBe(200)
+    const post = geo(new Request('https://example.test/geo', { method: 'POST' }), {})
+    expect(post.status).toBe(405)
+    expect(post.headers.get('allow')).toBe('GET, HEAD')
+    expect(post.headers.get('cache-control')).toBe('no-store')
+  })
+
   it('se sirve en el mismo origen que usa el cliente', () => {
     expect(geoConfig.path).toBe(GEO_ENDPOINT)
   })
