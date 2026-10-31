@@ -37,19 +37,21 @@ const visibleProjects = computed(() =>
     <FilterChips v-model="selectedCategory" :options="filterOptions" :label="t('projects.filterLabel')" />
 
     <ul class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-live="polite" data-testid="project-grid">
-      <li v-for="project in visibleProjects" :key="project.id">
+      <li v-for="(project, index) in visibleProjects" :key="project.id">
         <UCard
           as="article"
           :aria-labelledby="`project-${project.id}`"
           class="relative h-full transition-shadow focus-within:ring-2 focus-within:ring-primary hover:shadow-md"
           :ui="{ body: 'p-0 sm:p-0' }"
         >
+          <!-- La primera captura es el LCP de la página: carga inmediata y prioridad alta; el resto, diferida. -->
           <img
             :src="`/${project.image}`"
             :alt="project.imageAlt"
             width="640"
             height="360"
-            loading="lazy"
+            :loading="index === 0 ? 'eager' : 'lazy'"
+            :fetchpriority="index === 0 ? 'high' : undefined"
             decoding="async"
             class="aspect-video w-full rounded-t-[inherit] object-cover"
           >
