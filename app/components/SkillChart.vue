@@ -2,7 +2,7 @@
 import { Chart as ChartJS, Filler, LineElement, PointElement, RadialLinearScale } from 'chart.js'
 
 // Solo lo que usa el radar (el controlador lo registra `vue-chartjs`): sin tooltip ni leyenda, sin cifras.
-ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler)
+ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, finishAnimationsWhenDisabled)
 
 /** Un eje del radar. `level` va de 0 a `MAX_SKILL_LEVEL` y nunca se muestra: es un perfil relativo. */
 export interface SkillAxis {
@@ -24,6 +24,7 @@ const props = defineProps<{ axes: SkillAxis[] }>()
 
 const { t } = useI18n({ useScope: 'local' })
 const colorMode = useColorMode()
+const { isReduced } = useMotion()
 
 const CHART_DRAW_DURATION_MS = 700
 const AREA_FILL_ALPHA_HEX = '33' // ≈ 20 % de opacidad sobre el color de la serie (#RRGGBBAA)
@@ -82,7 +83,7 @@ const chartData = computed<ChartData<'radar'>>(() => ({
 const chartOptions = computed<ChartOptions<'radar'>>(() => ({
   responsive: true,
   maintainAspectRatio: false,
-  animation: readDocumentMotion() === 'reduced' ? false : { duration: CHART_DRAW_DURATION_MS },
+  animation: chartAnimation(isReduced.value, CHART_DRAW_DURATION_MS),
   events: [], // sin hover ni tooltip: no hay cifras que enseñar
   scales: {
     r: {

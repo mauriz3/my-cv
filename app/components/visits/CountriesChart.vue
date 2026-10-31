@@ -7,7 +7,15 @@ import worldAtlas from 'world-atlas/countries-110m.json'
 import { ISO_NUMERIC_BY_ALPHA2 } from '~~/lib/countryCodes'
 import { OTHER_COUNTRIES_ISO, heatAlpha, withAlpha, type VisitsReport } from '~~/lib/visits'
 
-ChartJS.register(BubbleMapController, GeoFeature, PointElement, ProjectionScale, SizeScale, Tooltip)
+ChartJS.register(
+  BubbleMapController,
+  GeoFeature,
+  PointElement,
+  ProjectionScale,
+  SizeScale,
+  Tooltip,
+  finishAnimationsWhenDisabled,
+)
 
 /** Mapa de burbujas por país (proyección Equal Earth, mapa empaquetado en local) y su ranking al lado. */
 const props = defineProps<{ countries: VisitsReport['countries'] }>()

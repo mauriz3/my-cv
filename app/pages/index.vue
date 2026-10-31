@@ -8,7 +8,12 @@ usePageSeo(() => `${cv.value.fullName} · ${t('nav.profile')}`)
 <template>
   <div class="space-y-6">
     <!-- El h1 de esta página es el nombre, en la primera tarjeta del recorrido. -->
-    <PageHeader :title="t('profile.greeting')" :subtitle="t('profile.overview')" title-tag="p" />
+    <PageHeader
+      :title="t('profile.greeting')"
+      :short-title="t('nav.profile')"
+      :subtitle="t('profile.overview')"
+      title-tag="p"
+    />
 
     <ProfileJourney />
 

@@ -11,7 +11,7 @@ import {
 import { Chart } from 'vue-chartjs'
 import { withAlpha, type VisitsReport } from '~~/lib/visits'
 
-ChartJS.register(PolarAreaController, ArcElement, RadialLinearScale, Tooltip)
+ChartJS.register(PolarAreaController, ArcElement, RadialLinearScale, Tooltip, finishAnimationsWhenDisabled)
 
 /** Fuentes de tráfico (área polar, sin marcas en el eje radial). */
 const props = defineProps<{ sources: VisitsReport['sources'] }>()

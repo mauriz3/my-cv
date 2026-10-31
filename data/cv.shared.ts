@@ -15,10 +15,11 @@ export const cvFacts: CvFacts = {
     es: '/Resume-Maurizio-Rendon-es.pdf',
   },
 
+  /** Orden de la spec del botón global (cabecera y tabulación): LinkedIn → CodePen → GitHub. */
   contactLinks: [
     { label: 'LinkedIn', url: 'https://www.linkedin.com/in/rendon7/' },
-    { label: 'GitHub', url: 'https://github.com/mauriz3' },
     { label: 'CodePen', url: 'https://codepen.io/maurirz3' },
+    { label: 'GitHub', url: 'https://github.com/mauriz3' },
   ],
 
   experience: [

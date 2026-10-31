@@ -4,6 +4,10 @@ import {
   MOTION_ATTRIBUTE,
   MOTION_NO_FLASH_SCRIPT,
   MOTION_STORAGE_KEY,
+  MOTION_TOGGLE_ICON_TEXT_KEY,
+  MOTION_TOGGLE_TEXT_MODE,
+  motionAnnouncementKey,
+  motionToggleTextKey,
   parseStoredMotion,
   resolveMotion,
   toggledMotion,
@@ -62,5 +66,32 @@ describe('script de movimiento anterior al pintado', () => {
 
   it('con localStorage bloqueado no falla y sigue al sistema', () => {
     expect(runScript({ storageBlocked: true, systemReduced: true })).toBe('reduced')
+  })
+})
+
+describe('textos del botón de movimiento', () => {
+  it('decisión de Maurizio: texto fijo «Reducir movimiento» también en escritorio y en reducido', () => {
+    expect(MOTION_TOGGLE_TEXT_MODE).toBe('fixed')
+    expect(motionToggleTextKey('full')).toBe('reduceMotion')
+    expect(motionToggleTextKey('reduced')).toBe('reduceMotion')
+  })
+
+  it('alternativa texto según el estado: pausa → «Reducir», play → «Aumentar»', () => {
+    expect(motionToggleTextKey('full', 'by-state')).toBe('reduceMotion')
+    expect(motionToggleTextKey('reduced', 'by-state')).toBe('increaseMotion')
+  })
+
+  it('modo fijo: siempre «Reducir movimiento»', () => {
+    expect(motionToggleTextKey('full', 'fixed')).toBe('reduceMotion')
+    expect(motionToggleTextKey('reduced', 'fixed')).toBe('reduceMotion')
+  })
+
+  it('en modo icono el nombre es fijo: el estado va en aria-pressed', () => {
+    expect(MOTION_TOGGLE_ICON_TEXT_KEY).toBe('reduceMotion')
+  })
+
+  it('anuncia el estado nuevo', () => {
+    expect(motionAnnouncementKey('reduced')).toBe('motionReduced')
+    expect(motionAnnouncementKey('full')).toBe('motionOn')
   })
 })
