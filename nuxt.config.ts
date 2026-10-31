@@ -1,4 +1,5 @@
 import { ANALYTICS_MEASUREMENT_ID } from './lib/analytics'
+import { PRIVACY_PATH } from './lib/privacy'
 import { VISITS_RANGES, visitsEndpoint } from './lib/visits'
 
 // Solo el build de producción (CI en push a master) lleva Google Analytics: ni develop, ni preview, ni local.
@@ -38,6 +39,10 @@ export default defineNuxtConfig({
 
   nitro: {
     // El JSON de visitas (mock) sale como fichero estático del mismo origen: cumple `connect-src 'self'`.
-    prerender: { routes: ['/en', '/es', ...VISITS_RANGES.map(visitsEndpoint)], crawlLinks: true }
+    // Privacidad solo se enlaza desde el aviso y el pie (que solo existen en producción): se prerenderiza siempre.
+    prerender: {
+      routes: ['/en', '/es', `/en${PRIVACY_PATH}`, `/es${PRIVACY_PATH}`, ...VISITS_RANGES.map(visitsEndpoint)],
+      crawlLinks: true
+    }
   }
 })

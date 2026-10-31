@@ -1,9 +1,12 @@
 <script setup lang="ts">
+import { PRIVACY_PATH } from '~~/lib/privacy'
+
 /**
- * Pie mínimo. Hoy solo lleva «Preferencias de analítica», que reabre el aviso de consentimiento;
- * por eso el layout solo lo monta si el build lleva Google Analytics (igual que el aviso).
+ * Pie mínimo: «Preferencias de analítica» (reabre el aviso de consentimiento) y «Privacidad».
+ * El layout solo lo monta si el build lleva Google Analytics (igual que el aviso).
  */
 const { t } = useI18n({ useScope: 'local' })
+const localePath = useLocalePath()
 const { reopen } = useConsentBanner()
 </script>
 
@@ -20,13 +23,20 @@ const { reopen } = useConsentBanner()
       >
         {{ t('analyticsPreferences') }}
       </button>
+      <NuxtLink
+        :to="localePath(PRIVACY_PATH)"
+        class="inline-flex min-h-11 items-center underline underline-offset-4 hover:text-highlighted focus-visible:rounded focus-visible:outline-2 focus-visible:outline-primary"
+        data-testid="privacy-link"
+      >
+        {{ t('privacy') }}
+      </NuxtLink>
     </div>
   </footer>
 </template>
 
 <i18n lang="json">
 {
-  "en": { "analyticsPreferences": "Analytics preferences" },
-  "es": { "analyticsPreferences": "Preferencias de analítica" }
+  "en": { "analyticsPreferences": "Analytics preferences", "privacy": "Privacy" },
+  "es": { "analyticsPreferences": "Preferencias de analítica", "privacy": "Privacidad" }
 }
 </i18n>

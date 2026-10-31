@@ -163,5 +163,39 @@
       "more": "Más",
       "summary": "Visitas por día y franja horaria; la de más visitas: {day} a las {slot}, {value} visitas."
     }
+  },
+  "privacy": {
+    "title": "Privacidad",
+    "subtitle": "Qué se mide en esta web y cómo",
+    "change": "Cambiar mi elección",
+    "controller": {
+      "title": "Responsable",
+      "text": "Maurizio Rendon, titular de esta web personal. No hay formulario, email ni teléfono públicos.",
+      "contact": "Contacto para cualquier cuestión de privacidad:"
+    },
+    "what": {
+      "title": "Qué se mide",
+      "text": "Uso Google Analytics 4 para contar visitas de forma agregada (páginas, país, dispositivo). Sin publicidad ni señales de Google: la personalización de anuncios y Google Signals están desactivadas. La sección Visitas muestra, de momento, datos de ejemplo."
+    },
+    "cookies": {
+      "title": "Cookies y almacenamiento",
+      "text": "Si aceptas, Google Analytics guarda cookies de medición ({cookies}, hasta {cookieMonths} meses) con un identificador seudónimo de tu navegador. Si rechazas, no se guarda ninguna. Tu elección y tu preferencia de movimiento se guardan solo en tu navegador (localStorage: {consentKey} y {motionKey})."
+    },
+    "region": {
+      "title": "Dónde se pide permiso",
+      "text": "El aviso se muestra en la UE/EEE, Reino Unido y Suiza. Para saberlo, la web consulta tu país a Netlify (se deduce de la IP en el momento y no se guarda). Fuera de esa zona la medición se activa sin aviso y sin guardar ninguna elección; puedes desactivarla igualmente."
+    },
+    "google": {
+      "title": "Google",
+      "text": "Google trata estos datos como encargado del tratamiento y recibe en cada visita datos técnicos (IP, navegador, idioma y resolución de pantalla). Los datos pueden transferirse a servidores de Google en EE. UU."
+    },
+    "retention": {
+      "title": "Conservación",
+      "text": "Los datos de Google Analytics se conservan {retentionMonths} meses y después se borran. Los informes agregados no identifican a nadie."
+    },
+    "other": {
+      "title": "Tus opciones",
+      "text": "Puedes cambiar tu elección cuando quieras desde «Preferencias de analítica» en el pie o con el botón de abajo, y borrar las cookies desde tu navegador."
+    }
   }
 }
