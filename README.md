@@ -26,9 +26,10 @@ Sin teléfono, email ni dirección en ningún sitio: contacto solo por LinkedIn,
 
 ## Seguridad
 
-- CSP estricta en `public/_headers`: los scripts inline llevan hash (lo calcula `scripts/build-headers.mjs` tras cada `generate`). El único dominio externo son los de Google Analytics, y solo en el build de producción (`connect-src 'self'` más esos orígenes).
+- CSP estricta en `public/_headers`: los scripts inline llevan hash (lo calcula `scripts/build-headers.mjs` tras cada `generate`). Solo el build de producción añade Google Analytics (`ANALYTICS_CSP_SOURCES` en `lib/analytics.ts`): `script-src` admite únicamente `https://www.googletagmanager.com` (gtag.js); `connect-src` e `img-src`, los orígenes de medición de Google.
 - Excepción consciente: `style-src 'unsafe-inline'`, porque Nuxt UI y Vue generan estilos inline. Solo afecta a estilos, no a scripts.
 - Fuera de producción (`CONTEXT` distinto de `production` en Netlify) se añade `X-Robots-Tag: noindex`.
+- Los assets con hash de `/_nuxt/` se sirven con caché de un año e `immutable`.
 - Las acciones de GitHub se fijan por SHA de commit. Dependabot (`.github/dependabot.yml`) revisa npm y github-actions cada semana contra la rama por defecto (master): minor/patch agrupadas, pocas PRs abiertas, commits `chore(deps)` y sin auto-merge.
 - `npm run audit:check` (CI) falla ante vulnerabilidades high/critical salvo las aceptadas y justificadas en `scripts/audit.mjs`.
 
@@ -44,9 +45,9 @@ Sin teléfono, email ni dirección en ningún sitio: contacto solo por LinkedIn,
 ### Analítica y consentimiento (solo en producción)
 
 - Google Analytics con Consent Mode v2 (`lib/analytics.ts`): todo `denied` por defecto con `wait_for_update` de 500 ms, y la elección se guarda en `localStorage["analytics-consent"]`.
-- El aviso solo se muestra en la UE/EEE, Reino Unido y Suiza (lista `CONSENT_BANNER_COUNTRIES` en `lib/consentRegion.ts`). El país lo da la Edge Function `netlify/edge-functions/geo.ts` en `/geo` (`{ "country": "ES" }`, `Cache-Control: no-store`, mismo origen).
+- El aviso solo se muestra en la UE/EEE, Reino Unido y Suiza (lista `CONSENT_BANNER_COUNTRIES` en `lib/consentRegion.ts`). El país lo da la Edge Function `netlify/edge-functions/geo.ts` en `/geo` (`{ "country": "ES" }`, `Cache-Control: no-store`, HSTS, mismo origen; solo GET/HEAD, el resto da 405).
 - Con elección guardada, manda esa elección. Sin ella: país de la zona, desconocido o error de `/geo` (también en local) → aviso; fuera de la zona → `analytics_storage` concedido sin aviso y sin guardar nada.
-- El enlace del pie «Preferencias de analítica» reabre el aviso para cambiar la elección (granted ↔ denied).
+- El aviso enlaza («Más información») a la página de privacidad `/privacy` (fuera del menú; textos en `i18n/locales`, plazos en `lib/privacy.ts`). En el pie están «Preferencias de analítica», que reabre el aviso para cambiar la elección (granted ↔ denied), y «Privacidad».
 
 ### Botón de movimiento global
 
@@ -62,4 +63,4 @@ Sin teléfono, email ni dirección en ningún sitio: contacto solo por LinkedIn,
 ## Despliegue
 
 - La CI (`.github/workflows/ci.yml`) ejecuta typecheck, tests, generate y audit:check, más gitleaks.
-- Solo un push a master despliega (`deploy-production`, Netlify CLI con `--no-build`). Ese job hace checkout del repo para que Netlify empaquete la Edge Function `/geo`. Después comprueba las cabeceras de producción y que `/geo` responde `{country}` con `no-store`.
+- Solo un push a master despliega (`deploy-production`, Netlify CLI con `--no-build`). Ese job hace checkout del repo para que Netlify empaquete la Edge Function `/geo`. Después comprueba las cabeceras de producción y que `/geo` responde `{country}` con `no-store` y rechaza POST (405).
