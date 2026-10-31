@@ -64,6 +64,10 @@
   --brand-hover: var(--color-brand-800);
   --brand-soft: var(--color-brand-50);
   --brand-vivid: var(--color-brand-500);
+  /* Puntos del recorrido y escala secuencial (mapa/heatmap): ≥ 3:1 sobre la superficie (revisión final). */
+  --marker-current: var(--color-brand-600);
+  --marker-pending: var(--color-graphite-400);
+  --chart-sequential: var(--color-brand-700);
   --chart-1: #02a0e9;
   --chart-2: #b45309;
   --chart-3: #0f766e;
@@ -85,6 +89,8 @@
   --brand-hover: var(--color-brand-300);
   --brand-soft: var(--color-brand-950);
   --brand-vivid: var(--color-brand-500);
+  --marker-current: var(--color-brand-500);
+  --chart-sequential: var(--color-brand-400);
   --chart-1: #4ec6fd;
   --chart-2: #fbbf24;
   --chart-3: #2dd4bf;

@@ -309,7 +309,7 @@ const courses = computed(() =>
   width: 16px;
   height: 16px;
   flex: none;
-  border: 2px solid var(--ui-border-accented);
+  border: 2px solid var(--marker-pending);
   border-radius: 9999px;
   background: var(--ui-bg-elevated);
 }
@@ -325,8 +325,8 @@ const courses = computed(() =>
 }
 
 .journey__marker[data-state='current'] .journey__dot {
-  border-color: var(--brand-vivid);
-  background: var(--brand-vivid);
+  border-color: var(--marker-current);
+  background: var(--marker-current);
   box-shadow: 0 0 0 5px var(--brand-soft);
 }
 
@@ -799,7 +799,7 @@ const courses = computed(() =>
   content: '';
   position: absolute;
   inset: -2px;
-  border: 2px solid var(--brand-vivid);
+  border: 2px solid var(--marker-current);
   border-radius: inherit;
   opacity: 0;
   pointer-events: none;

@@ -16,7 +16,7 @@ function readChartTheme(): ChartTheme {
   const token = (name: string) => rootStyle.getPropertyValue(name).trim()
   return {
     series: [token('--ui-primary'), token('--chart-2'), token('--chart-3'), token('--chart-4'), token('--chart-5')],
-    sequential: token('--brand-vivid'),
+    sequential: token('--chart-sequential'),
     grid: token('--ui-border'),
     text: token('--ui-text'),
     muted: token('--ui-text-muted'),
