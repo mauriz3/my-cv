@@ -39,13 +39,13 @@ onMounted(() => {
 {
   "en": {
     "title": "Visit statistics",
-    "text": "With your OK, Google Analytics counts visits to improve this site. No personal data is collected.",
+    "text": "With your OK, Google Analytics uses cookies to count visits and improve this site. If you reject, no analytics cookies are stored.",
     "accept": "Accept",
     "reject": "Reject"
   },
   "es": {
     "title": "Estadísticas de visitas",
-    "text": "Con tu permiso, Google Analytics cuenta las visitas para mejorar esta web. No se recogen datos personales.",
+    "text": "Con tu permiso, Google Analytics usa cookies para contar visitas y mejorar esta web. Si rechazas, no se guarda ninguna cookie de analítica.",
     "accept": "Aceptar",
     "reject": "Rechazar"
   }
