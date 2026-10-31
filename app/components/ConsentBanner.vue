@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { applyConsent, readConsent, updateConsent, type ConsentChoice, type Gtag } from '~~/lib/analytics'
 import { consentStartAction, fetchVisitorCountry } from '~~/lib/consentRegion'
+import { PRIVACY_PATH } from '~~/lib/privacy'
 
 /**
  * Aviso mínimo de analítica (solo existe si el build lleva Google Analytics). Aceptar activa
@@ -10,6 +11,7 @@ import { consentStartAction, fetchVisitorCountry } from '~~/lib/consentRegion'
  * Fuera de esa zona se concede sin aviso, solo para esa visita.
  */
 const { t } = useI18n({ useScope: 'local' })
+const localePath = useLocalePath()
 const { isOpen: isVisible, wantsFocus } = useConsentBanner()
 const banner = useTemplateRef<HTMLElement>('banner')
 
@@ -54,11 +56,15 @@ watch(isVisible, async (visible) => {
     class="fixed inset-x-3 bottom-[calc(var(--size-bottom-bar)+0.75rem)] z-50 rounded-xl border border-default bg-elevated p-4 shadow-lg focus-visible:outline-2 focus-visible:outline-primary md:right-4 md:bottom-4 md:left-[calc(var(--size-rail)+1rem)] md:max-w-xl xl:left-[calc(var(--size-sidebar-current)+1rem)]"
   >
     <h2 id="consent-title" class="text-sm font-semibold text-highlighted">{{ t('title') }}</h2>
-    <i18n-t keypath="text" tag="p" scope="parent" class="mt-1 text-sm text-muted">
-      <template #lead>
-        <strong class="font-semibold text-highlighted">{{ t('lead') }}</strong>
-      </template>
-    </i18n-t>
+    <p class="mt-1 text-sm text-muted">
+      {{ t('text') }}
+      <NuxtLink
+        :to="localePath(PRIVACY_PATH)"
+        class="text-(--brand-hover) underline underline-offset-4 hover:decoration-2 focus-visible:rounded focus-visible:outline-2 focus-visible:outline-primary"
+        data-testid="consent-more-info"
+        >{{ t('moreInfo') }}</NuxtLink
+      >
+    </p>
     <!-- Aceptar y Rechazar con el mismo tamaño, peso y contraste: ninguna opción se destaca. -->
     <div class="mt-3 grid grid-cols-2 gap-2 sm:flex">
       <UButton
@@ -79,15 +85,15 @@ watch(isVisible, async (visible) => {
 {
   "en": {
     "title": "Visit statistics",
-    "lead": "I only measure visits statistically",
-    "text": "{lead}, with no ads and no personal profiles. This data powers the Visits section of this site.",
+    "text": "I use Google Analytics to count visits in aggregate (pages, country, device). No ads and no Google signals. If you accept, a measurement cookie is stored (_ga, up to 2 years); if you reject, none is stored.",
+    "moreInfo": "Learn more",
     "accept": "Accept",
     "reject": "Reject"
   },
   "es": {
     "title": "Estadísticas de visitas",
-    "lead": "Solo mido visitas de forma estadística",
-    "text": "{lead}, sin publicidad ni perfiles personales. Estos datos alimentan la sección Visitas de esta web.",
+    "text": "Uso Google Analytics para contar visitas de forma agregada (páginas, país, dispositivo). Sin publicidad ni señales de Google. Si aceptas, se guarda una cookie de medición (_ga, hasta 2 años); si rechazas, no se guarda ninguna.",
+    "moreInfo": "Más información",
     "accept": "Aceptar",
     "reject": "Rechazar"
   }

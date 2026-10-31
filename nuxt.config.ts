@@ -1,4 +1,5 @@
 import { ANALYTICS_MEASUREMENT_ID } from './lib/analytics'
+import { PRIVACY_PATH } from './lib/privacy'
 import { VISITS_RANGES, visitsEndpoint } from './lib/visits'
 
 // Solo el build de producción (CI en push a master) lleva Google Analytics: ni develop, ni preview, ni local.
@@ -15,7 +16,12 @@ export default defineNuxtConfig({
 
   // Fuentes e iconos van empaquetados en local: nada se pide a dominios externos (CSP estricta).
   ui: { fonts: false },
-  icon: { fallbackToApi: false, clientBundle: { scan: true } },
+  // Los iconos de `app/utils` (menú, enlaces) también van al bundle del cliente: la página de error
+  // se pinta solo en el cliente (404.html) y no puede pedirlos a la API de Iconify.
+  icon: {
+    fallbackToApi: false,
+    clientBundle: { scan: { globInclude: ['**/*.{vue,jsx,tsx,md,mdc,mdx,yml,yaml}', 'app/utils/**/*.ts'] } }
+  },
 
   i18n: {
     // Netlify expone la URL de cada despliegue; en local y en producción cae al dominio real.
@@ -38,6 +44,10 @@ export default defineNuxtConfig({
 
   nitro: {
     // El JSON de visitas (mock) sale como fichero estático del mismo origen: cumple `connect-src 'self'`.
-    prerender: { routes: ['/en', '/es', ...VISITS_RANGES.map(visitsEndpoint)], crawlLinks: true }
+    // Privacidad solo se enlaza desde el aviso y el pie (que solo existen en producción): se prerenderiza siempre.
+    prerender: {
+      routes: ['/en', '/es', `/en${PRIVACY_PATH}`, `/es${PRIVACY_PATH}`, ...VISITS_RANGES.map(visitsEndpoint)],
+      crawlLinks: true
+    }
   }
 })

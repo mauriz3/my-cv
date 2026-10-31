@@ -7,12 +7,22 @@
 export const ANALYTICS_MEASUREMENT_ID = 'G-9HF9362QE9'
 export const GTAG_SCRIPT_URL = `https://www.googletagmanager.com/gtag/js?id=${ANALYTICS_MEASUREMENT_ID}`
 
-/** Orígenes que la CSP debe permitir (script-src, connect-src e img-src) cuando hay analytics. */
-export const ANALYTICS_CSP_SOURCES = [
+/** Orígenes de medición (envío de hits): connect-src e img-src. */
+const ANALYTICS_COLLECT_SOURCES = [
   'https://*.googletagmanager.com',
   'https://*.google-analytics.com',
   'https://*.analytics.google.com',
 ] as const
+
+/**
+ * Orígenes que la CSP añade a cada directiva cuando hay analytics. `script-src` solo admite el host
+ * exacto de gtag.js (el único script externo); los comodines quedan para las peticiones de medición.
+ */
+export const ANALYTICS_CSP_SOURCES = {
+  'script-src': [new URL(GTAG_SCRIPT_URL).origin],
+  'connect-src': ANALYTICS_COLLECT_SOURCES,
+  'img-src': ANALYTICS_COLLECT_SOURCES,
+} as const satisfies Record<string, readonly string[]>
 
 export const CONSENT_STORAGE_KEY = 'analytics-consent'
 export type ConsentChoice = 'granted' | 'denied'

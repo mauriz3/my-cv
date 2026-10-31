@@ -14,7 +14,6 @@ import { ANALYTICS_CSP_SOURCES } from '../lib/analytics.ts'
 const OUTPUT_DIR = '.output/public'
 const HEADERS_FILE = join(OUTPUT_DIR, '_headers')
 const SCRIPT_SRC_PLACEHOLDER = "script-src 'self'"
-const ANALYTICS_DIRECTIVES = ["script-src 'self'", "connect-src 'self'", "img-src 'self'"]
 const PRODUCTION_CONTEXT = 'production'
 const NOINDEX_HEADER = '  X-Robots-Tag: noindex, nofollow'
 const ALL_PATHS_RULE = '/*\n'
@@ -45,10 +44,10 @@ function withScriptHashes(headers, hashes) {
 }
 
 function withAnalyticsSources(headers) {
-  const sources = ANALYTICS_CSP_SOURCES.join(' ')
-  return ANALYTICS_DIRECTIVES.reduce((result, directive) => {
+  return Object.entries(ANALYTICS_CSP_SOURCES).reduce((result, [name, sources]) => {
+    const directive = `${name} 'self'`
     if (!result.includes(directive)) throw new Error(`Falta «${directive}» en _headers`)
-    return result.replace(directive, `${directive} ${sources}`)
+    return result.replace(directive, `${directive} ${sources.join(' ')}`)
   }, headers)
 }
 

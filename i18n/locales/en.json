@@ -163,5 +163,46 @@
       "more": "More",
       "summary": "Visits by weekday and time slot; busiest: {day} at {slot}, {value} visits."
     }
+  },
+  "privacy": {
+    "title": "Privacy",
+    "subtitle": "What this site measures and how",
+    "change": "Change my choice",
+    "controller": {
+      "title": "Controller",
+      "text": "Maurizio Rendon, owner of this personal website. There is no public form, email or phone number.",
+      "contact": "Contact for any privacy question:"
+    },
+    "what": {
+      "title": "What is measured",
+      "text": "I use Google Analytics 4 to count visits in aggregate (pages, country, device). No ads and no Google signals: ad personalisation and Google Signals are turned off. For now, the Visits section shows sample data."
+    },
+    "cookies": {
+      "title": "Cookies and storage",
+      "text": "If you accept, Google Analytics stores measurement cookies ({cookies}, up to {cookieMonths} months) with a pseudonymous identifier for your browser. If you reject, none is stored. Your choice and your motion preference are stored only in your browser (localStorage: {consentKey} and {motionKey})."
+    },
+    "region": {
+      "title": "Where consent is asked",
+      "text": "The notice is shown in the EU/EEA, the United Kingdom and Switzerland. To know this, the site asks Netlify for your country (derived from your IP on the fly and not stored). Outside that area measurement is turned on without a notice and no choice is stored; you can still turn it off."
+    },
+    "google": {
+      "title": "Google",
+      "text": "Google processes this data as a processor and receives technical data on each visit (IP, browser, language and screen resolution). Data may be transferred to Google servers in the US."
+    },
+    "retention": {
+      "title": "Retention",
+      "text": "Google Analytics data is kept for {retentionMonths} months and then deleted. Aggregate reports do not identify anyone."
+    },
+    "other": {
+      "title": "Your options",
+      "text": "You can change your choice at any time from «Analytics preferences» in the footer or with the button below, and delete the cookies from your browser."
+    }
+  },
+  "error": {
+    "notFound": "Page not found",
+    "notFoundText": "This address does not exist or has changed.",
+    "title": "Something went wrong",
+    "text": "This page could not be loaded.",
+    "back": "Back to profile"
   }
 }

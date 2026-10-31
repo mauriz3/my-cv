@@ -107,7 +107,7 @@ export const cvFacts: CvFacts = {
     {
       id: 'balance-of-the-force',
       url: 'https://codepen.io/maurirz3/full/KKVdYgV',
-      image: 'bf.png',
+      image: 'bf.webp',
       category: 'codepen',
     },
     {

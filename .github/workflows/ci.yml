@@ -87,4 +87,6 @@ jobs:
           echo "$geo"
           echo "$geo" | grep -qiE '^cache-control:.*no-store' || { echo "::error::/geo sin Cache-Control no-store"; fail=1; }
           echo "$geo" | grep -qE '"country":' || { echo "::error::/geo no devuelve {country}"; fail=1; }
+          post=$(curl -sS -o /dev/null -w '%{http_code}' -X POST https://www.mauriziorendon.com/geo)
+          [ "$post" = 405 ] || { echo "::error::/geo acepta POST ($post)"; fail=1; }
           exit $fail
