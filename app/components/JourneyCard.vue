@@ -2,10 +2,11 @@
 import { JOURNEY_POINTS, pointPosition, type CardState } from '~~/lib/journey'
 
 /**
- * Tarjeta HTML de un punto del recorrido: «n · Sección», contenido (slot) y enlace a la sección.
+ * Tarjeta HTML de un punto del recorrido: «n · Sección», contenido (slot) y enlace a la sección
+ * (salvo con `ownAction`: la tarjeta de Visitas lleva su propio botón en el contenido).
  * `state`: visible, ya leída o por llegar en el recorrido con pin (la versión estática lo ignora y las muestra todas).
  */
-const props = defineProps<{ index: number; state: CardState }>()
+const props = defineProps<{ index: number; state: CardState; ownAction?: boolean }>()
 
 const { t } = useI18n({ useScope: 'local' })
 const { t: tGlobal } = useI18n()
@@ -14,7 +15,7 @@ const localePath = useLocalePath()
 const point = JOURNEY_POINTS[props.index]!
 const label = computed(() => tGlobal(`nav.${point.id}`))
 /** El primer punto es esta misma página: sin enlace. */
-const hasSectionLink = props.index > 0
+const hasSectionLink = props.index > 0 && !props.ownAction
 </script>
 
 <template>

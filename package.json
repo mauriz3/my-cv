@@ -24,9 +24,13 @@
     "@nuxt/ui": "^4.12.0",
     "@nuxtjs/i18n": "^10.6.0",
     "chart.js": "^4.6.1",
+    "chartjs-chart-geo": "^4.3.6",
+    "chartjs-chart-matrix": "^3.1.0",
+    "d3-geo": "^3.1.1",
     "nuxt": "^4.6.2",
     "tailwindcss": "^4",
-    "vue-chartjs": "^5.3.4"
+    "vue-chartjs": "^5.3.4",
+    "world-atlas": "^2.0.2"
   },
   "devDependencies": {
     "@types/node": "^24.19.2",

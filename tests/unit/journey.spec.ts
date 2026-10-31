@@ -23,24 +23,25 @@ const at = (pointIndex: number, segmentProgress: number) =>
   (pointIndex + segmentProgress) * segmentShareOf(PINNED_TIMELINE)
 
 describe('reparto del recorrido', () => {
-  it('5 puntos en orden: Profile, Skills, Experience, Education, Projects', () => {
+  it('6 puntos en orden: Profile, Skills, Experience, Education, Projects, Visits', () => {
     expect(JOURNEY_POINTS.map((point) => point.id)).toEqual([
       'profile',
       'skills',
       'experience',
       'education',
       'projects',
+      'visits',
     ])
   })
 
-  it('cada punto ocupa un 20 % del scroll y sus fases cubren el tramo entero', () => {
-    expect(segmentShareOf(PINNED_TIMELINE)).toBeCloseTo(0.2)
+  it('cada punto ocupa 1/6 del scroll y sus fases cubren el tramo entero', () => {
+    expect(segmentShareOf(PINNED_TIMELINE)).toBeCloseTo(1 / 6)
     expect(PHASE_ENDS.map(([phase]) => phase)).toEqual(['walk', 'stop', 'point', 'reveal', 'read', 'leave'])
     expect(PHASE_ENDS.at(-1)?.[1]).toBe(1)
   })
 
   it('los puntos se reparten de extremo a extremo del timeline', () => {
-    expect(JOURNEY_POINTS.map((_, index) => pointPosition(index))).toEqual([0, 0.25, 0.5, 0.75, 1])
+    expect(JOURNEY_POINTS.map((_, index) => pointPosition(index))).toEqual([0, 0.2, 0.4, 0.6, 0.8, 1])
   })
 })
 
@@ -68,13 +69,13 @@ describe('fases y posición', () => {
   })
 
   it('se queda leyendo en el último punto hasta el final', () => {
-    expect(journeyStateAt(1)).toMatchObject({ pointIndex: 4, phase: 'read', position: 1 })
-    expect(journeyStateAt(at(4, 0.95)).phase).toBe('read')
+    expect(journeyStateAt(1)).toMatchObject({ pointIndex: 5, phase: 'read', position: 1 })
+    expect(journeyStateAt(at(5, 0.95)).phase).toBe('read')
   })
 
   it('fuera de rango se limita al primer o al último punto', () => {
     expect(journeyStateAt(-1).pointIndex).toBe(0)
-    expect(journeyStateAt(2).pointIndex).toBe(4)
+    expect(journeyStateAt(2).pointIndex).toBe(5)
   })
 })
 
@@ -82,11 +83,11 @@ describe('marcadores del timeline', () => {
   const states = (progress: number) => JOURNEY_POINTS.map((_, index) => markerStateAt(index, journeyStateAt(progress)))
 
   it('parado en el punto 3: hechos los anteriores, actual el 3, pendientes los siguientes', () => {
-    expect(states(at(2, 0.8))).toEqual(['done', 'done', 'current', 'pending', 'pending'])
+    expect(states(at(2, 0.8))).toEqual(['done', 'done', 'current', 'pending', 'pending', 'pending'])
   })
 
   it('caminando hacia el punto 3: el destino sigue pendiente y no hay actual', () => {
-    expect(states(at(2, 0.1))).toEqual(['done', 'done', 'pending', 'pending', 'pending'])
+    expect(states(at(2, 0.1))).toEqual(['done', 'done', 'pending', 'pending', 'pending', 'pending'])
   })
 })
 
@@ -112,15 +113,15 @@ describe('estado de las tarjetas', () => {
   const cards = (progress: number) => JOURNEY_POINTS.map((_, index) => cardStateAt(index, journeyStateAt(progress)))
 
   it('al cargar se ve la tarjeta de Profile (lleva el h1)', () => {
-    expect(cards(0)).toEqual(['current', 'upcoming', 'upcoming', 'upcoming', 'upcoming'])
+    expect(cards(0)).toEqual(['current', 'upcoming', 'upcoming', 'upcoming', 'upcoming', 'upcoming'])
   })
 
   it('caminando hacia el punto 3: su tarjeta aún no está y las anteriores ya salieron', () => {
-    expect(cards(at(2, 0.2))).toEqual(['past', 'past', 'upcoming', 'upcoming', 'upcoming'])
+    expect(cards(at(2, 0.2))).toEqual(['past', 'past', 'upcoming', 'upcoming', 'upcoming', 'upcoming'])
   })
 
   it('parado en el punto 3: solo se ve su tarjeta; al continuar sale', () => {
-    expect(cards(at(2, 0.8))).toEqual(['past', 'past', 'current', 'upcoming', 'upcoming'])
+    expect(cards(at(2, 0.8))).toEqual(['past', 'past', 'current', 'upcoming', 'upcoming', 'upcoming'])
     expect(cards(at(2, 0.95))[2]).toBe('past')
   })
 })
@@ -142,9 +143,9 @@ describe('recorrido móvil', () => {
   const mobileAt = (pointIndex: number, segmentProgress: number) =>
     MOBILE_TIMELINE.entryShare + (pointIndex + segmentProgress) * segmentShareOf(MOBILE_TIMELINE)
 
-  it('entrada de 0,14 y después 5 tramos de 0,172', () => {
+  it('entrada de 0,14 y después 6 tramos de 0,1433', () => {
     expect(MOBILE_TIMELINE.entryShare).toBe(0.14)
-    expect(segmentShareOf(MOBILE_TIMELINE)).toBeCloseTo(0.172)
+    expect(segmentShareOf(MOBILE_TIMELINE)).toBeCloseTo(0.1433)
     expect(MOBILE_TIMELINE.phaseEnds.at(-1)?.[1]).toBe(1)
   })
 
@@ -164,9 +165,15 @@ describe('recorrido móvil', () => {
     ])
   })
 
+  it('tramos de la tabla de la spec: punto 6 (Visitas) de 0,857 a 1', () => {
+    expect(mobileAt(5, 0)).toBeCloseTo(0.857, 3)
+    expect(journeyStateAt(0.86, MOBILE_TIMELINE).pointIndex).toBe(5)
+    expect(journeyStateAt(0.85, MOBILE_TIMELINE).pointIndex).toBe(4)
+  })
+
   it('el primer punto camina en el sitio y el último se queda leyendo', () => {
     expect(journeyStateAt(mobileAt(0, 0.2), MOBILE_TIMELINE).position).toBe(0)
-    expect(journeyStateAt(1, MOBILE_TIMELINE)).toMatchObject({ pointIndex: 4, phase: 'read' })
+    expect(journeyStateAt(1, MOBILE_TIMELINE)).toMatchObject({ pointIndex: 5, phase: 'read' })
     expect(journeyStateAt(1, MOBILE_TIMELINE).segmentProgress).toBeCloseTo(1)
   })
 })
@@ -186,8 +193,8 @@ describe('tiempos como variables CSS', () => {
     const vars = journeyTimingCssVars()
     expect(vars['--walk-cycle-duration']).toBe('800ms')
     expect(vars['--point-duration']).toBe('450ms')
-    expect(vars['--journey-height-desktop']).toBe('600vh')
-    expect(vars['--journey-height-tablet']).toBe('400vh')
-    expect(vars['--journey-height-mobile']).toBe('380svh')
+    expect(vars['--journey-height-desktop']).toBe('720vh')
+    expect(vars['--journey-height-tablet']).toBe('480vh')
+    expect(vars['--journey-height-mobile']).toBe('420svh')
   })
 })

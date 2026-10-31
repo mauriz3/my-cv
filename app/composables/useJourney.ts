@@ -21,7 +21,8 @@ const MIN_PROGRESS_CHANGE = 0.001
  * Sigue el scroll del recorrido: una vez por fotograma (rAF) y solo con la sección en pantalla,
  * escribe la posición del holograma como variable CSS (`--journey-position`, sin pasar por Vue)
  * y expone el estado (punto, fase), si la zancada avanza, si está en pantalla y si la pestaña está oculta.
- * Con el pin móvil usa su reparto (entrada + 5 tramos) y escribe además las variables del fotograma (scrub).
+ * Con el pin móvil usa su reparto (entrada + 6 tramos) y escribe además las variables del fotograma (scrub)
+ * y expone el dibujo de la tarjeta Visitas (`visitsDraw`), que también va ligado al scroll.
  * Al pausar o reanudar el movimiento mantiene al usuario en el mismo punto, sin repetir los anteriores.
  */
 export function useJourney(section: Readonly<Ref<HTMLElement | null>>, isMobilePinned: Readonly<Ref<boolean>>) {
@@ -30,6 +31,7 @@ export function useJourney(section: Readonly<Ref<HTMLElement | null>>, isMobileP
   const isSteppingNow = ref(false)
   const isOnScreen = ref(false)
   const isPageHidden = ref(false)
+  const visitsDraw = ref(0)
   const { motion } = useMotion()
 
   let frame = 0
@@ -60,6 +62,7 @@ export function useJourney(section: Readonly<Ref<HTMLElement | null>>, isMobileP
       lastMobileProgress = progress
       for (const [name, value] of Object.entries(mobileFrameCssVars(mobileFrame)))
         element.style.setProperty(name, value)
+      if (mobileFrame.visitsDraw !== visitsDraw.value) visitsDraw.value = mobileFrame.visitsDraw
     }
     return mobileFrame.state
   }
@@ -130,6 +133,18 @@ export function useJourney(section: Readonly<Ref<HTMLElement | null>>, isMobileP
     })
   }
 
+  /**
+   * Lleva al final del recorrido (último punto, tarjeta Visitas visible): cuando su botón recibe el foco
+   * del teclado con el escenario fijado. En la versión estática el navegador ya lo deja a la vista.
+   */
+  function revealLastPoint() {
+    const element = section.value
+    const stage = element?.firstElementChild
+    if (!element || !stage || getComputedStyle(stage).position !== 'sticky') return
+    const sectionTop = element.getBoundingClientRect().top + window.scrollY
+    window.scrollTo({ top: sectionTop + element.offsetHeight - window.innerHeight, behavior: 'instant' })
+  }
+
   // `sync`: se mide antes de que `<html data-motion>` cambie la maqueta. Si `<html>` ya tiene el valor nuevo
   // (sincronización inicial tras hidratar), la maqueta no cambia y no hay nada que recolocar.
   watch(
@@ -171,5 +186,5 @@ export function useJourney(section: Readonly<Ref<HTMLElement | null>>, isMobileP
     document.removeEventListener('visibilitychange', onVisibilityChange)
   })
 
-  return { state, isStepping: isSteppingNow, isOnScreen, isPageHidden }
+  return { state, isStepping: isSteppingNow, isOnScreen, isPageHidden, visitsDraw, revealLastPoint }
 }

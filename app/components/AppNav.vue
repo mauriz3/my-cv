@@ -37,12 +37,15 @@ onMounted(() => {
       :data-testid="`nav-${item.id}`"
       :aria-label="isCollapsed ? t(`nav.${item.id}`) : undefined"
       :title="isCollapsed ? t(`nav.${item.id}`) : undefined"
-      class="flex flex-1 flex-col items-center justify-center gap-1 rounded-lg text-xs text-muted transition-colors hover:text-default focus-visible:outline-2 focus-visible:outline-primary md:flex-none md:py-3 xl:flex-row xl:justify-start xl:gap-3 xl:px-3 xl:text-sm xl:collapsed:justify-center xl:collapsed:px-0"
+      class="flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-lg text-xs text-muted transition-colors hover:text-default focus-visible:outline-2 focus-visible:outline-primary md:flex-none md:py-3 xl:flex-row xl:justify-start xl:gap-3 xl:px-3 xl:text-sm xl:collapsed:justify-center xl:collapsed:px-0"
       active-class="bg-primary/12 text-primary! font-medium"
       exact-active-class="bg-primary/12 text-primary! font-medium"
     >
       <UIcon :name="item.icon" class="size-5 shrink-0" aria-hidden="true" />
-      <span class="xl:collapsed:sr-only">{{ t(`nav.${item.id}`) }}</span>
+      <!-- 6 destinos en la barra inferior: etiqueta de 10 px que no se pisa con la vecina. -->
+      <span class="max-w-full truncate px-0.5 max-md:text-[0.625rem] xl:collapsed:sr-only">{{
+        t(`nav.${item.id}`)
+      }}</span>
     </NuxtLink>
 
     <button
