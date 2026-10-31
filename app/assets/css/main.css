@@ -106,14 +106,16 @@ h3 {
 
 /*
  * Movimiento reducido: nada se anima si se pide con el botón (`data-motion="reduced"`)
- * o el sistema lo pide y no se ha elegido «Aumentar movimiento».
+ * o el sistema lo pide y no se ha elegido «Aumentar movimiento». Transiciones a 0 s (no 0,01 ms): así ni se crean
+ * y el cambio de maqueta al pausar se ve y se mide en el mismo fotograma.
  */
 :root[data-motion='reduced'] *,
 :root[data-motion='reduced'] *::before,
 :root[data-motion='reduced'] *::after {
   animation-duration: 0.01ms !important;
   animation-iteration-count: 1 !important;
-  transition-duration: 0.01ms !important;
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
   scroll-behavior: auto !important;
 }
 
@@ -123,7 +125,8 @@ h3 {
   :root:not([data-motion='full']) *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
     scroll-behavior: auto !important;
   }
 }

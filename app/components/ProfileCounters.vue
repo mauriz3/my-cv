@@ -49,7 +49,7 @@ const countersNote = computed(() =>
 
 <template>
   <div>
-    <ul class="grid grid-cols-2 gap-3 xl:grid-cols-4">
+    <ul class="profile-counters__list grid grid-cols-2 gap-3 xl:grid-cols-4">
       <li>
         <MetricCard :label="t('yearsInTech')"><YearsFigure :periods="techPeriods" count-up /></MetricCard>
       </li>
