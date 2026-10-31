@@ -1,10 +1,10 @@
 # Actualizaciones semanales de dependencias. Sin auto-merge: cada PR pasa la CI (verify + secrets) y se revisa a mano.
 # Minor y patch van agrupadas en una sola PR por ecosistema; las major llegan sueltas.
+# Sin target-branch: las PRs van a la rama por defecto del repo (master).
 version: 2
 updates:
   - package-ecosystem: npm
     directory: /
-    target-branch: develop
     schedule: { interval: weekly }
     open-pull-requests-limit: 3
     commit-message: { prefix: 'chore(deps)', prefix-development: 'chore(deps)' }
@@ -13,7 +13,6 @@ updates:
         update-types: [minor, patch]
   - package-ecosystem: github-actions
     directory: /
-    target-branch: develop
     schedule: { interval: weekly }
     open-pull-requests-limit: 2
     commit-message: { prefix: 'chore(deps)' }
