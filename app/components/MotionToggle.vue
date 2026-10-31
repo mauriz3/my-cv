@@ -1,10 +1,9 @@
 <script setup lang="ts">
 /**
- * Botón de movimiento (solo en el Inicio). Activo: pausa + «Reduce motion». Reducido: play + «Increase motion»
- * en ámbar y aria-pressed=true. `iconOnly` (móvil): solo icono de 44 × 44 con aria-label.
+ * Botón de movimiento global (cabecera de todas las páginas, junto a ES/EN y sol/luna). Activo: pausa + «Reduce motion».
+ * Reducido: play + «Increase motion» en ámbar y aria-pressed=true. Con texto en escritorio (xl); en tablet y móvil,
+ * solo icono de 44 × 44 (el nombre accesible es el mismo aria-label).
  */
-withDefaults(defineProps<{ iconOnly?: boolean }>(), { iconOnly: false })
-
 const { t } = useI18n({ useScope: 'local' })
 const { isReduced, toggle } = useMotion()
 
@@ -16,14 +15,14 @@ const icon = computed(() => (isReduced.value ? 'i-lucide-play' : 'i-lucide-pause
   <button
     type="button"
     class="motion-toggle"
-    :class="{ 'motion-toggle--reduced': isReduced, 'motion-toggle--icon': iconOnly }"
+    :class="{ 'motion-toggle--reduced': isReduced }"
     :aria-pressed="isReduced"
     :aria-label="label"
     data-testid="motion-toggle"
     @click="toggle"
   >
     <UIcon :name="icon" class="size-4 shrink-0" aria-hidden="true" />
-    <span v-if="!iconOnly">{{ label }}</span>
+    <span class="hidden xl:inline">{{ label }}</span>
   </button>
 </template>
 
@@ -47,9 +46,12 @@ const icon = computed(() => (isReduced.value ? 'i-lucide-play' : 'i-lucide-pause
     color 150ms;
 }
 
-.motion-toggle--icon {
-  width: 44px;
-  padding-inline: 0;
+/* Tablet y móvil: solo icono. */
+@media (max-width: 1279.98px) {
+  .motion-toggle {
+    width: 44px;
+    padding-inline: 0;
+  }
 }
 
 .motion-toggle:hover {

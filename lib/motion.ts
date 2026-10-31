@@ -1,5 +1,5 @@
 /**
- * Preferencia de movimiento de la web (botón del Inicio). Lógica pura, sin Vue ni DOM global.
+ * Preferencia de movimiento de la web (botón global de la cabecera). Lógica pura, sin Vue ni DOM global.
  * El estado vive en `<html data-motion="full | reduced">`: el CSS solo anima con `full`.
  * Sin JS no hay atributo y todo queda estático.
  */

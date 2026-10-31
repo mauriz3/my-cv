@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * `titleTag="p"` cuando la página ya tiene su propio h1 (el Perfil: el nombre del hero).
- * Slot `actions`: controles propios de una página (el botón de movimiento, solo en el Inicio).
+ * Controles globales a la derecha: enlaces, botón de movimiento, ES/EN y sol/luna (en todas las páginas).
  * `titleId`: ancla del título; recibe el foco por programa (`tabindex="-1"`) al llegar desde un enlace.
  */
 withDefaults(defineProps<{ title: string; subtitle?: string; titleTag?: 'h1' | 'p'; titleId?: string }>(), {
@@ -26,7 +26,7 @@ withDefaults(defineProps<{ title: string; subtitle?: string; titleTag?: 'h1' | '
     <div class="flex flex-wrap items-center gap-2">
       <!-- En móvil los enlaces van en la tarjeta de perfil (ver pages/index.vue). -->
       <ContactLinks labels="wide-only" class="hidden md:flex" />
-      <slot name="actions" />
+      <MotionToggle />
       <LanguageSwitch />
       <UColorModeButton />
     </div>
