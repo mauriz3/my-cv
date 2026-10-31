@@ -4,7 +4,7 @@ import { MatrixController, MatrixElement } from 'chartjs-chart-matrix'
 import { Chart } from 'vue-chartjs'
 import { heatAlpha, withAlpha, type VisitsReport } from '~~/lib/visits'
 
-ChartJS.register(MatrixController, MatrixElement, CategoryScale, Tooltip)
+ChartJS.register(MatrixController, MatrixElement, CategoryScale, Tooltip, finishAnimationsWhenDisabled)
 
 /** Mapa de calor día × franja de 3 h (escala secuencial del azul vivo). */
 const props = defineProps<{ hours: VisitsReport['hours'] }>()

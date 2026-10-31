@@ -27,6 +27,11 @@
     "greeting": "Hola, soy Maurizio",
     "overview": "Resumen del perfil, cifras y habilidades"
   },
+  "books": {
+    "eyebrow": "Fuera de la pantalla",
+    "title": "Libros que recomiendo",
+    "intro": "Dos libros a los que siempre vuelvo, y por qué."
+  },
   "skills": {
     "subtitle": "Perfil de habilidades, años por área y herramientas",
     "toolsTitle": "Herramientas y tecnologías"

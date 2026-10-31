@@ -15,7 +15,16 @@ import {
 import { Chart } from 'vue-chartjs'
 import { peakOf, sum, withAlpha, type VisitsRange, type VisitsReport } from '~~/lib/visits'
 
-ChartJS.register(LineController, LineElement, PointElement, CategoryScale, LinearScale, Filler, Tooltip)
+ChartJS.register(
+  LineController,
+  LineElement,
+  PointElement,
+  CategoryScale,
+  LinearScale,
+  Filler,
+  Tooltip,
+  finishAnimationsWhenDisabled,
+)
 
 /** Visitas en el tiempo: periodo actual (área con degradado) y anterior (grafito discontinuo). */
 const props = defineProps<{ timeseries: VisitsReport['timeseries']; range: VisitsRange }>()

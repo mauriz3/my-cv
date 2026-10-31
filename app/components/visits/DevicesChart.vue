@@ -3,7 +3,7 @@ import { ArcElement, Chart as ChartJS, DoughnutController, Tooltip, type ChartDa
 import { Chart } from 'vue-chartjs'
 import type { VisitsReport } from '~~/lib/visits'
 
-ChartJS.register(DoughnutController, ArcElement, Tooltip)
+ChartJS.register(DoughnutController, ArcElement, Tooltip, finishAnimationsWhenDisabled)
 
 /** Reparto por dispositivo (anillo con el total de visitas en el centro). */
 const props = defineProps<{ devices: VisitsReport['devices']; totalVisits: number }>()

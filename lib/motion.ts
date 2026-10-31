@@ -1,5 +1,5 @@
 /**
- * Preferencia de movimiento de la web (botón del Inicio). Lógica pura, sin Vue ni DOM global.
+ * Preferencia de movimiento de la web (botón global de la cabecera, spec boton-global.md). Lógica pura, sin Vue ni DOM global.
  * El estado vive en `<html data-motion="full | reduced">`: el CSS solo anima con `full`.
  * Sin JS no hay atributo y todo queda estático.
  */
@@ -23,6 +23,32 @@ export function resolveMotion(stored: MotionPreference | null, systemPrefersRedu
 
 export function toggledMotion(current: MotionPreference): MotionPreference {
   return current === 'full' ? 'reduced' : 'full'
+}
+
+/** Claves i18n del botón de movimiento (MotionToggle). */
+export type MotionToggleTextKey = 'reduceMotion' | 'increaseMotion'
+export type MotionAnnouncementKey = 'motionReduced' | 'motionOn'
+
+/**
+ * Texto visible del botón en escritorio (≥ 1024 px). Decisión de Maurizio: 'fixed', siempre «Reducir movimiento»;
+ * el estado lo dan aria-pressed, el icono (pausa / play) y el color (ámbar). La alternativa de la spec,
+ * 'by-state' («Reducir» ↔ «Aumentar movimiento»), queda a un cambio de esta constante.
+ */
+export const MOTION_TOGGLE_TEXT_MODE: 'by-state' | 'fixed' = 'fixed'
+
+/** Nombre fijo del botón en modo icono (tablet y móvil) y de su tooltip; el estado va en aria-pressed. */
+export const MOTION_TOGGLE_ICON_TEXT_KEY: MotionToggleTextKey = 'reduceMotion'
+
+export function motionToggleTextKey(
+  motion: MotionPreference,
+  mode: typeof MOTION_TOGGLE_TEXT_MODE = MOTION_TOGGLE_TEXT_MODE,
+): MotionToggleTextKey {
+  return mode === 'by-state' && motion === 'reduced' ? 'increaseMotion' : MOTION_TOGGLE_ICON_TEXT_KEY
+}
+
+/** Anuncio (aria-live polite) tras pulsar: «Movimiento reducido» / «Movimiento activado». */
+export function motionAnnouncementKey(motion: MotionPreference): MotionAnnouncementKey {
+  return motion === 'reduced' ? 'motionReduced' : 'motionOn'
 }
 
 /**

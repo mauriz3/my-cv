@@ -13,7 +13,7 @@ import {
 import { Chart } from 'vue-chartjs'
 import type { VisitsReport } from '~~/lib/visits'
 
-ChartJS.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip)
+ChartJS.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip, finishAnimationsWhenDisabled)
 
 /** Páginas más vistas: barras horizontales con la cifra escrita al final de cada barra. */
 const props = defineProps<{ pages: VisitsReport['pages'] }>()

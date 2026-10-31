@@ -29,7 +29,7 @@ function applyToDocument(motion: MotionPreference) {
 }
 
 /**
- * Preferencia de movimiento compartida (botón del Inicio, recorrido, contadores, gráficas).
+ * Preferencia de movimiento compartida (botón global de la cabecera, recorrido, contadores, gráficas).
  * Fuente de verdad: `<html data-motion>`. En el servidor vale «full» y no se usa para pintar.
  */
 export function useMotion() {

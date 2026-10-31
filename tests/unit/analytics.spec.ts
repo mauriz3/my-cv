@@ -4,7 +4,9 @@ import {
   ANALYTICS_CSP_SOURCES,
   ANALYTICS_MEASUREMENT_ID,
   CONSENT_STORAGE_KEY,
+  CONSENT_WAIT_FOR_UPDATE_MS,
   applyConsent,
+  updateConsent,
   buildAnalyticsInlineScript,
   readConsent,
 } from '../../lib/analytics'
@@ -33,7 +35,13 @@ describe('Consent Mode v2 (script inline)', () => {
     expect(consentDefault).toEqual([
       'consent',
       'default',
-      { ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', analytics_storage: 'denied' },
+      {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+        wait_for_update: CONSENT_WAIT_FOR_UPDATE_MS,
+      },
     ])
     expect(config?.[0]).toBe('config')
     expect(config?.[1]).toBe(ANALYTICS_MEASUREMENT_ID)
@@ -74,12 +82,33 @@ describe('aviso de consentimiento', () => {
     expect(calls).toEqual([['consent', 'update', { analytics_storage: 'granted' }]])
   })
 
-  it('Rechazar guarda «denied» y no llama a gtag', () => {
+  it('Rechazar guarda «denied» y deja analytics_storage en «denied»', () => {
     const storage = fakeStorage()
     const calls: unknown[][] = []
     applyConsent('denied', storage, (...args) => void calls.push(args))
     expect(storage.store.get(CONSENT_STORAGE_KEY)).toBe('denied')
-    expect(calls).toEqual([])
+    expect(calls).toEqual([['consent', 'update', { analytics_storage: 'denied' }]])
+  })
+
+  it('cambiar la elección guardada (Preferencias de analítica) actualiza el consentimiento en ambos sentidos', () => {
+    const storage = fakeStorage('granted')
+    const calls: unknown[][] = []
+    const gtag = (...args: unknown[]) => void calls.push(args)
+    applyConsent('denied', storage, gtag)
+    expect(readConsent(storage)).toBe('denied')
+    applyConsent('granted', storage, gtag)
+    expect(readConsent(storage)).toBe('granted')
+    expect(calls.map(([, , params]) => params)).toEqual([
+      { analytics_storage: 'denied' },
+      { analytics_storage: 'granted' },
+    ])
+  })
+
+  it('fuera de la zona con aviso: concede sin guardar la elección', () => {
+    const calls: unknown[][] = []
+    updateConsent('granted', (...args) => void calls.push(args))
+    expect(calls).toEqual([['consent', 'update', { analytics_storage: 'granted' }]])
+    expect(() => updateConsent('granted', undefined)).not.toThrow()
   })
 
   it('si localStorage está bloqueado no rompe', () => {

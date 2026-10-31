@@ -15,10 +15,11 @@ export const cvFacts: CvFacts = {
     es: '/Resume-Maurizio-Rendon-es.pdf',
   },
 
+  /** Orden de la spec del botón global (cabecera y tabulación): LinkedIn → CodePen → GitHub. */
   contactLinks: [
     { label: 'LinkedIn', url: 'https://www.linkedin.com/in/rendon7/' },
-    { label: 'GitHub', url: 'https://github.com/mauriz3' },
     { label: 'CodePen', url: 'https://codepen.io/maurirz3' },
+    { label: 'GitHub', url: 'https://github.com/mauriz3' },
   ],
 
   experience: [
@@ -122,6 +123,20 @@ export const cvFacts: CvFacts = {
       category: 'codepen',
     },
     { id: 'search-mock', url: 'https://codepen.io/maurirz3/full/JjyYRXq', image: 'sm.png', category: 'codepen' },
+  ],
+
+  /** Portadas de la edición en español (Tanda D), optimizadas en `public/books/`. */
+  books: [
+    {
+      id: 'enigma-room-622',
+      author: 'Joël Dicker',
+      cover: { src: '/books/enigma-habitacion-622.jpg', width: 317, height: 500 },
+    },
+    {
+      id: 'surrounded-by-idiots',
+      author: 'Thomas Erikson',
+      cover: { src: '/books/rodeados-de-idiotas.jpg', width: 333, height: 500 },
+    },
   ],
 
   languages: [

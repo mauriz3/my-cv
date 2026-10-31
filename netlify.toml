@@ -2,6 +2,9 @@
 [build]
   command = "npm run test && npm run generate"
   publish = ".output/public"
+  # Edge Function `/geo` (país de la visita para el aviso de analítica; la ruta va en su `config` inline).
+  # `netlify deploy --no-build` la empaqueta desde aquí: el job deploy-production hace checkout del repo.
+  edge_functions = "netlify/edge-functions"
 
 [build.environment]
   NODE_VERSION = "24" # mismo valor que .nvmrc

@@ -66,7 +66,7 @@ onBeforeUnmount(() => observer?.disconnect())
     </header>
 
     <div ref="body" :class="BODY_HEIGHT_CLASSES[props.size]" :aria-busy="loading">
-      <div v-if="loading" class="visits-skeleton h-full rounded-lg" aria-hidden="true" />
+      <div v-if="loading" class="skeleton h-full rounded-lg" aria-hidden="true" />
       <slot v-else-if="isInView" />
     </div>
 

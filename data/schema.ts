@@ -70,6 +70,16 @@ const LanguageFactsSchema = z.object({
   level: z.enum(['A1', 'A2', 'B1', 'B2', 'C1', 'C2']),
 })
 
+/** Portada en `public/` con sus medidas reales (width/height en el `<img>`: sin saltos de maqueta). */
+const CoverSchema = z.object({
+  src: z.string().startsWith('/'),
+  width: z.number().int().positive(),
+  height: z.number().int().positive(),
+})
+
+/** Libro recomendado (sección «Libros que recomiendo» del Perfil). El autor no se traduce. */
+const BookFactsSchema = z.object({ id: Id, author: NonEmptyText, cover: CoverSchema })
+
 const SkillAreaFactsSchema = z.object({
   id: Id,
   periods: z.array(Period).min(1),
@@ -85,6 +95,7 @@ export const CvFactsSchema = z.object({
   certifications: z.array(CertificationSchema),
   projects: z.array(ProjectFactsSchema).min(1),
   languages: z.array(LanguageFactsSchema).min(1),
+  books: z.array(BookFactsSchema).min(1),
   skillAreas: z.array(SkillAreaFactsSchema).min(1),
   skillProfile: z.array(SkillAxisFactsSchema).min(3),
 })
@@ -106,6 +117,14 @@ const ProjectTextSchema = z.object({
   imageAlt: NonEmptyText,
 })
 
+/** `reason`: por qué lo recomienda Maurizio (cita de la tarjeta). */
+const BookTextSchema = z.object({
+  title: NonEmptyText,
+  genre: NonEmptyText,
+  reason: NonEmptyText,
+  coverAlt: NonEmptyText,
+})
+
 const textsByIdSchema = <T extends z.ZodType>(item: T) => z.record(Id, item)
 
 export const CvTextsSchema = z.object({
@@ -123,6 +142,7 @@ export const CvTextsSchema = z.object({
   education: textsByIdSchema(EducationTextSchema),
   projects: textsByIdSchema(ProjectTextSchema),
   languages: textsByIdSchema(NonEmptyText),
+  books: textsByIdSchema(BookTextSchema),
   skillAreas: textsByIdSchema(NonEmptyText),
   /** Nombre de cada eje del radar. */
   skillProfile: textsByIdSchema(NonEmptyText),
@@ -148,6 +168,7 @@ export const CvSchema = z.object({
   certifications: z.array(CertificationSchema),
   projects: z.array(ProjectFactsSchema.extend(ProjectTextSchema.shape)),
   languages: z.array(LanguageFactsSchema.extend({ name: NonEmptyText })),
+  books: z.array(BookFactsSchema.extend(BookTextSchema.shape)),
   skillAreas: z.array(SkillAreaFactsSchema.extend({ name: NonEmptyText })),
   skillProfile: z.array(SkillAxisFactsSchema.extend({ label: NonEmptyText })),
 })
@@ -157,3 +178,4 @@ export type CvTexts = z.infer<typeof CvTextsSchema>
 export type Cv = z.infer<typeof CvSchema>
 export type TechnologyGroup = z.infer<typeof TechnologyGroupSchema>
 export type ContactLink = z.infer<typeof ContactLinkSchema>
+export type Book = Cv['books'][number]

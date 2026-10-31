@@ -1,3 +1,4 @@
+import type { Plugin } from 'chart.js'
 import type { ChartTheme } from '~/composables/useChartTheme'
 
 /** Piezas comunes de las gráficas de Visitas (Chart.js). */
@@ -10,6 +11,17 @@ const MAX_VALUE_TICKS = 5
 /** Animación de entrada; con movimiento reducido, ninguna (`animation: false`). */
 export function chartAnimation(isReduced: boolean, durationMs: number) {
   return isReduced ? (false as const) : { duration: durationMs, easing: 'easeOutQuart' as const }
+}
+
+/**
+ * Pausa a mitad de una animación: al llegar `animation: false` (movimiento reducido), para la que está en curso
+ * y la actualización deja cada pieza en su estado final. Se registra con los controladores de cada gráfica.
+ */
+export const finishAnimationsWhenDisabled: Plugin = {
+  id: 'finishAnimationsWhenDisabled',
+  beforeUpdate(chart) {
+    if (chart.options.animation === false) chart.stop()
+  },
 }
 
 export function chartFont(theme: ChartTheme) {

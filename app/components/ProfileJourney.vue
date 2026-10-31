@@ -89,11 +89,6 @@ const courses = computed(() =>
     data-testid="profile-journey"
   >
     <div class="journey__stage">
-      <div class="journey__motion">
-        <span class="hidden md:block"><MotionToggle /></span>
-        <span class="md:hidden"><MotionToggle icon-only /></span>
-      </div>
-
       <div class="journey__status" aria-hidden="true">
         <p class="text-xs font-medium text-primary">{{ status }}</p>
         <p class="font-display text-3xl font-bold text-highlighted">{{ stageTitle }}</p>
@@ -245,13 +240,6 @@ const courses = computed(() =>
   background: var(--ui-bg-elevated);
 }
 
-.journey__motion {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 1;
-}
-
 .journey__status,
 .journey__line,
 .journey__timeline,
@@ -287,10 +275,6 @@ const courses = computed(() =>
 @media (min-width: 1280px) {
   .journey__stage {
     padding-top: 1.5rem;
-  }
-
-  .journey__motion {
-    display: none;
   }
 
   .journey__cards {

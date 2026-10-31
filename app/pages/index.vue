@@ -8,14 +8,17 @@ usePageSeo(() => `${cv.value.fullName} · ${t('nav.profile')}`)
 <template>
   <div class="space-y-6">
     <!-- El h1 de esta página es el nombre, en la primera tarjeta del recorrido. -->
-    <PageHeader :title="t('profile.greeting')" :subtitle="t('profile.overview')" title-tag="p">
-      <template #actions>
-        <!-- En tablet y móvil el botón va en la esquina del recorrido. -->
-        <span class="hidden xl:block"><MotionToggle /></span>
-      </template>
-    </PageHeader>
+    <PageHeader
+      :title="t('profile.greeting')"
+      :short-title="t('nav.profile')"
+      :subtitle="t('profile.overview')"
+      title-tag="p"
+    />
 
     <ProfileJourney />
+
+    <!-- Tras el recorrido (que acaba en Proyectos y Visitas), en el flujo normal de la página. -->
+    <BooksSection />
 
     <Panel :title="t('profile.summary')">
       <p class="max-w-prose text-muted">{{ cv.summary }}</p>

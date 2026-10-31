@@ -72,7 +72,7 @@ const summary = computed(() => {
               <span aria-hidden="true">{{ kpi.shown }}</span>
               <span class="sr-only">{{ kpi.final }}</span>
             </template>
-            <span v-else class="visits-skeleton inline-block h-[1em] w-16 rounded align-middle" />
+            <span v-else class="skeleton inline-block h-[1em] w-16 rounded align-middle" />
           </span>
           <span v-if="report" class="text-xs font-medium tabular-nums" :class="`journey-visits__trend--${kpi.trend}`">
             {{ kpi.change }}

@@ -14,6 +14,11 @@ import {
 const TITLE_ID = 'visits-title'
 const KPI_KEYS: readonly KpiKey[] = ['visits', 'visitors', 'avgDurationSec', 'bounceRate']
 const PERCENT = 100
+/** Entrada escalonada de las tarjetas (4 KPI + 6 gráficas, `--stagger` 0–9). */
+const CARD_ENTER_MS = 400
+const CARD_STAGGER_MS = 60
+const LAST_CARD_STAGGER = 9
+const ENTRANCE_VARS = { '--enter-ms': `${CARD_ENTER_MS}ms`, '--stagger-ms': `${CARD_STAGGER_MS}ms` }
 
 const { t } = useI18n()
 const route = useRoute()
@@ -26,6 +31,7 @@ const { report, status, retry } = useVisits(range)
 const tables = useVisitsTables(report)
 
 const isLoading = computed(() => !report.value)
+const { isEntering } = useEntranceOnce(CARD_ENTER_MS + LAST_CARD_STAGGER * CARD_STAGGER_MS)
 const rangeOptions = computed(() => VISITS_RANGES.map((value) => ({ value, label: t(`visits.range.${value}`) })))
 
 /** Valor de cada KPI como número entero para el contador (el rebote, en puntos: 0,41 → 41). */
@@ -94,7 +100,14 @@ onMounted(() => {
       <p class="mt-1 text-sm text-muted">{{ t('visits.empty.description') }}</p>
     </div>
 
-    <div v-else class="space-y-4" :aria-busy="status === 'loading'" data-testid="visits-dashboard">
+    <div
+      v-else
+      class="space-y-4"
+      :style="ENTRANCE_VARS"
+      :data-entering="isEntering || undefined"
+      :aria-busy="status === 'loading'"
+      data-testid="visits-dashboard"
+    >
       <p v-if="isLoading" class="sr-only" role="status">{{ t('visits.loading') }}</p>
 
       <ul class="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4" :aria-label="t('visits.kpiLabel')">

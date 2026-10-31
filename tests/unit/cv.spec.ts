@@ -21,6 +21,19 @@ const textBlocks = [
   { name: 'es', texts: textsEs },
 ]
 
+/** Medidas de un JPEG leyendo su marcador SOF (baseline o progresivo). */
+function jpegSize(bytes: Buffer): { width: number; height: number } {
+  let offset = 2
+  while (offset < bytes.length) {
+    const marker = bytes[offset + 1]!
+    if (marker === 0xc0 || marker === 0xc2) {
+      return { height: bytes.readUInt16BE(offset + 5), width: bytes.readUInt16BE(offset + 7) }
+    }
+    offset += 2 + bytes.readUInt16BE(offset + 2)
+  }
+  throw new Error('JPEG sin marcador SOF')
+}
+
 /** Todos los textos visibles del CV de un idioma, para buscar datos personales. */
 function visibleStrings(value: unknown): string[] {
   if (typeof value === 'string') return [value]
@@ -49,11 +62,12 @@ describe('idiomas', () => {
     expect(byIdSorted(Object.keys(texts.education))).toEqual(byIdSorted(cvFacts.education.map((e) => e.id)))
     expect(byIdSorted(Object.keys(texts.projects))).toEqual(byIdSorted(cvFacts.projects.map((p) => p.id)))
     expect(byIdSorted(Object.keys(texts.languages))).toEqual(byIdSorted(cvFacts.languages.map((l) => l.id)))
+    expect(byIdSorted(Object.keys(texts.books))).toEqual(byIdSorted(cvFacts.books.map((b) => b.id)))
     expect(byIdSorted(Object.keys(texts.skillAreas))).toEqual(byIdSorted(cvFacts.skillAreas.map((a) => a.id)))
   })
 
   it('los ids no se repiten dentro de cada bloque', () => {
-    const blocks = [cvFacts.experience, cvFacts.education, cvFacts.projects, cvFacts.skillAreas]
+    const blocks = [cvFacts.experience, cvFacts.education, cvFacts.projects, cvFacts.books, cvFacts.skillAreas]
     for (const block of blocks) {
       const ids = block.map((item) => item.id)
       expect(new Set(ids).size).toBe(ids.length)
@@ -88,10 +102,20 @@ describe('enlaces e imágenes', () => {
   })
 
   it.each(LOCALES)('«%s»: el texto alternativo de cada imagen es descriptivo', (locale) => {
-    for (const project of getCv(locale).projects) {
-      const alt = project.imageAlt.trim().toLowerCase()
-      expect(GENERIC_ALT_TEXTS).not.toContain(alt)
-      expect(alt.split(/\s+/).length).toBeGreaterThanOrEqual(3)
+    const cv = getCv(locale)
+    for (const alt of [...cv.projects.map((p) => p.imageAlt), ...cv.books.map((b) => b.coverAlt)]) {
+      const normalized = alt.trim().toLowerCase()
+      expect(GENERIC_ALT_TEXTS).not.toContain(normalized)
+      expect(normalized.split(/\s+/).length).toBeGreaterThanOrEqual(3)
+    }
+  })
+
+  it('cada portada existe en public/ y su width/height son las medidas reales del JPEG', () => {
+    for (const { cover } of cvFacts.books) {
+      expect(jpegSize(readFileSync(new URL(`../../public${cover.src}`, import.meta.url)))).toEqual({
+        width: cover.width,
+        height: cover.height,
+      })
     }
   })
 })
