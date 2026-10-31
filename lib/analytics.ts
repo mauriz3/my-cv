@@ -32,14 +32,17 @@ export function readConsent(storage: Pick<Storage, 'getItem'>): ConsentChoice | 
   }
 }
 
-/** Guarda la elección y, solo si acepta, activa `analytics_storage`. */
+/**
+ * Guarda la elección y actualiza `analytics_storage` con ella. Así también se puede cambiar después
+ * (pie «Preferencias de analítica»): de «granted» a «denied» y al revés.
+ */
 export function applyConsent(choice: ConsentChoice, storage: ConsentStorage, gtag: Gtag | undefined): void {
   try {
     storage.setItem(CONSENT_STORAGE_KEY, choice)
   } catch {
     // Sin almacenamiento, la elección vale solo para esta visita.
   }
-  if (choice === 'granted') gtag?.('consent', 'update', { analytics_storage: 'granted' })
+  gtag?.('consent', 'update', { analytics_storage: choice })
 }
 
 /**

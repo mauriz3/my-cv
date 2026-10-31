@@ -35,5 +35,6 @@ if (analyticsId) {
     >
       <slot />
     </main>
+    <AppFooter v-if="analyticsId" />
   </UApp>
 </template>

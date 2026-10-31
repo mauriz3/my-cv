@@ -3,11 +3,12 @@ import { applyConsent, readConsent, type ConsentChoice, type Gtag } from '~~/lib
 
 /**
  * Aviso mínimo de analítica (solo existe si el build lleva Google Analytics). Aceptar activa
- * `analytics_storage`; Rechazar lo deja en «denied». La elección se recuerda en localStorage.
+ * `analytics_storage`; Rechazar lo deja en «denied». La elección se recuerda en localStorage
+ * y se puede cambiar después desde el pie («Preferencias de analítica»).
  */
 const { t } = useI18n({ useScope: 'local' })
-
-const isVisible = ref(false)
+const { isOpen: isVisible, wantsFocus } = useConsentBanner()
+const banner = useTemplateRef<HTMLElement>('banner')
 
 function choose(choice: ConsentChoice) {
   applyConsent(choice, localStorage, (window as { gtag?: Gtag }).gtag)
@@ -17,14 +18,24 @@ function choose(choice: ConsentChoice) {
 onMounted(() => {
   isVisible.value = readConsent(localStorage) === null
 })
+
+// Reabierto desde el pie: el foco va al aviso (sin preseleccionar opción) para elegir con el teclado.
+watch(isVisible, async (visible) => {
+  if (!visible || !wantsFocus.value) return
+  wantsFocus.value = false
+  await nextTick()
+  banner.value?.focus()
+})
 </script>
 
 <template>
   <section
     v-if="isVisible"
+    ref="banner"
+    tabindex="-1"
     aria-labelledby="consent-title"
     data-testid="consent-banner"
-    class="fixed inset-x-3 bottom-[calc(var(--size-bottom-bar)+0.75rem)] z-50 rounded-xl border border-default bg-elevated p-4 shadow-lg md:right-4 md:bottom-4 md:left-[calc(var(--size-rail)+1rem)] md:max-w-xl xl:left-[calc(var(--size-sidebar-current)+1rem)]"
+    class="fixed inset-x-3 bottom-[calc(var(--size-bottom-bar)+0.75rem)] z-50 rounded-xl border border-default bg-elevated p-4 shadow-lg focus-visible:outline-2 focus-visible:outline-primary md:right-4 md:bottom-4 md:left-[calc(var(--size-rail)+1rem)] md:max-w-xl xl:left-[calc(var(--size-sidebar-current)+1rem)]"
   >
     <h2 id="consent-title" class="text-sm font-semibold text-highlighted">{{ t('title') }}</h2>
     <p class="mt-1 text-sm text-muted">{{ t('text') }}</p>
