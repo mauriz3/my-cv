@@ -100,14 +100,20 @@ Las credenciales solo viven en Netlify: nunca en el repo, el cliente ni los regi
 - El CSS solo anima con `data-motion="full"`. En reducido, las gráficas usan `animation: false` y, si se pausa a mitad, saltan al estado final.
 - `MOTION_TOGGLE_TEXT_MODE` decide el texto de escritorio: `fixed` (actual, siempre «Reducir movimiento») o `by-state`.
 
-### Microanimaciones de las tarjetas del Inicio (Tanda F)
+### Microanimaciones de las tarjetas del Inicio (Tandas F y G)
 
 - Ligadas al scroll y sin bucle: se dibujan al entrar y vuelven atrás al subir. Solo animan `transform`, `opacity` y `stroke-dashoffset`.
 - Perfil: su contenido se ve desde la carga (nunca se oculta); con el scroll, eyebrow, titular, tagline y KPI se asientan escalonados (solo `translate`/`scale`) y los contadores suben. El nombre (`h1`, LCP) no se anima.
-- Habilidades, Experiencia, Formación y Proyectos llevan un icono SVG en la esquina (64 px; 56 px en móvil) que se dibuja con el scroll (`CardCornerIcon`, `aria-hidden`). El radar de Habilidades usa los niveles de `skillProfile`. Visitas no cambia.
-- Lógica pura en `lib/cardMotion.ts` (progreso por tarjeta, tramos y valores de cada elemento; con tests) sobre `lib/easing.ts`. `app/composables/useCardMotion.ts` escribe variables CSS `--fx-*` en el mismo rAF del recorrido (`useJourney`, opción `onFrame`).
+- Habilidades, Experiencia, Formación y Proyectos (Tanda G) llevan una escena SVG a ancho completo bajo el título (`JourneyScene`, `<figure aria-hidden="true">`, viewBox 280×100): 336×120 en escritorio, 224×80 centrada en móvil (`block-size: clamp(80px, 5.5vw + 58px, 120px)`; 64 px si la ventana mide menos de 640 de alto). No reduce el ancho del título ni tapa texto.
+  - Habilidades: radar que se despliega con rebote, 6 barras escalonadas y destello ámbar en Front End (niveles de `skillProfile`).
+  - Experiencia: trayectoria de 5 nodos con estela; cada nodo salta al llegarle la línea y el hito final emite una onda ámbar.
+  - Formación: 4 escalones que se elevan y un birrete que cae, rebota una vez y balancea la borla.
+  - Proyectos: código que se teclea con cursor ámbar fijo (sin parpadeo), flecha «deploy» y 3 bloques que se apilan con check.
+  - Geometría, tramos y valores en `lib/journeyScene.ts`: cada parte tiene canales (`x`, `y`, `scale`, `scaleY`, `rotate`, `opacity`, `offset`) que valen su valor neutro en p = 1, así el SVG sin variables ya es el estado final. Colores: `--g-main` (brand), `--g-acc` (`--accent`, ámbar), `--g-track` (guías, #6E7681 / #8C959F) y relleno tintado decorativo (el contraste lo da el borde: main y acc ≥ 4,5:1, guías ≥ 3:1).
+- Perfil y Visitas no cambian.
+- Lógica pura en `lib/cardMotion.ts` (progreso por tarjeta y valores del Perfil) y `lib/journeyScene.ts` (escenas), con tests, sobre `lib/easing.ts`. `app/composables/useCardMotion.ts` escribe variables CSS `--fx-*` en el mismo rAF del recorrido (`useJourney`, opción `onFrame`).
 - Progreso: en el recorrido fijado (escritorio/tablet) sale del tramo del punto (0,6–0,85 del segmento; el Perfil, 0–0,25). En el pin móvil, 0,46–0,62 (el Perfil sigue la entrada del holograma). Sin pin, se calcula por la posición de la tarjeta en pantalla.
-- Movimiento reducido o pausa global: estado final estático, sin saltos (las variables por defecto valen 1). El foco de teclado dentro de una tarjeta también fuerza el estado final.
+- Movimiento reducido o pausa global: estado final estático, sin saltos (sin variables, cada canal vale su valor final). El foco de teclado dentro de una tarjeta también fuerza el estado final.
 
 ### Tema claro / oscuro (oscuro por defecto)
 

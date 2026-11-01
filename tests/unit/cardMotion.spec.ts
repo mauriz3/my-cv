@@ -1,8 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import {
-  CORNER_ICON_KINDS,
-  EXPERIENCE_POINTS,
   MOBILE_CARD_RANGE,
   PINNED_CARD_RANGE,
   PINNED_FIRST_CARD_RANGE,
@@ -13,9 +11,7 @@ import {
   mobileFirstCardProgress,
   pinnedCardProgress,
   pinnedCardRange,
-  polylineStops,
   profileCountProgress,
-  radarPoints,
   type CardMotionKind,
 } from '../../lib/cardMotion'
 import { MOBILE_TIMELINE, PINNED_TIMELINE, journeyStateAt, type JourneyState } from '../../lib/journey'
@@ -67,17 +63,15 @@ describe('progreso p de cada tarjeta', () => {
 })
 
 describe('elementos de cada tarjeta', () => {
-  it.each(KINDS)('%s: todo en 0 al empezar (salvo el marco de Projects, 0,35) y en 1 al terminar', (kind) => {
-    const start = cardMotionValues(kind, 0)
-    const end = cardMotionValues(kind, 1)
-    for (const [name, value] of Object.entries(start)) expect(value).toBe(kind === 'projects' && name === 'frame' ? 0.35 : 0)
-    for (const value of Object.values(end)) expect(value).toBe(1)
+  it('Profile: todo en 0 al empezar y en 1 al terminar', () => {
+    expect(Object.values(cardMotionValues('profile', 0)).every((value) => value === 0)).toBe(true)
+    expect(Object.values(cardMotionValues('profile', 1)).every((value) => value === 1)).toBe(true)
   })
 
-  it.each(KINDS)('%s: cada elemento avanza sin retroceder cuando p sube', (kind) => {
-    let previous = cardMotionValues(kind, 0)
+  it('Profile: cada elemento avanza sin retroceder cuando p sube', () => {
+    let previous = cardMotionValues('profile', 0)
     for (let step = 1; step <= 50; step++) {
-      const current = cardMotionValues(kind, step / 50)
+      const current = cardMotionValues('profile', step / 50)
       for (const name of Object.keys(current)) expect(current[name]!).toBeGreaterThanOrEqual(previous[name]! - 1e-9)
       previous = current
     }
@@ -99,42 +93,22 @@ describe('elementos de cada tarjeta', () => {
     expect(profileCountProgress(0.675)).toBeCloseTo(0.5, 2)
   })
 
-  it('Experience: cada nodo se enciende cuando la línea llega a él, y el anillo al final', () => {
-    const values = cardMotionValues('experience', 0.4)
-    expect(values['node-0']).toBe(1)
-    expect(values['node-4']).toBe(0)
-    expect(values.ring).toBe(0)
-    expect(cardMotionValues('experience', 0.84)['node-4']!).toBeLessThan(1)
-    expect(polylineStops(EXPERIENCE_POINTS)[0]).toBe(0)
-    expect(polylineStops(EXPERIENCE_POINTS).at(-1)).toBeCloseTo(1)
+  it.each(KINDS.filter((kind) => kind !== 'profile'))('%s: variables «parte-canal» de su escena (Tanda G)', (kind) => {
+    const names = Object.keys(cardMotionValues(kind, 0.5))
+    expect(names.length).toBeGreaterThan(0)
+    expect(names.every((name) => /^[a-z0-9-]+-(x|y|scale|scaleY|rotate|opacity|offset)$/.test(name))).toBe(true)
   })
 
-  it('Projects: las 4 líneas se escriben en orden y el cursor aparece al final', () => {
-    const values = cardMotionValues('projects', 0.5)
-    expect(values['line-0']!).toBeGreaterThan(values['line-1']!)
-    expect(values['line-3']).toBe(0)
-    expect(values.cursor).toBe(0)
-  })
-
-  it('variables CSS con prefijo --fx- y 3 decimales', () => {
-    expect(cardMotionCssVars('skills', 1)).toEqual({ '--fx-polygon': '1', '--fx-vertices': '1' })
-    expect(Object.values(cardMotionCssVars('experience', 0.37)).every((value) => /^\d(\.\d{1,3})?$/.test(value))).toBe(true)
+  it('variables CSS con prefijo --fx- y 3 decimales (también negativas)', () => {
+    expect(cardMotionCssVars('skills', 1)['--fx-radar-scale']).toBe('1')
+    expect(Object.values(cardMotionCssVars('experience', 0.37)).every((value) => /^-?\d+(\.\d{1,3})?$/.test(value))).toBe(true)
   })
 })
 
-describe('iconos', () => {
-  it('Visitas no tiene microanimación; Profile no tiene icono', () => {
+describe('tarjetas con animación', () => {
+  it('Visitas no tiene microanimación', () => {
     expect(cardMotionKindOf('visits')).toBeNull()
     expect(cardMotionKindOf('skills')).toBe('skills')
-    expect(CORNER_ICON_KINDS).not.toContain('profile')
-  })
-
-  it('radar: hexágono con el primer vértice arriba y en sentido horario (centro 36,38; R 26)', () => {
-    const hexagon = radarPoints([1, 1, 1, 1, 1, 1])
-    expect(hexagon[0]).toEqual([36, 12])
-    expect(hexagon[3]).toEqual([36, 64])
-    expect(hexagon[1]![0]).toBeGreaterThan(36)
-    expect(radarPoints([0.5])[0]).toEqual([36, 25])
   })
 })
 

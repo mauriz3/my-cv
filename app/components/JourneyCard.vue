@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { CORNER_ICON_KINDS, type CornerIconKind } from '~~/lib/cardMotion'
 import { JOURNEY_POINTS, pointPosition, type CardState } from '~~/lib/journey'
+import { SCENE_KINDS, type SceneKind } from '~~/lib/journeyScene'
 
 /**
  * Tarjeta HTML de un punto del recorrido: «n · Sección», contenido (slot) y enlace a la sección
  * (salvo con `ownAction`: la tarjeta de Visitas lleva su propio botón en el contenido).
  * `state`: visible, ya leída o por llegar en el recorrido con pin (la versión estática lo ignora y las muestra todas).
- * Con el slot `title`, la cabecera es una rejilla «eyebrow + título | icono de la esquina» (Tanda F): el icono
- * (Skills, Experience, Education, Projects) va arriba a la derecha y el cuerpo sigue a ancho completo.
+ * Con el slot `title`, la cabecera es «eyebrow + título». Skills, Experience, Education y Projects llevan debajo
+ * una escena a ancho completo (Tanda G, `JourneyScene`) que no reduce el ancho del título ni tapa el cuerpo.
  */
 const props = defineProps<{ index: number; state: CardState; ownAction?: boolean }>()
 
@@ -16,7 +16,7 @@ const { t: tGlobal } = useI18n()
 const localePath = useLocalePath()
 
 const point = JOURNEY_POINTS[props.index]!
-const cornerKind = CORNER_ICON_KINDS.find((kind) => kind === point.id) as CornerIconKind | undefined
+const sceneKind = SCENE_KINDS.find((kind) => kind === point.id) as SceneKind | undefined
 /** El eyebrow de Profile entra con su contenido (el h1 no se anima: LCP). */
 const eyebrowStyle = props.index === 0 ? { '--fx': 'var(--fx-eyebrow, 1)' } : undefined
 const label = computed(() => tGlobal(`nav.${point.id}`))
@@ -36,8 +36,8 @@ const hasSectionLink = props.index > 0 && !props.ownAction
       class="rounded-xl border border-default bg-elevated p-4 shadow-sm"
       :aria-labelledby="`journey-${point.id}`"
     >
-      <div v-if="$slots.title" class="journey-card__header" :class="{ 'journey-card__header--icon': cornerKind }">
-        <div class="min-w-0">
+      <template v-if="$slots.title">
+        <div class="journey-card__header">
           <p
             :id="`journey-${point.id}`"
             class="text-xs font-semibold text-primary"
@@ -48,8 +48,8 @@ const hasSectionLink = props.index > 0 && !props.ownAction
           </p>
           <slot name="title" />
         </div>
-        <CardCornerIcon v-if="cornerKind" :kind="cornerKind" class="journey-card__icon" />
-      </div>
+        <JourneyScene v-if="sceneKind" :kind="sceneKind" />
+      </template>
       <p v-else :id="`journey-${point.id}`" class="text-xs font-semibold text-primary">{{ index + 1 }} · {{ label }}</p>
       <slot />
       <NuxtLink
@@ -65,22 +65,8 @@ const hasSectionLink = props.index > 0 && !props.ownAction
 </template>
 
 <style>
-/* Cabecera con icono: 64 px en desktop y tablet, 56 px en móvil, alineado arriba con el eyebrow. */
-.journey-card__header--icon {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 56px;
-  gap: 8px;
-  align-items: start;
-}
-
 .journey-card__header :is(h1, h2) {
   text-wrap: balance;
-}
-
-@media (min-width: 768px) {
-  .journey-card__header--icon {
-    grid-template-columns: minmax(0, 1fr) 64px;
-  }
 }
 
 /*
