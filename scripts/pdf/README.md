@@ -6,7 +6,7 @@ Genera `public/Resume-Maurizio-Rendon-en.pdf` y `-es.pdf` (A4, exactamente 2 pá
 
 - `content.ts`: construye el contenido del PDF desde los datos. Solo añade lo propio del PDF, con constantes con nombre: títulos de sección y pie, perfil = `summary` + `motivation`, orden de enlaces y de filas de Skills (Back End primero), alias ATS (`React (ReactJS)`, `Chart.js (ChartJS)`), etiqueta «DevOps (2016–2018)» calculada del periodo, salto de hoja antes de Open Canarias y ubicación corta de System73 («Tenerife»).
 - `template.ts`: HTML semántico de una columna (h1/h2/h3, listas) y pie «Maurizio Rendon · CV · Page X of Y» con `@page`.
-- `cv-print.css`: estilos de impresión (teal `#0F766E` y ámbar `#B45309` sobre grafito; Inter + Space Grotesk locales).
+- `cv-print.css`: estilos de impresión (azul de marca `#0176AC` para texto y `#02A0E9` solo en el filete decorativo, sobre grafito; Inter + Space Grotesk locales).
 - `generate.ts`: Chromium (Google Chrome vía `playwright-core`) → PDF etiquetado; `pdf-lib` limpia los metadatos y comprueba las 2 páginas.
 - `check-privacy.sh`: falla si el PDF tiene correo, teléfono, `mailto:`/`tel:`, rutas locales, fuentes sin incrustar o más de 2 páginas.
 - `fonts/`: instancias estáticas recortadas a latín de Inter 400/500/600 y Space Grotesk 700 (SIL OFL 1.1, licencias en `fonts/OFL-*.txt`). Se recrean con `make-static-fonts.sh` (python3 + fontTools; las variables saldrían como Type 3).

@@ -1,6 +1,7 @@
 /*
  * CV de impresión según «Handoff – CV PDF» (Disañador): A4, una columna, fondo blanco.
- * Paleta teal/ámbar sobre grafito; teal y ámbar se leen como gris medio en B/N.
+ * Paleta azul de la web sobre grafito: --color-brand (#0176AC, brand-700, 5.0:1 sobre blanco) para todo el texto
+ * de color; --color-accent (#02A0E9, brand-500, 2.9:1) solo en el filete decorativo de los títulos.
  * Fuentes locales (instancias estáticas en fonts/): Inter 400/500/600 y Space Grotesk 700.
  */
 @font-face { font-family: 'CV Inter'; src: url('fonts/Inter-400.ttf') format('truetype'); font-weight: 400; font-display: block; }
@@ -11,8 +12,8 @@
 :root {
   --color-text: #1F2328;
   --color-secondary: #57606A;
-  --color-teal: #0F766E;
-  --color-amber: #B45309;
+  --color-brand: #0176AC;
+  --color-accent: #02A0E9;
   --color-rule: #D0D7DE;
 
   --font-body: 'CV Inter', sans-serif;
@@ -57,17 +58,17 @@ html {
 }
 body { margin: 0; }
 p, h1, h2, h3, ul { margin: 0; }
-a { color: var(--color-teal); font-weight: 500; text-decoration: none; }
+a { color: var(--color-brand); font-weight: 500; text-decoration: none; }
 
-/* Cabecera: banda teal, nombre, titular, enlaces y filete */
+/* Cabecera: banda azul, nombre, titular, enlaces y filete */
 .cv-header {
-  border-top: var(--header-band) solid var(--color-teal);
+  border-top: var(--header-band) solid var(--color-brand);
   padding-top: 6pt;
   padding-bottom: 4pt;
   border-bottom: 0.75pt solid var(--color-rule);
 }
 .cv-name { font: 700 var(--size-name)/1.15 var(--font-display); }
-.cv-headline { font: 600 var(--size-headline)/1.3 var(--font-body); color: var(--color-teal); margin-top: 2pt; }
+.cv-headline { font: 600 var(--size-headline)/1.3 var(--font-body); color: var(--color-brand); margin-top: 2pt; }
 .cv-links { list-style: none; padding: 0; margin-top: 3pt; font-size: var(--size-header-links); color: var(--color-secondary); }
 .cv-links li { display: inline; }
 .cv-links li + li::before { content: '\00a0\00a0·\00a0\00a0'; }
@@ -77,7 +78,7 @@ a { color: var(--color-teal); font-weight: 500; text-decoration: none; }
 .cv-section-title {
   font: 700 var(--size-section-title)/1.2 var(--font-display);
   letter-spacing: 0;
-  color: var(--color-teal);
+  color: var(--color-brand);
   margin-bottom: var(--space-title-to-content);
   break-after: avoid;
 }
@@ -87,7 +88,7 @@ a { color: var(--color-teal); font-weight: 500; text-decoration: none; }
   width: var(--title-bar-width);
   height: var(--title-bar-height);
   margin-top: 3pt;
-  background: var(--color-amber);
+  background: var(--color-accent);
 }
 .cv-section--compact { break-inside: avoid; }
 
@@ -97,7 +98,7 @@ a { color: var(--color-teal); font-weight: 500; text-decoration: none; }
 .cv-entry--new-page { break-before: page; }
 .cv-entry-title { font: 600 var(--size-role)/1.3 var(--font-body); }
 .cv-meta { font-size: var(--size-meta); line-height: 1.45; color: var(--color-secondary); margin-top: var(--space-inside-entry); }
-.cv-meta .cv-org { font-weight: 600; color: var(--color-teal); }
+.cv-meta .cv-org { font-weight: 600; color: var(--color-brand); }
 .cv-meta .cv-period { font-weight: 500; }
 .cv-entry-summary { margin-top: var(--space-inside-entry); }
 .cv-highlights { margin-top: var(--space-inside-entry); padding-left: 12pt; }
