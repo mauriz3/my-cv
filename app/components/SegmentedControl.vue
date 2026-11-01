@@ -48,7 +48,7 @@ function onKeydown(event: KeyboardEvent) {
       :aria-checked="index === selectedIndex"
       :tabindex="index === selectedIndex ? 0 : -1"
       :data-testid="`segment-${option.value}`"
-      class="relative min-h-11 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      class="relative min-h-11 rounded-md px-2 text-sm leading-tight font-medium text-balance transition-colors sm:px-3 sm:whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       :class="index === selectedIndex ? 'text-inverted' : 'text-muted hover:text-default'"
       @click="select(index)"
     >

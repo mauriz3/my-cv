@@ -30,7 +30,6 @@ ChartJS.register(
 const props = defineProps<{ timeseries: VisitsReport['timeseries']; range: VisitsRange }>()
 
 const DRAW_DURATION_MS = 900
-const LINE_TENSION = 0.35
 const CURRENT_LINE_WIDTH_PX = 2.5
 const PREVIOUS_LINE_WIDTH_PX = 2
 const PREVIOUS_DASH: number[] = [6, 4]
@@ -90,7 +89,8 @@ const chartOptions = computed<ChartOptions<'line'>>(() => {
   return {
     ...base,
     interaction: { mode: 'index', intersect: false },
-    elements: { line: { tension: LINE_TENSION }, point: { radius: 0, hoverRadius: 4, hitRadius: 8 } },
+    // `monotone`: curva suave que no se pasa de los datos (con muchos ceros, la de `tension` bajaba de 0).
+    elements: { line: { cubicInterpolationMode: 'monotone' }, point: { radius: 0, hoverRadius: 4, hitRadius: 8 } },
     scales: { x: categoryAxis(theme.value), y: valueAxis(theme.value) },
     plugins: {
       ...base.plugins,

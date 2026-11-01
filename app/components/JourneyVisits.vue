@@ -24,6 +24,13 @@ const localePath = useLocalePath()
 const { language, integer, percent } = useVisitsFormat()
 const { report } = useVisits(ref(DEFAULT_VISITS_RANGE))
 const gradientId = useId()
+/** Datos reales: «Datos actualizados hace X · …»; de ejemplo: «Datos de ejemplo (mock) · …» (misma fuente que /visits). */
+const noteState = useVisitsNote(report)
+const note = computed(() => {
+  const { kind, updatedAgo } = noteState.value
+  if (kind === 'none') return ''
+  return kind === 'updated' ? tGlobal('visits.updatedNote', { updated: updatedAgo }) : tGlobal('visits.sampleNote')
+})
 
 const spark = computed(() => sparklinePaths(report.value?.timeseries.current ?? [], SPARK_WIDTH, SPARK_HEIGHT))
 const arcs = computed(() => donutArcs(report.value?.devices.map((device) => device.value) ?? []))
@@ -112,7 +119,7 @@ const summary = computed(() => {
       </svg>
     </div>
 
-    <p class="mt-2 text-xs text-muted">{{ tGlobal('visits.sampleNote') }}</p>
+    <p class="mt-2 min-h-4 text-xs text-muted" data-testid="journey-visits-note">{{ note }}</p>
 
     <UButton
       :to="localePath({ path: '/visits', hash: '#visits-title' })"

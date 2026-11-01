@@ -10,6 +10,7 @@ const props = defineProps<{ devices: VisitsReport['devices']; totalVisits: numbe
 
 const DRAW_DURATION_MS = 800
 const CUTOUT = '70%'
+const SEGMENT_BORDER_PX = 2
 
 const { t } = useI18n()
 const { integer, percent } = useVisitsFormat()
@@ -27,6 +28,7 @@ const items = computed(() =>
   })),
 )
 const visibleItems = computed(() => items.value.filter((item) => !item.hidden))
+const shownSegments = computed(() => visibleItems.value.filter((item) => item.value > 0).length)
 
 const chartData = computed<ChartData<'doughnut'>>(() => ({
   labels: visibleItems.value.map((item) => item.label),
@@ -35,7 +37,8 @@ const chartData = computed<ChartData<'doughnut'>>(() => ({
       data: visibleItems.value.map((item) => item.value),
       backgroundColor: visibleItems.value.map((item) => item.color),
       borderColor: theme.value?.surface,
-      borderWidth: 2,
+      // El borde solo separa segmentos: con uno solo (p. ej. «Móvil 100 %») o a 0 dejaría una raya en el anillo.
+      borderWidth: visibleItems.value.map((item) => (shownSegments.value > 1 && item.value > 0 ? SEGMENT_BORDER_PX : 0)),
     },
   ],
 }))
