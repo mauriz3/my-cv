@@ -93,3 +93,6 @@ test/e2e/output
 .env
 test-results
 playwright-report
+
+# Local Netlify folder
+.netlify
