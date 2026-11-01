@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { CONSENT_STORAGE_KEY } from '~~/lib/analytics'
 import { MOTION_STORAGE_KEY } from '~~/lib/motion'
+import { THEME_STORAGE_KEY } from '~~/lib/theme'
 import { analyticsCookieNames, GA_COOKIE_MAX_AGE_MONTHS, GA_DATA_RETENTION_MONTHS } from '~~/lib/privacy'
 
 /** Privacidad: texto corto enlazado desde el aviso de analítica y el pie (no está en el menú). */
@@ -20,6 +21,7 @@ const params = {
   retentionMonths: GA_DATA_RETENTION_MONTHS,
   consentKey: CONSENT_STORAGE_KEY,
   motionKey: MOTION_STORAGE_KEY,
+  themeKey: THEME_STORAGE_KEY,
 }
 </script>
 

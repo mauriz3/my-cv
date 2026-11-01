@@ -1,6 +1,7 @@
 import { ANALYTICS_MEASUREMENT_ID } from './lib/analytics'
 import { PRIVACY_PATH } from './lib/privacy'
 import { SITE_ORIGIN } from './lib/socialMeta'
+import { DEFAULT_THEME, THEME_STORAGE_KEY } from './lib/theme'
 import { VISITS_RANGES, visitsEndpoint } from './lib/visits'
 
 // Solo el build de producción (CI en push a master) lleva Google Analytics: ni pull requests, ni preview, ni local.
@@ -17,6 +18,8 @@ export default defineNuxtConfig({
 
   // Fuentes e iconos van empaquetados en local: nada se pide a dominios externos (CSP estricta).
   ui: { fonts: false },
+  // Oscuro por defecto sin elección guardada; nunca se sigue a prefers-color-scheme (decisión en lib/theme.ts).
+  colorMode: { preference: DEFAULT_THEME, fallback: DEFAULT_THEME, storageKey: THEME_STORAGE_KEY },
   // Los iconos de `app/utils` (menú, enlaces) también van al bundle del cliente: la página de error
   // se pinta solo en el cliente (404.html) y no puede pedirlos a la API de Iconify.
   icon: {

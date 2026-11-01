@@ -186,7 +186,7 @@
     },
     "cookies": {
       "title": "Cookies and storage",
-      "text": "If you accept, Google Analytics stores measurement cookies ({cookies}, up to {cookieMonths} months) with a pseudonymous identifier for your browser. If you reject, none is stored. Your choice and your motion preference are stored only in your browser (localStorage: {consentKey} and {motionKey})."
+      "text": "If you accept, Google Analytics stores measurement cookies ({cookies}, up to {cookieMonths} months) with a pseudonymous identifier for your browser. If you reject, none is stored. Your choice, your motion preference and the light or dark theme are stored only in your browser (localStorage: {consentKey}, {motionKey} and {themeKey})."
     },
     "region": {
       "title": "Where consent is asked",

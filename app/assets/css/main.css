@@ -75,6 +75,8 @@
   --chart-5: #57606a;
   --trend-better: #1a7f37;
   --trend-worse: #cf222e;
+  /* Barras de scroll y controles nativos del navegador a juego con el tema. */
+  color-scheme: light;
 }
 
 .dark {
@@ -98,6 +100,7 @@
   --chart-5: #9da7b3;
   --trend-better: #3fb950;
   --trend-worse: #ff7b72;
+  color-scheme: dark;
 }
 
 :root.sidebar-collapsed {

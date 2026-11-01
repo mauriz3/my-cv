@@ -186,7 +186,7 @@
     },
     "cookies": {
       "title": "Cookies y almacenamiento",
-      "text": "Si aceptas, Google Analytics guarda cookies de medición ({cookies}, hasta {cookieMonths} meses) con un identificador seudónimo de tu navegador. Si rechazas, no se guarda ninguna. Tu elección y tu preferencia de movimiento se guardan solo en tu navegador (localStorage: {consentKey} y {motionKey})."
+      "text": "Si aceptas, Google Analytics guarda cookies de medición ({cookies}, hasta {cookieMonths} meses) con un identificador seudónimo de tu navegador. Si rechazas, no se guarda ninguna. Tu elección, tu preferencia de movimiento y el tema claro u oscuro se guardan solo en tu navegador (localStorage: {consentKey}, {motionKey} y {themeKey})."
     },
     "region": {
       "title": "Dónde se pide permiso",
