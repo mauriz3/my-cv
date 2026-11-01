@@ -3,8 +3,8 @@ import { visitsEndpoint, type VisitsRange, type VisitsReport } from '~~/lib/visi
 export type VisitsStatus = 'loading' | 'ready' | 'error'
 
 /**
- * Informe de visitas de un rango. ÚNICO punto del cliente que sabe de dónde salen los datos:
- * hoy el JSON prerrenderizado del mock; con Google Analytics, el mismo endpoint servido en vivo.
+ * Informe de visitas de un rango. ÚNICO punto del cliente que pide los datos: `/api/visits/:range`
+ * (en Netlify, la instantánea de GA4 o el mock; en local y como respaldo, el JSON prerrenderizado del mock).
  * Al cambiar de rango se mantiene el informe anterior hasta que llega el nuevo (las gráficas transicionan).
  */
 export function useVisits(range: Ref<VisitsRange>) {

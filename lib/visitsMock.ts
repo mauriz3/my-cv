@@ -14,7 +14,7 @@ import {
 /**
  * Datos de ejemplo (mock) de la página «Visitas», deterministas: mismo rango → mismo informe.
  * Series de 7 y 30 días tomadas de la especificación (tanda B); la de 1 día, por horas.
- * Se sustituirán por el informe de Google Analytics en el servidor, con el mismo contrato.
+ * Es el respaldo cuando no hay instantánea de Google Analytics (lib/visitsSource.ts), con el mismo contrato.
  */
 
 /** Fin fijo del periodo de ejemplo: así el JSON generado no cambia entre builds. */
