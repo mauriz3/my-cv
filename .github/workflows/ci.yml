@@ -61,8 +61,15 @@ jobs:
       group: deploy-production
       cancel-in-progress: false
     steps:
-      # El código del repo hace falta para que Netlify CLI empaquete la Edge Function `/geo` (netlify/edge-functions).
+      # El código del repo hace falta para que Netlify CLI empaquete la Edge Function `/geo` (netlify/edge-functions)
+      # y las funciones de Visitas (netlify/functions); estas importan lib/ y paquetes npm (zod, @netlify/blobs).
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      # Sin scripts (`nuxt prepare` no hace falta aquí): solo las dependencias que esbuild mete en las funciones.
+      - run: npm ci --ignore-scripts
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: site
@@ -75,7 +82,7 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-      - name: Comprobar cabeceras de producción y la Edge Function /geo
+      - name: Comprobar cabeceras de producción, la Edge Function /geo y las rutas de Visitas
         run: |
           headers=$(curl -sSI --retry 3 --retry-delay 5 https://www.mauriziorendon.com/en/)
           echo "$headers"
@@ -89,4 +96,11 @@ jobs:
           echo "$geo" | grep -qE '"country":' || { echo "::error::/geo no devuelve {country}"; fail=1; }
           post=$(curl -sS -o /dev/null -w '%{http_code}' -X POST https://www.mauriziorendon.com/geo)
           [ "$post" = 405 ] || { echo "::error::/geo acepta POST ($post)"; fail=1; }
+          # Visitas: la función responde (cabecera x-visits-source: snapshot | mock) con el informe del rango pedido.
+          for range in 1d 7d 30d; do
+            visits=$(curl -sS -D - --retry 3 --retry-delay 5 "https://www.mauriziorendon.com/api/visits/$range")
+            echo "$visits" | grep -iE '^(HTTP|x-visits-source|content-type)'
+            echo "$visits" | grep -qiE '^x-visits-source: *(snapshot|mock)' || { echo "::error::/api/visits/$range no la sirve la función"; fail=1; }
+            echo "$visits" | grep -qE "\"range\":\"$range\"" || { echo "::error::/api/visits/$range no devuelve su informe"; fail=1; }
+          done
           exit $fail

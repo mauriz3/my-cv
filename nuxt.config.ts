@@ -39,7 +39,7 @@ export default defineNuxtConfig({
     strict: true,
     typeCheck: false,
     tsConfig: { compilerOptions: { noUncheckedIndexedAccess: true } },
-    nodeTsConfig: { include: ['../vitest.config.ts', '../tests/**/*.ts', '../data/**/*.ts', '../lib/**/*.ts', '../scripts/**/*.mjs'] }
+    nodeTsConfig: { include: ['../vitest.config.ts', '../tests/**/*.ts', '../data/**/*.ts', '../lib/**/*.ts', '../scripts/**/*.mjs', '../scripts/**/*.ts', '../netlify/**/*.ts'] }
   },
 
   nitro: {
