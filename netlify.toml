@@ -9,4 +9,11 @@
 [build.environment]
   NODE_VERSION = "24" # mismo valor que .nvmrc
 
+# Funciones de Visitas (datos de GA4): `visits` sirve /api/visits/:range y `visits-snapshot` (programada, cada 3 h)
+# guarda la instantánea en Netlify Blobs. Rutas y horario van en el `config` de cada función.
+# Variables (solo en Netlify, ámbito Functions): GA_PROPERTY_ID y GA_SERVICE_ACCOUNT_JSON.
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
 # El `noindex` fuera de producción lo añade scripts/build-headers.mjs en `_headers`.

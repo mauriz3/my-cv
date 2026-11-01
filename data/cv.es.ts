@@ -5,7 +5,8 @@ export const textsEs: CvTexts = {
   headline: 'Senior Software Engineer · Full stack (Back End y Front End)',
   summary:
     'Ingeniero de software senior con perfil full stack, centrado sobre todo en Back End y Front End. ' +
-    'Construyo plataformas web basadas en datos, dashboards, PWAs y sitios CMS con arquitecturas serverless y JAMstack. ' +
+    'Construyo plataformas web, dashboards, PWAs y sitios CMS sobre arquitecturas serverless y servidores. ' +
+    'Uso IA en mi desarrollo y para automatizar procesos, con integraciones MCP y asistentes de chat para clientes. ' +
     'Pensamiento creativo + UX + prototipado = Producto Mínimo Viable. ' +
     'De punta a punta: desde las APIs en Node y la capa de datos hasta las interfaces en React y Vue.',
 
@@ -13,7 +14,7 @@ export const textsEs: CvTexts = {
     'Perfil full stack centrado en Back End y Front End: integración y enriquecimiento de datos B2B en Octane11; ' +
     'PWAs, CMS y dashboards.',
   designerEye: 'Ojo de diseñador y manos de desarrollador.',
-  motivation: 'Me gusta ayudar y resolver problemas: convierto datos complejos en productos claros y fiables.',
+  motivation: 'Me gusta ayudar y resolver problemas: creo plataformas web y paneles que presentan los datos con claridad.',
   endToEnd:
     'De punta a punta: desde las APIs en Node y la capa de datos hasta las interfaces en React y Vue.',
 

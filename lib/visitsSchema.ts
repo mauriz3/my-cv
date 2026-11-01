@@ -2,8 +2,8 @@ import { z } from 'zod'
 import { DEVICE_KEYS, HOUR_SLOTS, SOURCE_KEYS, VISITS_RANGES, WEEK_DAYS } from './visits'
 
 /**
- * Contrato del endpoint `GET /api/visits/:range` (mock hoy, Google Analytics mañana).
- * Lo valida el servidor antes de responder; el cliente solo importa el tipo.
+ * Contrato del endpoint `GET /api/visits/:range` (instantánea de GA4 o mock).
+ * Lo valida el servidor antes de guardar y de responder; el cliente solo importa el tipo.
  */
 const Count = z.number().int().nonnegative()
 const Share = z.number().min(0).max(1)
@@ -17,7 +17,7 @@ export const VisitsReportSchema = z
   .object({
     range: z.enum(VISITS_RANGES),
     generatedAt: z.iso.datetime(),
-    /** `true` mientras los datos sean de ejemplo (mock). */
+    /** `true` si los datos son de ejemplo (mock). `generatedAt` es la hora de la instantánea de GA4. */
     sample: z.boolean(),
     kpis: z.object({
       visits: CountKpi,

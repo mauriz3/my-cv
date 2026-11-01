@@ -59,6 +59,8 @@
   "visits": {
     "subtitle": "Datos agregados de Google Analytics",
     "sampleNote": "Datos de ejemplo (mock) · solo agregados, sin IPs ni identificadores",
+    "privacyNote": "Solo agregados, sin IPs ni identificadores",
+    "sampleData": "Datos de ejemplo",
     "rangeLabel": "Periodo",
     "range": {
       "1d": "1 día",
@@ -175,7 +177,7 @@
     },
     "what": {
       "title": "Qué se mide",
-      "text": "Uso Google Analytics 4 para contar visitas de forma agregada (páginas, país, dispositivo). Sin publicidad ni señales de Google: la personalización de anuncios y Google Signals están desactivadas. La sección Visitas muestra, de momento, datos de ejemplo."
+      "text": "Uso Google Analytics 4 para contar visitas de forma agregada (páginas, país, dispositivo). Sin publicidad ni señales de Google: la personalización de anuncios y Google Signals están desactivadas. La sección Visitas muestra esos mismos datos agregados, actualizados cada pocas horas (o datos de ejemplo si aún no hay)."
     },
     "cookies": {
       "title": "Cookies y almacenamiento",
@@ -204,5 +206,8 @@
     "title": "Algo ha fallado",
     "text": "No se ha podido cargar esta página.",
     "back": "Volver al perfil"
+  },
+  "seo": {
+    "imageAlt": "Maurizio Rendon, Senior Software Engineer: tarjeta de vista previa con su avatar sobre fondo azul"
   }
 }

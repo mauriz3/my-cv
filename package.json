@@ -15,12 +15,14 @@
     "postinstall": "nuxt prepare",
     "typecheck": "nuxt typecheck",
     "test": "vitest run",
-    "audit:check": "node scripts/audit.mjs"
+    "audit:check": "node scripts/audit.mjs",
+    "visits:snapshot": "jiti scripts/visits-snapshot.ts"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.2.0",
     "@fontsource-variable/space-grotesk": "^5.2.0",
     "@iconify-json/lucide": "^1.2.147",
+    "@netlify/blobs": "11.1.7",
     "@nuxt/ui": "^4.12.0",
     "@nuxtjs/i18n": "^10.6.0",
     "chart.js": "^4.6.1",
@@ -30,14 +32,14 @@
     "nuxt": "^4.6.2",
     "tailwindcss": "^4",
     "vue-chartjs": "^5.3.4",
-    "world-atlas": "^2.0.2"
+    "world-atlas": "^2.0.2",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/node": "^24.19.2",
     "typescript": "~5.9.3",
     "vitest": "^4.1.12",
-    "vue-tsc": "^3.3.13",
-    "zod": "^4.6.7"
+    "vue-tsc": "^3.3.13"
   },
   "overrides": {
     "glob": "^14.0.3",

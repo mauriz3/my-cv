@@ -1,5 +1,6 @@
 import { ANALYTICS_MEASUREMENT_ID } from './lib/analytics'
 import { PRIVACY_PATH } from './lib/privacy'
+import { SITE_ORIGIN } from './lib/socialMeta'
 import { VISITS_RANGES, visitsEndpoint } from './lib/visits'
 
 // Solo el build de producción (CI en push a master) lleva Google Analytics: ni pull requests, ni preview, ni local.
@@ -25,7 +26,7 @@ export default defineNuxtConfig({
 
   i18n: {
     // Netlify expone la URL de cada despliegue; en local y en producción cae al dominio real.
-    baseUrl: process.env.DEPLOY_PRIME_URL ?? 'https://www.mauriziorendon.com',
+    baseUrl: process.env.DEPLOY_PRIME_URL ?? SITE_ORIGIN,
     strategy: 'prefix',
     defaultLocale: 'en',
     detectBrowserLanguage: false,
@@ -39,7 +40,7 @@ export default defineNuxtConfig({
     strict: true,
     typeCheck: false,
     tsConfig: { compilerOptions: { noUncheckedIndexedAccess: true } },
-    nodeTsConfig: { include: ['../vitest.config.ts', '../tests/**/*.ts', '../data/**/*.ts', '../lib/**/*.ts', '../scripts/**/*.mjs'] }
+    nodeTsConfig: { include: ['../vitest.config.ts', '../tests/**/*.ts', '../data/**/*.ts', '../lib/**/*.ts', '../scripts/**/*.mjs', '../scripts/**/*.ts', '../netlify/**/*.ts'] }
   },
 
   nitro: {
