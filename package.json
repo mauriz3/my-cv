@@ -16,7 +16,8 @@
     "typecheck": "nuxt typecheck",
     "test": "vitest run",
     "audit:check": "node scripts/audit.mjs",
-    "visits:snapshot": "jiti scripts/visits-snapshot.ts"
+    "visits:snapshot": "jiti scripts/visits-snapshot.ts",
+    "pdf": "jiti scripts/pdf/generate.ts && scripts/pdf/check-privacy.sh public/Resume-Maurizio-Rendon-en.pdf && scripts/pdf/check-privacy.sh public/Resume-Maurizio-Rendon-es.pdf"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.2.0",
@@ -37,6 +38,8 @@
   },
   "devDependencies": {
     "@types/node": "^24.19.2",
+    "pdf-lib": "1.17.1",
+    "playwright-core": "1.59.1",
     "typescript": "~5.9.3",
     "vitest": "^4.1.12",
     "vue-tsc": "^3.3.13"

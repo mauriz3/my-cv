@@ -10,6 +10,7 @@ npm run dev        # desarrollo
 npm run typecheck  # tipos
 npm run test       # tests unitarios (Vitest), incluye validación zod de los datos
 npm run generate   # sitio estático en .output/public + hashes CSP
+npm run pdf        # regenera public/Resume-Maurizio-Rendon-{en,es}.pdf desde data/ (ver scripts/pdf/README.md)
 ```
 
 ## Estructura
@@ -18,6 +19,7 @@ npm run generate   # sitio estático en .output/public + hashes CSP
 - `data/` contenido del CV: `cv.shared.ts` (fechas, enlaces, imágenes) + `cv.en.ts` / `cv.es.ts` (solo textos) + `getCv(locale)`.
 - `lib/` funciones puras con tests (periodos, años, recorrido, visitas, movimiento, consentimiento).
 - `i18n/locales/` textos de la interfaz.
+- `scripts/pdf/` generador del CV en PDF (EN/ES): lee `data/cv.*.ts` con `getCv`, así web y PDF comparten el texto (un test lo comprueba).
 - `public/` estáticos, `_headers` (CSP y cabeceras) y `_redirects`.
 - `server/api/visits/` endpoint de Visitas (se prerenderiza con el mock), `netlify/functions/` las funciones de Visitas (GA4) y `netlify/edge-functions/` la Edge Function `/geo`.
 - `tests/unit/` Vitest. Netlify ejecuta `npm run test && npm run generate`; si falla un test, no hay deploy.
