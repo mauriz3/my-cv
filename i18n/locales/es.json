@@ -206,5 +206,8 @@
     "title": "Algo ha fallado",
     "text": "No se ha podido cargar esta página.",
     "back": "Volver al perfil"
+  },
+  "seo": {
+    "imageAlt": "Maurizio Rendon, Senior Software Engineer: tarjeta de vista previa con su avatar sobre fondo azul"
   }
 }

@@ -97,6 +97,16 @@ Las credenciales solo viven en Netlify: nunca en el repo, el cliente ni los regi
 
 - Sección del Perfil tras el recorrido (`#books`, sin entrada en el menú). Datos en `data/` (`books` en `cv.shared.ts` y textos en `cv.en.ts` / `cv.es.ts`); portadas optimizadas en `public/books/` con sus medidas reales (un test lo comprueba).
 
+### Vista previa al compartir (Open Graph / Twitter)
+
+`usePageSeo` es el único punto: todas las páginas (EN/ES) llevan `og:image` absoluta (`https://www.mauriziorendon.com/og-cv.png`, 1200×630 PNG, `alt` traducido en `seo.imageAlt`), `og:url`/`og:locale` de `useLocaleHead` (misma URL que `canonical` y `hreflang`) y `twitter:card=summary_large_image`. Constantes en `lib/socialMeta.ts`.
+
+La imagen sale de `scripts/og-image.mjs` (azul de los tokens `--color-brand-*` de `main.css`, Inter y Space Grotesk locales, avatar `public/me.png`; sin datos de contacto). Para regenerarla, con Google Chrome instalado (o `CHROME_PATH=/ruta/al/navegador`):
+
+```sh
+npm i --no-save playwright-core && node scripts/og-image.mjs
+```
+
 ## Despliegue
 
 - La CI (`.github/workflows/ci.yml`) ejecuta typecheck, tests, generate y audit:check, más gitleaks.

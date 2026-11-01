@@ -206,5 +206,8 @@
     "title": "Something went wrong",
     "text": "This page could not be loaded.",
     "back": "Back to profile"
+  },
+  "seo": {
+    "imageAlt": "Maurizio Rendon, Senior Software Engineer: preview card with his avatar on a blue background"
   }
 }

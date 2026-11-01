@@ -1,10 +1,16 @@
+import { socialImageMeta } from '~~/lib/socialMeta'
+
 const SCHEMA_ORG_CONTEXT = 'https://schema.org'
 /** Evita que un texto de los datos cierre el `<script>` del JSON-LD. */
 const HTML_UNSAFE_CHARACTERS = /</g
 
-/** Meta descripción, Open Graph y JSON-LD (Person) a partir de los datos del CV. */
+/**
+ * Meta descripción, Open Graph, Twitter y JSON-LD (Person) a partir de los datos del CV.
+ * `og:url` y `og:locale` salen de `useLocaleHead`, igual que canonical y hreflang: misma URL absoluta.
+ */
 export function usePageSeo(pageTitle: () => string) {
   const cv = useCv()
+  const { t } = useI18n()
   const localeHead = useLocaleHead({ seo: true })
 
   const personJsonLd = computed(() =>
@@ -24,6 +30,7 @@ export function usePageSeo(pageTitle: () => string) {
     title: pageTitle(),
     htmlAttrs: { lang: localeHead.value.htmlAttrs?.lang },
     link: localeHead.value.link,
+    meta: localeHead.value.meta,
     script: [{ type: 'application/ld+json', innerHTML: personJsonLd.value }]
   }))
 
@@ -32,6 +39,6 @@ export function usePageSeo(pageTitle: () => string) {
     ogTitle: pageTitle,
     ogDescription: () => cv.value.motivation,
     ogType: 'profile',
-    twitterCard: 'summary'
+    ...socialImageMeta(t('seo.imageAlt'))
   })
 }
