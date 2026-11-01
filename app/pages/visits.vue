@@ -9,6 +9,7 @@ import {
   kpiTrend,
   type KpiKey,
 } from '~~/lib/visits'
+import { formatUpdatedAgo } from '~~/lib/updatedAgo'
 
 /** Ancla del título: el botón «Ver visitas» del Inicio enlaza aquí y el foco llega al h1. */
 const TITLE_ID = 'visits-title'
@@ -20,7 +21,7 @@ const CARD_STAGGER_MS = 60
 const LAST_CARD_STAGGER = 9
 const ENTRANCE_VARS = { '--enter-ms': `${CARD_ENTER_MS}ms`, '--stagger-ms': `${CARD_STAGGER_MS}ms` }
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const route = useRoute()
 const { language, integer, percent } = useVisitsFormat()
 
@@ -28,6 +29,13 @@ usePageSeo(() => t('nav.visits'))
 
 const range = ref(DEFAULT_VISITS_RANGE)
 const { report, status, retry } = useVisits(range)
+
+/** Se calcula al llegar cada informe (no hace falta que corra el reloj mientras se mira). */
+const freshness = computed(() => {
+  if (!report.value) return ''
+  if (report.value.sample) return t('visits.sampleData')
+  return formatUpdatedAgo(report.value.generatedAt, new Date(), locale.value === 'es' ? 'es' : 'en')
+})
 const tables = useVisitsTables(report)
 
 const isLoading = computed(() => !report.value)
@@ -67,9 +75,9 @@ onMounted(() => {
     <PageHeader :title="t('nav.visits')" :subtitle="t('visits.subtitle')" :title-id="TITLE_ID" />
 
     <div class="flex flex-wrap items-center justify-between gap-3">
-      <p v-if="report?.sample !== false" class="flex items-center gap-2 text-sm text-muted">
-        <UIcon name="i-lucide-flask-conical" class="size-4 shrink-0" aria-hidden="true" />
-        {{ t('visits.sampleNote') }}
+      <p class="flex items-center gap-2 text-sm text-muted">
+        <UIcon name="i-lucide-shield-check" class="size-4 shrink-0" aria-hidden="true" />
+        {{ t('visits.privacyNote') }}
       </p>
       <SegmentedControl
         v-model="range"
@@ -78,6 +86,10 @@ onMounted(() => {
         class="w-full sm:w-auto sm:min-w-80"
         data-testid="visits-range"
       />
+      <!-- Bajo los filtros: antigüedad de la instantánea de GA4 o aviso de datos de ejemplo. Alto reservado: sin saltos al cargar. -->
+      <p class="min-h-4 basis-full text-xs text-muted sm:text-right" data-testid="visits-freshness">
+        {{ freshness }}
+      </p>
     </div>
 
     <div

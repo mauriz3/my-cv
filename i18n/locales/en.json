@@ -59,6 +59,8 @@
   "visits": {
     "subtitle": "Aggregated Google Analytics data",
     "sampleNote": "Sample data (mock) · aggregated only, no IPs or identifiers",
+    "privacyNote": "Aggregated only, no IPs or identifiers",
+    "sampleData": "Sample data",
     "rangeLabel": "Period",
     "range": {
       "1d": "1 day",
@@ -175,7 +177,7 @@
     },
     "what": {
       "title": "What is measured",
-      "text": "I use Google Analytics 4 to count visits in aggregate (pages, country, device). No ads and no Google signals: ad personalisation and Google Signals are turned off. For now, the Visits section shows sample data."
+      "text": "I use Google Analytics 4 to count visits in aggregate (pages, country, device). No ads and no Google signals: ad personalisation and Google Signals are turned off. The Visits section shows that same aggregate data, refreshed every few hours (or sample data if there is none yet)."
     },
     "cookies": {
       "title": "Cookies and storage",
