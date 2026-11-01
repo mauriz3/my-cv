@@ -6,7 +6,11 @@ import {
   cubicBezier,
   easeInOutSine,
   easeInOutCubic,
+  easeOutCubic,
   easeOutExpo,
+  halfSineBump,
+  inverseOf,
+  overshootOut,
   lerp,
   progressBetween,
 } from '../../lib/easing'
@@ -66,4 +70,32 @@ describe('cubicBezier', () => {
     const easeOutBack = cubicBezier(0.34, 1.56, 0.64, 1)
     expect(Math.max(...[0.5, 0.6, 0.7, 0.8].map(easeOutBack))).toBeGreaterThan(1)
   })
+
 })
+
+describe('curvas de las escenas (Tanda G)', () => {
+  it('easeOutCubic y medio seno', () => {
+    expect(easeOutCubic(0)).toBe(0)
+    expect(easeOutCubic(1)).toBe(1)
+    expect(easeOutCubic(0.5)).toBeCloseTo(0.875)
+    expect(halfSineBump(0)).toBe(0)
+    expect(halfSineBump(0.5)).toBe(1)
+    expect(halfSineBump(1)).toBeCloseTo(0, 9)
+  })
+
+  // Con la fórmula de la spec, s = 2 da un pico de ≈ 13 % (la spec lo redondea a «≈ 20 %»).
+  it('overshootOut: s = 1,4 pasa ≈ 10 % de 1 y s = 2 algo más; termina exacto en 1', () => {
+    const peak = (s: number) => Math.max(...Array.from({ length: 1001 }, (_, i) => overshootOut(i / 1000, s)))
+    expect(peak(1.4)).toBeCloseTo(1.1, 1)
+    expect(peak(2)).toBeGreaterThan(peak(1.4))
+    expect(peak(2)).toBeCloseTo(1.13, 2)
+    expect(overshootOut(0)).toBe(0)
+    expect(overshootOut(1)).toBe(1)
+  })
+
+  it('inverseOf: el x con curva(x) = objetivo', () => {
+    expect(inverseOf(easeInOutCubic, 0.5)).toBeCloseTo(0.5, 4)
+    expect(easeOutCubic(inverseOf(easeOutCubic, 0.3))).toBeCloseTo(0.3, 5)
+  })
+})
+

@@ -63,3 +63,35 @@ export const COUNTER_DURATION_MS = 900
 export function countUpValue(target: number, elapsedMs: number, durationMs: number = COUNTER_DURATION_MS): number {
   return Math.round(target * easeOutExpo(elapsedMs / durationMs))
 }
+
+/** easeOutCubic, equivale a cubic-bezier(0.33, 1, 0.68, 1): arranca rápido y frena (ondas, check). */
+export function easeOutCubic(progress: number): number {
+  return 1 - Math.pow(1 - clamp01(progress), 3)
+}
+
+/** Rebote estándar («back»): s = 1,4 da un overshoot ≈ 10 %; s = 2, ≈ 20 % (solo «pops» pequeños). */
+export const OVERSHOOT_SOFT = 1.4
+
+/** easeOutBack con overshoot `s`: 1 + (s + 1)(t − 1)³ + s(t − 1)². Pasa de 1 antes de llegar y vuelve a 1. */
+export function overshootOut(progress: number, overshoot: number = OVERSHOOT_SOFT): number {
+  const t = clamp01(progress)
+  if (t === 0 || t === 1) return t
+  return 1 + (overshoot + 1) * Math.pow(t - 1, 3) + overshoot * Math.pow(t - 1, 2)
+}
+
+/** Medio seno 0 → 1 → 0: un salto o rebote único que vuelve a su sitio. */
+export function halfSineBump(progress: number): number {
+  return Math.sin(Math.PI * clamp01(progress))
+}
+
+/** Valor x en [0, 1] con `curve(x) = target`, para una curva creciente (bisección). */
+export function inverseOf(curve: (progress: number) => number, target: number): number {
+  let low = 0
+  let high = 1
+  for (let step = 0; step < BISECTION_STEPS; step++) {
+    const middle = (low + high) / 2
+    if (curve(middle) < target) low = middle
+    else high = middle
+  }
+  return (low + high) / 2
+}
