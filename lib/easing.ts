@@ -8,6 +8,11 @@ export function lerp(from: number, to: number, amount: number): number {
   return from + (to - from) * amount
 }
 
+/** Avance (0–1) de `value` entre `from` y `to`, con límites: el tramo de una animación ligada al scroll. */
+export function progressBetween(value: number, from: number, to: number): number {
+  return clamp01((value - from) / (to - from))
+}
+
 /** Aproxima cubic-bezier(0.45, 0, 0.55, 1): arranca y frena suave (paso entre dos puntos). */
 export function easeInOutSine(progress: number): number {
   return (1 - Math.cos(Math.PI * clamp01(progress))) / 2
@@ -40,6 +45,9 @@ export function cubicBezier(x1: number, y1: number, x2: number, y2: number): (pr
     return bezierCoordinate((low + high) / 2, y1, y2)
   }
 }
+
+/** cubic-bezier(0.65, 0, 0.35, 1) (easeInOutCubic de CSS): trazos que se dibujan y contenido ligado al scroll. */
+export const easeInOutCubic = cubicBezier(0.65, 0, 0.35, 1)
 
 const EXPO_STEEPNESS = 10
 

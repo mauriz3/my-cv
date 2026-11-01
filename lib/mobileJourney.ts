@@ -3,7 +3,7 @@
  * sin temporizadores, así que se puede ir hacia atrás. Lógica pura: valores de cada fotograma y su paso a CSS.
  * Solo se animan transform (scale, translate, rotate) y opacity.
  */
-import { clamp01, cubicBezier, lerp } from './easing'
+import { clamp01, cubicBezier, easeInOutCubic, lerp, progressBetween } from './easing'
 import { LAST_POINT_INDEX, MOBILE_TIMELINE, journeyStateAt, type CardState, type JourneyState } from './journey'
 
 /**
@@ -66,7 +66,6 @@ const easeOutExpo = cubicBezier(0.16, 1, 0.3, 1)
 const easeOutBack = cubicBezier(0.34, 1.56, 0.64, 1)
 const easeOutQuint = cubicBezier(0.22, 1, 0.36, 1)
 const easeIn = cubicBezier(0.4, 0, 1, 1)
-const easeInOutDraw = cubicBezier(0.65, 0, 0.35, 1)
 
 export type PointingArm = 'right' | 'left'
 
@@ -111,10 +110,6 @@ export interface MobileFrame {
   visitsDraw: number
 }
 
-function rampBetween(value: number, from: number, to: number): number {
-  return clamp01((value - from) / (to - from))
-}
-
 /** Fotograma del recorrido móvil para un progreso de scroll. */
 export function mobileFrameAt(progress: number): MobileFrame {
   const state = journeyStateAt(progress, MOBILE_TIMELINE)
@@ -124,17 +119,17 @@ export function mobileFrameAt(progress: number): MobileFrame {
   const isLastPoint = state.pointIndex === LAST_POINT_INDEX
   const gesture = isLastPoint ? VISITS_GESTURE : GESTURE
   const u = isLastPoint ? Math.min(state.segmentProgress, GESTURE.leaveFrom) : state.segmentProgress
-  const leave = easeIn(rampBetween(u, gesture.leaveFrom, 1))
+  const leave = easeIn(progressBetween(u, gesture.leaveFrom, 1))
   const stay = 1 - leave
-  const armIn = rampBetween(u, gesture.armFrom, gesture.armTo)
+  const armIn = progressBetween(u, gesture.armFrom, gesture.armTo)
   const zoom = easeOutExpo(armIn) * stay
-  const cardIn = easeOutQuint(rampBetween(u, gesture.cardFrom, gesture.cardTo))
+  const cardIn = easeOutQuint(progressBetween(u, gesture.cardFrom, gesture.cardTo))
   // La tarjeta del punto 1 lleva el h1: visible desde la carga (LCP sin animar) hasta su salida.
   const cardShown = state.pointIndex === 0 ? 1 : cardIn
   const armDirection = pointingArmOf(state.pointIndex) === 'right' ? -1 : 1
-  const ring = isLastPoint ? easeOutExpo(rampBetween(u, VISITS_GESTURE.ringFrom, VISITS_GESTURE.ringTo)) : 0
+  const ring = isLastPoint ? easeOutExpo(progressBetween(u, VISITS_GESTURE.ringFrom, VISITS_GESTURE.ringTo)) : 0
   // «Tap»: el brazo vuelve 8° hacia el cuerpo y regresa (medio seno).
-  const tap = isLastPoint ? Math.sin(Math.PI * rampBetween(u, VISITS_GESTURE.tapFrom, VISITS_GESTURE.tapTo)) : 0
+  const tap = isLastPoint ? Math.sin(Math.PI * progressBetween(u, VISITS_GESTURE.tapFrom, VISITS_GESTURE.tapTo)) : 0
 
   return {
     state,
@@ -142,11 +137,11 @@ export function mobileFrameAt(progress: number): MobileFrame {
     holoScale: lerp(ENTRY.holoScaleFrom, 1, entry) * lerp(1, ZOOM_SCALE, zoom),
     holoShiftPx: ZOOM_SHIFT_PX * zoom,
     curtain: 1 - entry,
-    rayOpacity: entry < 1 ? 1 - rampBetween(entry, ENTRY.rayFadeFrom, 1) : 0,
+    rayOpacity: entry < 1 ? 1 - progressBetween(entry, ENTRY.rayFadeFrom, 1) : 0,
     scanlinesOpacity: lerp(1, ENTRY.scanlinesTo, entry),
     glowOpacity: lerp(0, ENTRY.glowOpacityTo, entry),
     glowScale: lerp(ENTRY.glowScaleFrom, 1, entry),
-    timelineOpacity: rampBetween(entry, ENTRY.timelineFrom, 1),
+    timelineOpacity: progressBetween(entry, ENTRY.timelineFrom, 1),
     armAngleDeg: armDirection * (ARM_ANGLE_DEG * easeOutBack(armIn) - TAP_ANGLE_DEG * tap) * stay,
     lineScale: cardIn * stay,
     cardOpacity: cardShown * stay,
@@ -154,7 +149,7 @@ export function mobileFrameAt(progress: number): MobileFrame {
     cardScale: leave > 0 ? 1 : lerp(gesture.cardScaleFrom, 1, cardShown),
     ringScale: lerp(1, RING_SCALE_TO, ring),
     ringOpacity: ring > 0 && ring < 1 ? RING_OPACITY_FROM * (1 - ring) : 0,
-    visitsDraw: isLastPoint ? easeInOutDraw(rampBetween(u, VISITS_GESTURE.drawFrom, VISITS_GESTURE.drawTo)) : 0,
+    visitsDraw: isLastPoint ? easeInOutCubic(progressBetween(u, VISITS_GESTURE.drawFrom, VISITS_GESTURE.drawTo)) : 0,
   }
 }
 
