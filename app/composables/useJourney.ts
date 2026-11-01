@@ -24,8 +24,13 @@ const MIN_PROGRESS_CHANGE = 0.001
  * Con el pin móvil usa su reparto (entrada + 6 tramos) y escribe además las variables del fotograma (scrub)
  * y expone el dibujo de la tarjeta Visitas (`visitsDraw`), que también va ligado al scroll.
  * Al pausar o reanudar el movimiento mantiene al usuario en el mismo punto, sin repetir los anteriores.
+ * `onFrame`: trabajo extra en el mismo fotograma (microanimaciones de las tarjetas): un único rAF para todo.
  */
-export function useJourney(section: Readonly<Ref<HTMLElement | null>>, isMobilePinned: Readonly<Ref<boolean>>) {
+export function useJourney(
+  section: Readonly<Ref<HTMLElement | null>>,
+  isMobilePinned: Readonly<Ref<boolean>>,
+  options: { onFrame?: (element: HTMLElement, state: JourneyState, progress: number) => void } = {},
+) {
   const timeline = computed(() => (isMobilePinned.value ? MOBILE_TIMELINE : PINNED_TIMELINE))
   const state = ref<JourneyState>(journeyStateAt(0))
   const isSteppingNow = ref(false)
@@ -54,6 +59,7 @@ export function useJourney(section: Readonly<Ref<HTMLElement | null>>, isMobileP
     element.style.setProperty('--journey-position', next.position.toFixed(4))
     if (next.pointIndex !== state.value.pointIndex || next.phase !== state.value.phase) state.value = next
     isSteppingNow.value = isStepping(next.phase, performance.now() - lastScrollAt)
+    options.onFrame?.(element, next, progress)
   }
 
   function paintMobileFrame(element: HTMLElement, progress: number): JourneyState {
