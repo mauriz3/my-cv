@@ -318,6 +318,22 @@ export function sceneValues(kind: SceneKind, p: number): SceneValues {
 /** Nombre de la variable que escribe la tarjeta (sin el prefijo `--fx-`): «parte-canal». */
 export const sceneVariableName = (part: string, channel: SceneChannel) => `${part}-${channel}`
 
+/** Estado inicial (p = 0) de cada escena, «parte-canal» → número. */
+export const INITIAL_SCENE_VALUES = Object.fromEntries(
+  SCENE_KINDS.map((kind) => [kind, flatSceneValues(kind, 0)]),
+) as Record<SceneKind, Record<string, number>>
+
+/**
+ * Referencia CSS a la variable de un canal con el valor de p = 0 como respaldo. Así, con movimiento, el HTML
+ * prerenderizado ya pinta el estado inicial antes de que el JS escriba la primera variable (sin parpadeo).
+ * El respaldo solo se lee bajo `data-motion="full"`: sin JS o con movimiento reducido, el estado final.
+ */
+export function sceneVariableReference(kind: SceneKind, part: string, channel: SceneChannel): string {
+  const name = sceneVariableName(part, channel)
+  const initial = INITIAL_SCENE_VALUES[kind][name] ?? NEUTRAL_CHANNEL_VALUE[channel]
+  return `var(--fx-${name}, ${round(initial)})`
+}
+
 /** Valores planos «parte-canal» → número (los usa `cardMotionValues`). */
 export function flatSceneValues(kind: SceneKind, p: number): Record<string, number> {
   const flat: Record<string, number> = {}

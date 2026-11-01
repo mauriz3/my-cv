@@ -5,6 +5,7 @@ import {
   EXPERIENCE_NODE_ARRIVALS,
   EXPERIENCE_POINTS,
   EXPERIENCE_TRAIL_SHARE,
+  INITIAL_SCENE_VALUES,
   NEUTRAL_CHANNEL_VALUE,
   SCENE_KINDS,
   flatSceneValues,
@@ -12,6 +13,7 @@ import {
   polylineStops,
   radarPoints,
   sceneValues,
+  sceneVariableReference,
   type SceneChannel,
 } from '../../lib/journeyScene'
 
@@ -99,6 +101,27 @@ describe('escenas de la Tanda G', () => {
     )
   })
 
+  it.each(SCENE_KINDS)('%s: sin variables escritas, cada canal parte de su valor en p = 0 (primer pintado sin parpadeo)', (kind) => {
+    for (const [part, channels] of Object.entries(sceneValues(kind, 0))) {
+      for (const [channel, value] of Object.entries(channels) as [SceneChannel, number][]) {
+        expect(sceneVariableReference(kind, part, channel)).toBe(
+          `var(--fx-${part}-${channel}, ${Number(value.toFixed(3))})`,
+        )
+      }
+    }
+    expect(INITIAL_SCENE_VALUES[kind]).toEqual(flatSceneValues(kind, 0))
+  })
+
+  it.each(SCENE_KINDS)('%s: el estado inicial no es el final (si no, no habría animación)', (kind) => {
+    const initial = INITIAL_SCENE_VALUES[kind]
+    const final = flatSceneValues(kind, 1)
+    expect(Object.keys(initial).some((name) => Math.abs(initial[name]! - final[name]!) > 0.01)).toBe(true)
+  })
+
+  it('una parte sin valor en p = 0 usa el valor neutro del canal', () => {
+    expect(sceneVariableReference('skills', 'missing', 'opacity')).toBe('var(--fx-missing-opacity, 1)')
+  })
+
   it('radar: hexágono con el primer vértice arriba y en sentido horario (centro 52,52; R 44)', () => {
     const hexagon = radarPoints([1, 1, 1, 1, 1, 1])
     expect(hexagon[0]).toEqual([52, 8])
@@ -117,6 +140,18 @@ describe('reglas de la escena (CSS)', () => {
 
   it('solo anima transform, opacity y stroke-dashoffset, sin animaciones CSS ni filtros', () => {
     expect(css).not.toMatch(/@keyframes|animation:|transition:|filter:|mask:|box-shadow/)
+  })
+
+  it('cada canal lee su variable con el respaldo de p = 0 (sceneVariableReference), nunca una variable sin respaldo', () => {
+    expect(css).toMatch(/sceneVariableReference\(props\.kind, part, channel\)/)
+    expect(css).not.toMatch(/`var\(--fx-\$\{[^}]+\}\)`/)
+  })
+
+  it('el estado inicial solo se aplica con movimiento: todas las reglas que leen --scene-* van bajo data-motion="full"', () => {
+    const style = css.slice(css.indexOf('<style>'))
+    const rules = style.split('}').filter((rule) => /var\(--scene-/.test(rule))
+    expect(rules.length).toBeGreaterThan(0)
+    for (const rule of rules) expect(rule).toMatch(/:root\[data-motion='full'\]/)
   })
 
   it('es decorativa: aria-hidden y no enfocable', () => {

@@ -13,7 +13,7 @@ import {
   SCENE_VIEWBOX,
   STACK_BLOCKS_Y,
   radarPoints,
-  sceneVariableName,
+  sceneVariableReference,
   svgPoints,
   type SceneChannel,
   type SceneKind,
@@ -23,7 +23,8 @@ import {
  * Escena decorativa a ancho completo bajo el título de una tarjeta del recorrido (Tanda G). Pinta el estado
  * final (= estático: movimiento reducido, pausa o sin JS). Con movimiento, `useCardMotion` escribe en la tarjeta
  * las variables `--fx-<parte>-<canal>` (lib/journeyScene) y el CSS de abajo las aplica (solo transform,
- * opacity y stroke-dashoffset). Sin variables, cada canal vale su valor neutro: nada queda oculto.
+ * opacity y stroke-dashoffset). Hasta que el JS escribe la primera, cada canal usa su valor de p = 0 (estado
+ * inicial desde el primer pintado, sin parpadeo); sin `data-motion="full"` esas reglas no aplican: estado final.
  */
 const props = defineProps<{ kind: SceneKind }>()
 const cv = useCv()
@@ -53,7 +54,7 @@ const CHANNEL_CLASS: Record<SceneChannel, string> = {
 /** Solo las variables de los canales de una parte (los hijos las heredan). */
 function fxVars(part: string, ...channels: SceneChannel[]) {
   return Object.fromEntries(
-    channels.map((channel) => [CHANNEL_VARIABLE[channel], `var(--fx-${sceneVariableName(part, channel)})`]),
+    channels.map((channel) => [CHANNEL_VARIABLE[channel], sceneVariableReference(props.kind, part, channel)]),
   )
 }
 
@@ -331,8 +332,8 @@ const TOP_BLOCK = STACK_BLOCKS_Y.length - 1
 }
 
 /*
- * Con movimiento: cada canal sigue su variable (sin ella, valor neutro = estado final). Con el foco del
- * teclado dentro de la tarjeta, estado final. Un trazo sin dibujar se oculta (sin el punto del remate redondo).
+ * Con movimiento: cada canal sigue su variable (antes del primer fotograma de JS, su valor de p = 0). Con el foco
+ * del teclado dentro de la tarjeta, estado final. Un trazo sin dibujar se oculta (sin el punto del remate redondo).
  */
 :root[data-motion='full'] .journey__card:not(:focus-within) .journey-scene .scene-fx--move {
   translate: calc(var(--scene-x, 0) * 1px) calc(var(--scene-y, 0) * 1px);
