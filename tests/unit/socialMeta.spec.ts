@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { absoluteUrl, SITE_ORIGIN, SOCIAL_IMAGE, socialImageMeta } from '../../lib/socialMeta'
+import { absoluteUrl, pointHeadToCanonical, SITE_ORIGIN, SOCIAL_IMAGE, socialImageMeta } from '../../lib/socialMeta'
 
 describe('absoluteUrl', () => {
   it('resuelve rutas contra el dominio de producción', () => {
@@ -26,5 +26,33 @@ describe('socialImageMeta', () => {
       twitterImageAlt: 'Texto alternativo'
     })
     expect(SOCIAL_IMAGE.width / SOCIAL_IMAGE.height).toBeCloseTo(1.905, 2)
+  })
+})
+
+describe('pointHeadToCanonical', () => {
+  const head = {
+    link: [
+      { id: 'i18n-xd', rel: 'alternate', href: 'https://x.test/en/books', hreflang: 'x-default' },
+      { id: 'i18n-alt-es', rel: 'alternate', href: 'https://x.test/es/libros', hreflang: 'es' },
+      { id: 'i18n-can', rel: 'canonical', href: 'https://x.test/en/books' }
+    ],
+    meta: [
+      { id: 'i18n-og-url', property: 'og:url', content: 'https://x.test/en/books' },
+      { id: 'i18n-og', property: 'og:locale', content: 'en_GB' }
+    ]
+  }
+
+  it('canonical y og:url apuntan a la página canónica, sin hreflang; og:locale se mantiene', () => {
+    expect(pointHeadToCanonical(head, 'https://x.test/en')).toEqual({
+      link: [{ id: 'i18n-can', rel: 'canonical', href: 'https://x.test/en' }],
+      meta: [
+        { id: 'i18n-og-url', property: 'og:url', content: 'https://x.test/en' },
+        { id: 'i18n-og', property: 'og:locale', content: 'en_GB' }
+      ]
+    })
+  })
+
+  it('acepta una cabecera sin etiquetas', () => {
+    expect(pointHeadToCanonical({}, 'https://x.test/en')).toEqual({ link: [], meta: [] })
   })
 })

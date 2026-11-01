@@ -27,6 +27,9 @@
     "greeting": "Hi, I’m Maurizio",
     "overview": "Overview of profile, figures and skills"
   },
+  "booksLink": {
+    "redirecting": "Taking you to"
+  },
   "books": {
     "title": "Books I recommend",
     "intro": "Two books I keep coming back to, and why."

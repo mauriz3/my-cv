@@ -5,9 +5,6 @@
 /  /es/  302  Language=es
 /  /en/  302
 
-# Enlaces cortos a «Libros que recomiendo» (Destacados de LinkedIn quita el `#`): 301 a la sección del Perfil.
-# No hay páginas en estas rutas, así que nada las tapa, y el destino ya lleva og:image para la vista previa.
-/en/books    /en/#books  301
-/en/books/   /en/#books  301
-/es/libros   /es/#books  301
-/es/libros/  /es/#books  301
+# Sin reglas para los enlaces cortos de Libros (/en/books, /es/libros): son páginas `en/books.html` y `es/libros.html` (200).
+# Netlify ya manda `/en/books/` a `/en/books` (301) y empareja las reglas con o sin barra final, así que una regla aquí
+# podría hacer bucle. El 301 con fragmento que había antes hacía fallar el Post Inspector de LinkedIn (500).

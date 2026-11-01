@@ -1,4 +1,5 @@
 import { ANALYTICS_MEASUREMENT_ID } from './lib/analytics'
+import { BOOKS_SHORT_LINK_PAGE, BOOKS_SHORT_LINK_PATHS, BOOKS_SHORT_LINK_ROUTES, isUnusedPayload, prerenderFileName } from './lib/booksShortLink'
 import { PRIVACY_PATH } from './lib/privacy'
 import { SITE_ORIGIN } from './lib/socialMeta'
 import { DEFAULT_THEME, THEME_STORAGE_KEY } from './lib/theme'
@@ -33,11 +34,17 @@ export default defineNuxtConfig({
     strategy: 'prefix',
     defaultLocale: 'en',
     detectBrowserLanguage: false,
+    // Rutas traducidas en un solo sitio (enlaces cortos a Libros: /en/books, /es/libros).
+    customRoutes: 'config',
+    pages: { [BOOKS_SHORT_LINK_PAGE]: BOOKS_SHORT_LINK_PATHS },
     locales: [
       { code: 'en', language: 'en-GB', name: 'English', file: 'en.json' },
       { code: 'es', language: 'es-ES', name: 'Español', file: 'es.json' }
     ]
   },
+
+  // Enlaces cortos de Libros: HTML estático sin la app de Vue (ni hidratación ni `_payload.json`); solo saltan a la sección.
+  routeRules: Object.fromEntries(BOOKS_SHORT_LINK_ROUTES.map((route) => [route, { noScripts: true }])),
 
   typescript: {
     strict: true,
@@ -50,8 +57,22 @@ export default defineNuxtConfig({
     // El JSON de visitas (mock) sale como fichero estático del mismo origen: cumple `connect-src 'self'`.
     // Privacidad solo se enlaza desde el aviso y el pie (que solo existen en producción): se prerenderiza siempre.
     prerender: {
-      routes: ['/en', '/es', `/en${PRIVACY_PATH}`, `/es${PRIVACY_PATH}`, ...VISITS_RANGES.map(visitsEndpoint)],
+      routes: [
+        '/en',
+        '/es',
+        `/en${PRIVACY_PATH}`,
+        `/es${PRIVACY_PATH}`,
+        ...BOOKS_SHORT_LINK_ROUTES,
+        ...VISITS_RANGES.map(visitsEndpoint)
+      ],
       crawlLinks: true
+    },
+    hooks: {
+      // Enlaces cortos de Libros como `/en/books.html`: Netlify los sirve con 200 en `/en/books`, sin 301 a la barra final.
+      'prerender:generate'(route) {
+        if (isUnusedPayload(route.route)) route.skip = true
+        route.fileName = prerenderFileName(route.route, route.fileName ?? '')
+      }
     }
   }
 })
