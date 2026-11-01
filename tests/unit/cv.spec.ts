@@ -146,8 +146,8 @@ describe('habilidades', () => {
 
   const skillsOf = (areaId: string) => cvFacts.skillAreas.find((area) => area.id === areaId)?.skills ?? []
 
-  it('el Back End solo tiene lo de Octane11: Node.js, API REST y Prisma', () => {
-    expect(skillsOf('backend')).toEqual(['Node.js', 'API REST', 'Prisma'])
+  it('el Back End solo tiene lo de Octane11: Node.js, REST APIs y Prisma', () => {
+    expect(skillsOf('backend')).toEqual(['Node.js', 'REST APIs', 'Prisma'])
   })
 
   it('Python va en DevOps (System73) y Django en Front End', () => {

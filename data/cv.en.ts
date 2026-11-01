@@ -4,7 +4,7 @@ import type { CvTexts } from './schema'
 export const textsEn: CvTexts = {
   headline: 'Senior Software Engineer · Full stack (Back End and Front End)',
   summary:
-    'Senior software engineer with a full stack profile, working mostly on Back End and Front End. ' +
+    'Senior software engineer with a full stack profile and 10+ years of experience, working mostly on Back End and Front End. ' +
     'I build web platforms, dashboards, PWAs and CMS sites on serverless architectures and servers. ' +
     'I use AI in my development workflow and to automate processes, including MCP integrations and chat assistants for clients. ' +
     'Creative thinking + UX + prototyping = Minimum Viable Product. ' +
@@ -26,7 +26,7 @@ export const textsEn: CvTexts = {
       highlights: [
         'Building a dashboard that shows analytics, and a CMS to configure it.',
         'Building API endpoints and Back End services in Node.js with Prisma.',
-        'Using Chart.js for the charts.',
+        'Charts with Chart.js; React, TypeScript, Next.js and Cypress on the Front End.',
         'Implementing AI to analyze data, automate processes and assist customers.',
       ],
     },
