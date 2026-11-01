@@ -4,13 +4,18 @@ import { toMonthIndex } from '~~/lib/years'
 
 /**
  * Cifras clave del Perfil, calculadas desde los datos (años en tecnología, años full stack,
- * proyectos e idiomas), con la nota de cómo se calculan. Cuentan de 0 al valor al entrar en pantalla.
+ * proyectos e idiomas), con la nota de cómo se calculan. Cuentan de 0 al valor al entrar en pantalla o,
+ * dentro del recorrido del Inicio (Tanda F), con el scroll (`PROFILE_COUNT_KEY`): cada cifra entra escalonada.
  */
 const { t, locale } = useI18n({ useScope: 'local' })
 const cv = useCv()
 
 /** Desde que hace Back End (Octane11) su perfil es full stack: ese área marca los años «full stack». */
 const FULL_STACK_AREA_ID = 'backend'
+/** Avance de la cuenta ligado al scroll (solo en el recorrido); `undefined` = cuenta sola al entrar en pantalla. */
+const countProgress = inject(PROFILE_COUNT_KEY, undefined)
+const progress = computed(() => countProgress?.value)
+const fx = (name: string) => ({ '--fx': `var(--fx-${name}, 1)` })
 const MONTHS_PER_YEAR = 12
 
 const monthYear = computed(() => new Intl.DateTimeFormat(locale.value, { month: 'short', year: 'numeric' }))
@@ -50,20 +55,28 @@ const countersNote = computed(() =>
 <template>
   <div>
     <ul class="profile-counters__list grid grid-cols-2 gap-3 xl:grid-cols-4">
-      <li>
-        <MetricCard :label="t('yearsInTech')"><YearsFigure :periods="techPeriods" count-up /></MetricCard>
+      <li class="card-fx--scale" :style="fx('kpi-0')">
+        <MetricCard :label="t('yearsInTech')">
+          <YearsFigure :periods="techPeriods" count-up :progress="progress" />
+        </MetricCard>
       </li>
-      <li>
-        <MetricCard :label="t('yearsFullStack')"><YearsFigure :periods="fullStackPeriods" count-up /></MetricCard>
+      <li class="card-fx--scale" :style="fx('kpi-1')">
+        <MetricCard :label="t('yearsFullStack')">
+          <YearsFigure :periods="fullStackPeriods" count-up :progress="progress" />
+        </MetricCard>
       </li>
-      <li>
-        <MetricCard :label="t('projects')"><AnimatedNumber :value="cv.projects.length" animate /></MetricCard>
+      <li class="card-fx--scale" :style="fx('kpi-2')">
+        <MetricCard :label="t('projects')">
+          <AnimatedNumber :value="cv.projects.length" animate :progress="progress" />
+        </MetricCard>
       </li>
-      <li>
-        <MetricCard :label="t('languages')"><AnimatedNumber :value="cv.languages.length" animate /></MetricCard>
+      <li class="card-fx--scale" :style="fx('kpi-3')">
+        <MetricCard :label="t('languages')">
+          <AnimatedNumber :value="cv.languages.length" animate :progress="progress" />
+        </MetricCard>
       </li>
     </ul>
-    <p class="mt-2 text-xs text-muted">{{ countersNote }}</p>
+    <p class="card-fx mt-2 text-xs text-muted" :style="fx('kpi-3')">{{ countersNote }}</p>
   </div>
 </template>
 
