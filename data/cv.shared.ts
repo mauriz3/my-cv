@@ -161,7 +161,7 @@ export const cvFacts: CvFacts = {
     {
       id: 'backend',
       periods: [{ start: '2022-02', end: null }],
-      skills: ['Node.js', 'API REST', 'Prisma'],
+      skills: ['Node.js', 'REST APIs', 'Prisma'],
     },
     {
       id: 'devops',
