@@ -82,7 +82,7 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-      - name: Comprobar cabeceras de producción, la Edge Function /geo y las rutas de Visitas
+      - name: Comprobar cabeceras de producción, la Edge Function /geo, las rutas de Visitas y los enlaces de Libros
         run: |
           headers=$(curl -sSI --retry 3 --retry-delay 5 https://www.mauriziorendon.com/en/)
           echo "$headers"
@@ -102,5 +102,12 @@ jobs:
             echo "$visits" | grep -iE '^(HTTP|x-visits-source|content-type)'
             echo "$visits" | grep -qiE '^x-visits-source: *(snapshot|mock)' || { echo "::error::/api/visits/$range no la sirve la función"; fail=1; }
             echo "$visits" | grep -qE "\"range\":\"$range\"" || { echo "::error::/api/visits/$range no devuelve su informe"; fail=1; }
+          done
+          # Enlaces cortos de Libros: 200 sin redirección y con vista previa para LinkedIn.
+          for path in /en/books /es/libros; do
+            short=$(curl -sS -A LinkedInBot -D - --retry 3 --retry-delay 5 "https://www.mauriziorendon.com$path")
+            echo "$short" | grep -iE '^HTTP'
+            echo "$short" | head -1 | grep -qE ' 200' || { echo "::error::$path no responde 200"; fail=1; }
+            echo "$short" | grep -qE 'property="og:image"' || { echo "::error::$path sin og:image"; fail=1; }
           done
           exit $fail
