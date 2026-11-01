@@ -2,7 +2,7 @@
 const { t } = useI18n()
 const cv = useCv()
 
-usePageSeo(() => `${cv.value.fullName} · ${t('nav.profile')}`)
+usePageSeo(useProfileTitle())
 </script>
 
 <template>

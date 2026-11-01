@@ -1,17 +1,28 @@
-import { socialImageMeta } from '~~/lib/socialMeta'
+import { pointHeadToCanonical, socialImageMeta } from '~~/lib/socialMeta'
 
 const SCHEMA_ORG_CONTEXT = 'https://schema.org'
 /** Evita que un texto de los datos cierre el `<script>` del JSON-LD. */
 const HTML_UNSAFE_CHARACTERS = /</g
 
+interface PageSeoOptions {
+  /** Ruta (con idioma) de la página canónica si esta la duplica: canonical y `og:url` apuntan allí, sin hreflang. */
+  canonicalPath?: () => string
+}
+
 /**
  * Meta descripción, Open Graph, Twitter y JSON-LD (Person) a partir de los datos del CV.
  * `og:url` y `og:locale` salen de `useLocaleHead`, igual que canonical y hreflang: misma URL absoluta.
  */
-export function usePageSeo(pageTitle: () => string) {
+export function usePageSeo(pageTitle: () => string, { canonicalPath }: PageSeoOptions = {}) {
   const cv = useCv()
   const { t } = useI18n()
   const localeHead = useLocaleHead({ seo: true })
+  // Misma base que i18n (dominio real o la URL del despliegue de Netlify).
+  const { baseUrl } = useRuntimeConfig().public.i18n
+
+  const headTags = computed(() =>
+    canonicalPath ? pointHeadToCanonical(localeHead.value, new URL(canonicalPath(), baseUrl).href) : localeHead.value
+  )
 
   const personJsonLd = computed(() =>
     JSON.stringify({
@@ -29,8 +40,8 @@ export function usePageSeo(pageTitle: () => string) {
   useHead(() => ({
     title: pageTitle(),
     htmlAttrs: { lang: localeHead.value.htmlAttrs?.lang },
-    link: localeHead.value.link,
-    meta: localeHead.value.meta,
+    link: headTags.value.link,
+    meta: headTags.value.meta,
     script: [{ type: 'application/ld+json', innerHTML: personJsonLd.value }]
   }))
 

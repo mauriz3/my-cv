@@ -41,3 +41,30 @@ export function socialImageMeta(alt: string): SocialImageMeta {
     twitterImageAlt: alt
   }
 }
+
+/** Lo que se lee de los `<link>` y `<meta>` de `useLocaleHead` (el resto de atributos se conserva tal cual). */
+interface HeadLinkAttrs {
+  rel?: unknown
+  href?: unknown
+  hreflang?: unknown
+}
+interface HeadMetaAttrs {
+  property?: unknown
+  content?: unknown
+}
+
+/**
+ * Para una página que duplica a otra (p. ej. un enlace corto): `canonical` y `og:url` pasan a `canonicalUrl`
+ * y se quitan los `hreflang`, que solo debe llevar la página canónica.
+ */
+export function pointHeadToCanonical<Link extends HeadLinkAttrs, Meta extends HeadMetaAttrs>(
+  head: { link?: Link[]; meta?: Meta[] },
+  canonicalUrl: string
+): { link: Link[]; meta: Meta[] } {
+  return {
+    link: (head.link ?? [])
+      .filter((link) => !link.hreflang)
+      .map((link) => (link.rel === 'canonical' ? { ...link, href: canonicalUrl } : link)),
+    meta: (head.meta ?? []).map((meta) => (meta.property === 'og:url' ? { ...meta, content: canonicalUrl } : meta))
+  }
+}

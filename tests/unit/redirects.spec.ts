@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
+import { BOOKS_SHORT_LINK_ROUTES } from '../../lib/booksShortLink'
 
 interface RedirectRule {
   from: string
@@ -9,14 +10,7 @@ interface RedirectRule {
 }
 
 const REDIRECTS_FILE = new URL('../../public/_redirects', import.meta.url)
-const BOOKS_SECTION_ID = 'books'
-const PERMANENT = '301'
-const BOOKS_SHORT_LINKS = [
-  { from: '/en/books', to: `/en/#${BOOKS_SECTION_ID}` },
-  { from: '/en/books/', to: `/en/#${BOOKS_SECTION_ID}` },
-  { from: '/es/libros', to: `/es/#${BOOKS_SECTION_ID}` },
-  { from: '/es/libros/', to: `/es/#${BOOKS_SECTION_ID}` },
-]
+const TRAILING_SLASH = /\/$/
 
 /** Formato de Netlify: `origen destino estado [condiciones]`, con `#` para comentarios de línea. */
 function parseRedirects(text: string): RedirectRule[] {
@@ -31,7 +25,8 @@ function parseRedirects(text: string): RedirectRule[] {
 }
 
 const rules = parseRedirects(readFileSync(REDIRECTS_FILE, 'utf8'))
-const pathOf = (url: string) => url.split('#')[0]!
+/** Netlify empareja las reglas con o sin barra final: se comparan sin ella. */
+const withoutTrailingSlash = (path: string) => (path === '/' ? path : path.replace(TRAILING_SLASH, ''))
 
 describe('public/_redirects', () => {
   it('cada regla tiene origen, destino y estado HTTP válidos', () => {
@@ -42,10 +37,13 @@ describe('public/_redirects', () => {
     }
   })
 
-  it('los enlaces cortos de Libros redirigen con 301 a la sección del Perfil', () => {
-    for (const link of BOOKS_SHORT_LINKS) {
-      expect(rules).toContainEqual({ ...link, status: PERMANENT, conditions: [] })
-    }
+  it('ningún destino lleva fragmento (`#`): el Post Inspector de LinkedIn falla con ellos', () => {
+    for (const rule of rules) expect(rule.to).not.toContain('#')
+  })
+
+  it('los enlaces cortos de Libros no tienen reglas (son páginas que responden 200)', () => {
+    const origins = rules.map((rule) => withoutTrailingSlash(rule.from))
+    for (const route of BOOKS_SHORT_LINK_ROUTES) expect(origins).not.toContain(route)
   })
 
   it('no hay orígenes duplicados con las mismas condiciones', () => {
@@ -54,12 +52,7 @@ describe('public/_redirects', () => {
   })
 
   it('no hay bucles: ningún destino vuelve a ser origen de otra regla', () => {
-    const origins = new Set(rules.map((rule) => rule.from))
-    for (const rule of rules) expect(origins.has(pathOf(rule.to))).toBe(false)
-  })
-
-  it('el ancla de destino existe en el Perfil', () => {
-    const section = readFileSync(new URL('../../app/components/BooksSection.vue', import.meta.url), 'utf8')
-    expect(section).toContain(`id="${BOOKS_SECTION_ID}"`)
+    const origins = new Set(rules.map((rule) => withoutTrailingSlash(rule.from)))
+    for (const rule of rules) expect(origins.has(withoutTrailingSlash(rule.to))).toBe(false)
   })
 })
