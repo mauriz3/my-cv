@@ -5,8 +5,10 @@ import {
   countUpValue,
   cubicBezier,
   easeInOutSine,
+  easeInOutCubic,
   easeOutExpo,
   lerp,
+  progressBetween,
 } from '../../lib/easing'
 
 describe('utilidades de animación', () => {
@@ -14,6 +16,19 @@ describe('utilidades de animación', () => {
     expect(clamp01(-1)).toBe(0)
     expect(clamp01(2)).toBe(1)
     expect(lerp(10, 20, 0.25)).toBe(12.5)
+  })
+
+  it('progressBetween: avance con límites dentro de un tramo', () => {
+    expect(progressBetween(0.1, 0.2, 0.6)).toBe(0)
+    expect(progressBetween(0.4, 0.2, 0.6)).toBeCloseTo(0.5)
+    expect(progressBetween(0.9, 0.2, 0.6)).toBe(1)
+  })
+
+  it('easeInOutCubic (cubic-bezier 0.65, 0, 0.35, 1) es simétrica', () => {
+    expect(easeInOutCubic(0)).toBe(0)
+    expect(easeInOutCubic(1)).toBe(1)
+    expect(easeInOutCubic(0.5)).toBeCloseTo(0.5, 3)
+    expect(easeInOutCubic(0.25)).toBeCloseTo(1 - easeInOutCubic(0.75), 3)
   })
 
   it('las curvas empiezan en 0, terminan en 1 y no se pasan', () => {

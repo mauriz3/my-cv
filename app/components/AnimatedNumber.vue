@@ -1,20 +1,25 @@
 <script setup lang="ts">
-import { countUpValue } from '~~/lib/easing'
+import { clamp01, countUpValue } from '~~/lib/easing'
 
 /**
  * Número que cuenta de 0 a `value` al entrar en pantalla (si `animate` y el movimiento está activo en ese momento).
  * El HTML generado ya trae el valor final: sin JS o con menos movimiento no cambia nada.
  * `format` da forma al número (miles, «1m 46s»…); si `value` cambia después, se muestra al momento.
+ * `progress` (0–1): la cuenta la lleva quien lo pasa (scroll del recorrido, Tanda F) en lugar del temporizador.
  */
-const props = withDefaults(defineProps<{ value: number; animate?: boolean; format?: (value: number) => string }>(), {
-  animate: false,
-  format: String,
-})
+const props = withDefaults(
+  defineProps<{ value: number; animate?: boolean; format?: (value: number) => string; progress?: number }>(),
+  { animate: false, format: String, progress: undefined },
+)
 
 const VISIBLE_THRESHOLD = 0.2
 
 const { isReduced } = useMotion()
 const displayedValue = ref(props.value)
+const isDriven = computed(() => props.progress !== undefined)
+const shownValue = computed(() =>
+  isDriven.value && !isReduced.value ? Math.round(props.value * clamp01(props.progress!)) : displayedValue.value,
+)
 const root = useTemplateRef<HTMLElement>('root')
 let observer: IntersectionObserver | undefined
 let frame = 0
@@ -36,7 +41,7 @@ function countUp() {
 
 // Cuenta al entrar en pantalla, una vez. Si al entrar el movimiento está reducido, se queda en el valor final.
 onMounted(() => {
-  if (!props.animate || !root.value) return
+  if (!props.animate || isDriven.value || !root.value) return
   if (readDocumentMotion() === 'full') displayedValue.value = 0
   observer = new IntersectionObserver(
     ([entry]) => {
@@ -72,7 +77,7 @@ onBeforeUnmount(() => {
 
 <template>
   <span ref="root">
-    <span aria-hidden="true">{{ format(displayedValue) }}</span>
+    <span aria-hidden="true">{{ format(shownValue) }}</span>
     <span class="sr-only">{{ format(value) }}</span>
   </span>
 </template>

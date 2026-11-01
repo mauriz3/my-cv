@@ -20,6 +20,8 @@ import { yearsInPeriods } from '~~/lib/years'
  * La 6.ª (Visitas) es la única con acción: mini-gráficas, KPI que cuentan y botón «Ver visitas»; no sale.
  * Sin JS, con movimiento reducido o si fallan las guardas del móvil: holograma fijo y las 6 tarjetas visibles.
  * El nombre es el h1 real, en la tarjeta 1, visible desde la carga y sin animar (LCP).
+ * Tanda F: las tarjetas 1–5 llevan microanimaciones ligadas al scroll (`useCardMotion`, `lib/cardMotion.ts`):
+ * Profile anima su contenido (escalonado y KPI que cuentan) y Skills–Projects un icono en la esquina.
  */
 const { t } = useI18n({ useScope: 'local' })
 const { t: tGlobal } = useI18n()
@@ -33,7 +35,17 @@ const TIMING_CSS_VARS = journeyTimingCssVars()
 
 const section = useTemplateRef<HTMLElement>('section')
 const { isMobilePinned } = useMobilePin(section)
-const { state, isStepping, isOnScreen, isPageHidden, visitsDraw, revealLastPoint } = useJourney(section, isMobilePinned)
+const cardMotion = useCardMotion(isMobilePinned)
+const { state, isStepping, isOnScreen, isPageHidden, visitsDraw, revealLastPoint } = useJourney(section, isMobilePinned, {
+  onFrame: cardMotion.paint,
+})
+provide(PROFILE_COUNT_KEY, cardMotion.profileCount)
+const { isReduced } = useMotion()
+watch(isReduced, (reduced) => {
+  if (reduced) cardMotion.reset(section.value)
+})
+/** Avance del elemento `name` de una tarjeta (variables de `useCardMotion`; sin ellas, estado final). */
+const fx = (name: string) => ({ '--fx': `var(--fx-${name}, 1)` })
 
 const currentPoint = computed(() => JOURNEY_POINTS[state.value.pointIndex]!)
 const markerStates = computed(() => JOURNEY_POINTS.map((_, index) => markerStateAt(index, state.value)))
@@ -113,11 +125,13 @@ const courses = computed(() =>
 
       <ol class="journey__cards">
         <JourneyCard :index="0" :state="cardStates[0]!">
-          <h1 id="hero-title" class="mt-1 font-display text-3xl leading-tight font-bold text-highlighted">
-            {{ cv.fullName }}
-          </h1>
-          <p class="mt-1 text-sm font-medium">{{ cv.headline }}</p>
-          <p class="mt-2 text-sm text-muted">{{ cv.tagline }}</p>
+          <template #title>
+            <h1 id="hero-title" class="mt-1 font-display text-3xl leading-tight font-bold text-highlighted">
+              {{ cv.fullName }}
+            </h1>
+          </template>
+          <p class="card-fx mt-1 text-sm font-medium" :style="fx('headline')">{{ cv.headline }}</p>
+          <p class="card-fx mt-2 text-sm text-muted" :style="fx('tagline')">{{ cv.tagline }}</p>
           <ProfileCounters class="mt-3" />
           <div class="mt-3 flex flex-wrap items-center gap-2">
             <UButton
@@ -133,9 +147,11 @@ const courses = computed(() =>
         </JourneyCard>
 
         <JourneyCard :index="1" :state="cardStates[1]!">
-          <h2 class="mt-1 font-display text-xl font-bold text-highlighted">
-            {{ t('skillProfile') }}
-          </h2>
+          <template #title>
+            <h2 class="mt-1 font-display text-xl font-bold text-highlighted">
+              {{ t('skillProfile') }}
+            </h2>
+          </template>
           <p class="mt-1 text-sm text-muted">{{ t('relativeProfile') }}: {{ relativeProfile }}</p>
           <p class="mt-1 text-sm text-muted">
             {{ t('yearsPerArea') }}:
@@ -152,10 +168,12 @@ const courses = computed(() =>
         </JourneyCard>
 
         <JourneyCard :index="2" :state="cardStates[2]!">
-          <h2 class="mt-1 font-display text-xl font-bold text-highlighted">
-            {{ currentJob.company }} ·
-            <PeriodTime :period="currentJob.period" class="text-xl! text-highlighted!" />
-          </h2>
+          <template #title>
+            <h2 class="mt-1 font-display text-xl font-bold text-highlighted">
+              {{ currentJob.company }} ·
+              <PeriodTime :period="currentJob.period" class="text-xl! text-highlighted!" />
+            </h2>
+          </template>
           <p class="mt-1 text-sm">{{ currentJob.role }}</p>
           <p v-if="previousJob" class="mt-1 text-sm text-muted">
             {{ previousJob.company }} · {{ previousJob.role }} ·
@@ -176,9 +194,11 @@ const courses = computed(() =>
         </JourneyCard>
 
         <JourneyCard :index="3" :state="cardStates[3]!">
-          <h2 class="mt-1 font-display text-xl font-bold text-highlighted">
-            {{ degree.title }}
-          </h2>
+          <template #title>
+            <h2 class="mt-1 font-display text-xl font-bold text-highlighted">
+              {{ degree.title }}
+            </h2>
+          </template>
           <p class="mt-1 text-sm">{{ degree.institution }} · <PeriodTime :period="degree.period" /></p>
           <p v-if="cv.certifications.length" class="mt-1 text-sm text-muted">
             {{ tGlobal('education.certifications') }}:
@@ -188,9 +208,11 @@ const courses = computed(() =>
         </JourneyCard>
 
         <JourneyCard :index="4" :state="cardStates[4]!">
-          <h2 class="mt-1 font-display text-xl font-bold text-highlighted">
-            {{ t('projectCount', { count: cv.projects.length }, cv.projects.length) }}
-          </h2>
+          <template #title>
+            <h2 class="mt-1 font-display text-xl font-bold text-highlighted">
+              {{ t('projectCount', { count: cv.projects.length }, cv.projects.length) }}
+            </h2>
+          </template>
           <p class="mt-1 text-sm text-muted">{{ t('projectsHint') }}</p>
           <ul class="mt-2 flex flex-wrap gap-1.5">
             <li v-for="project in cv.projects" :key="project.id">
@@ -550,6 +572,34 @@ const courses = computed(() =>
     .journey.is-on-screen:not([data-cards-fit='false'])
     :is(.journey__holo, .journey__curtain, .journey__line, .journey__card[data-state='current'], .holo__arm) {
     will-change: transform, opacity;
+  }
+}
+
+/*
+ * Tanda F: con pin, Profile carga en su estado inicial (p = 0), ya visible, y se asienta con el primer scroll.
+ * Se fija en el CSS para que no salte al hidratar; `useCardMotion` lo sobrescribe en línea.
+ */
+@media (min-width: 768px) {
+  :root[data-motion='full'] .journey__card[data-point-index='0'] {
+    --fx-eyebrow: 0;
+    --fx-headline: 0;
+    --fx-tagline: 0;
+    --fx-kpi-0: 0;
+    --fx-kpi-1: 0;
+    --fx-kpi-2: 0;
+    --fx-kpi-3: 0;
+  }
+}
+
+@media (max-width: 767.98px) and (min-height: 520px) and (max-height: 950px) {
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__card[data-point-index='0'] {
+    --fx-eyebrow: 0;
+    --fx-headline: 0;
+    --fx-tagline: 0;
+    --fx-kpi-0: 0;
+    --fx-kpi-1: 0;
+    --fx-kpi-2: 0;
+    --fx-kpi-3: 0;
   }
 }
 

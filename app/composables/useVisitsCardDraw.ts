@@ -1,11 +1,10 @@
 import type { Ref } from 'vue'
-import { clamp01, cubicBezier } from '~~/lib/easing'
+import { clamp01, easeInOutCubic as easeDraw } from '~~/lib/easing'
 import type { CardState } from '~~/lib/journey'
 
 /** Escritorio y tablet (por tiempo): la mini-gráfica empieza tras la tarjeta y dura lo que la secuencia de la spec. */
 const DESKTOP_DRAW_DELAY_MS = 450
 const DESKTOP_DRAW_MS = 1050
-const easeDraw = cubicBezier(0.65, 0, 0.35, 1)
 const WIDE_PIN_QUERY = '(min-width: 768px)'
 
 /**

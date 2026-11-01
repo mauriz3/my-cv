@@ -17,7 +17,7 @@ npm run pdf        # regenera public/Resume-Maurizio-Rendon-{en,es}.pdf desde da
 
 - `app/` páginas, layout, componentes, composables y utilidades (Nuxt 4).
 - `data/` contenido del CV: `cv.shared.ts` (fechas, enlaces, imágenes) + `cv.en.ts` / `cv.es.ts` (solo textos) + `getCv(locale)`.
-- `lib/` funciones puras con tests (periodos, años, recorrido, visitas, movimiento, tema, consentimiento).
+- `lib/` funciones puras con tests (periodos, años, recorrido, microanimaciones, visitas, movimiento, tema, consentimiento).
 - `i18n/locales/` textos de la interfaz.
 - `scripts/pdf/` generador del CV en PDF (EN/ES): lee `data/cv.*.ts` con `getCv`, así web y PDF comparten el texto (un test lo comprueba).
 - `public/` estáticos, `_headers` (CSP y cabeceras) y `_redirects`.
@@ -99,6 +99,15 @@ Las credenciales solo viven en Netlify: nunca en el repo, el cliente ni los regi
 - Estado en `localStorage["motion"]` (`full` | `reduced`) o, si no hay, `prefers-reduced-motion`. Un script inline lo aplica en `<html data-motion>` antes de pintar (`lib/motion.ts`).
 - El CSS solo anima con `data-motion="full"`. En reducido, las gráficas usan `animation: false` y, si se pausa a mitad, saltan al estado final.
 - `MOTION_TOGGLE_TEXT_MODE` decide el texto de escritorio: `fixed` (actual, siempre «Reducir movimiento») o `by-state`.
+
+### Microanimaciones de las tarjetas del Inicio (Tanda F)
+
+- Ligadas al scroll y sin bucle: se dibujan al entrar y vuelven atrás al subir. Solo animan `transform`, `opacity` y `stroke-dashoffset`.
+- Perfil: su contenido se ve desde la carga (nunca se oculta); con el scroll, eyebrow, titular, tagline y KPI se asientan escalonados (solo `translate`/`scale`) y los contadores suben. El nombre (`h1`, LCP) no se anima.
+- Habilidades, Experiencia, Formación y Proyectos llevan un icono SVG en la esquina (64 px; 56 px en móvil) que se dibuja con el scroll (`CardCornerIcon`, `aria-hidden`). El radar de Habilidades usa los niveles de `skillProfile`. Visitas no cambia.
+- Lógica pura en `lib/cardMotion.ts` (progreso por tarjeta, tramos y valores de cada elemento; con tests) sobre `lib/easing.ts`. `app/composables/useCardMotion.ts` escribe variables CSS `--fx-*` en el mismo rAF del recorrido (`useJourney`, opción `onFrame`).
+- Progreso: en el recorrido fijado (escritorio/tablet) sale del tramo del punto (0,6–0,85 del segmento; el Perfil, 0–0,25). En el pin móvil, 0,46–0,62 (el Perfil sigue la entrada del holograma). Sin pin, se calcula por la posición de la tarjeta en pantalla.
+- Movimiento reducido o pausa global: estado final estático, sin saltos (las variables por defecto valen 1). El foco de teclado dentro de una tarjeta también fuerza el estado final.
 
 ### Tema claro / oscuro (oscuro por defecto)
 

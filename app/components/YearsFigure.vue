@@ -5,8 +5,12 @@ import { yearsInPeriods } from '~~/lib/years'
 /**
  * Años de experiencia calculados desde las fechas (`lib/years.ts`), nunca escritos a mano.
  * Si algún periodo sigue abierto se muestra «8+» (y contando); si ya terminó, «~2» (aproximado).
+ * `progress`: cuenta ligada al scroll (ver AnimatedNumber).
  */
-const props = withDefaults(defineProps<{ periods: Period[]; countUp?: boolean }>(), { countUp: false })
+const props = withDefaults(defineProps<{ periods: Period[]; countUp?: boolean; progress?: number }>(), {
+  countUp: false,
+  progress: undefined,
+})
 
 const ONGOING_SUFFIX = '+'
 const APPROXIMATE_PREFIX = '~'
@@ -19,7 +23,7 @@ const shownYears = computed(() => (isOngoing.value ? Math.floor(years.value) : M
 <template>
   <span>
     <template v-if="!isOngoing">{{ APPROXIMATE_PREFIX }}</template>
-    <AnimatedNumber :value="shownYears" :animate="countUp" />
+    <AnimatedNumber :value="shownYears" :animate="countUp" :progress="progress" />
     <template v-if="isOngoing">{{ ONGOING_SUFFIX }}</template>
   </span>
 </template>
