@@ -83,14 +83,15 @@ const hasSectionLink = props.index > 0 && !props.ownAction
   }
 }
 
-/* Contenido de Profile que entra con el scroll (`--fx` 0 → 1): sube 8 px y aparece. KPI: escala 0,96 → 1. */
+/*
+ * Contenido de Profile ligado al scroll (`--fx` 0 → 1): sube 8 px a su sitio; KPI: escala 0,96 → 1.
+ * Sin opacidad: se lee desde la carga, también con p = 0 (decisión de Maurizio, sin hueco vacío).
+ */
 :root[data-motion='full'] .journey__card:not(:focus-within) .card-fx {
-  opacity: var(--fx);
   translate: 0 calc((1 - var(--fx)) * 8px);
 }
 
 :root[data-motion='full'] .journey__card:not(:focus-within) .card-fx--scale {
-  opacity: var(--fx);
   scale: calc(0.96 + 0.04 * var(--fx));
 }
 </style>

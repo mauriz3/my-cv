@@ -576,8 +576,8 @@ const courses = computed(() =>
 }
 
 /*
- * Tanda F: con pin, Profile carga en su estado inicial (p = 0) y su contenido entra con el primer scroll.
- * Se fija en el CSS para que no aparezca y desaparezca al hidratar; `useCardMotion` lo sobrescribe en línea.
+ * Tanda F: con pin, Profile carga en su estado inicial (p = 0), ya visible, y se asienta con el primer scroll.
+ * Se fija en el CSS para que no salte al hidratar; `useCardMotion` lo sobrescribe en línea.
  */
 @media (min-width: 768px) {
   :root[data-motion='full'] .journey__card[data-point-index='0'] {

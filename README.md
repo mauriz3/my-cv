@@ -98,7 +98,7 @@ Las credenciales solo viven en Netlify: nunca en el repo, el cliente ni los regi
 ### Microanimaciones de las tarjetas del Inicio (Tanda F)
 
 - Ligadas al scroll y sin bucle: se dibujan al entrar y vuelven atrás al subir. Solo animan `transform`, `opacity` y `stroke-dashoffset`.
-- Perfil: eyebrow, titular, tagline y KPI aparecen escalonados, y los contadores suben con el scroll. El nombre (`h1`, LCP) no se anima.
+- Perfil: su contenido se ve desde la carga (nunca se oculta); con el scroll, eyebrow, titular, tagline y KPI se asientan escalonados (solo `translate`/`scale`) y los contadores suben. El nombre (`h1`, LCP) no se anima.
 - Habilidades, Experiencia, Formación y Proyectos llevan un icono SVG en la esquina (64 px; 56 px en móvil) que se dibuja con el scroll (`CardCornerIcon`, `aria-hidden`). El radar de Habilidades usa los niveles de `skillProfile`. Visitas no cambia.
 - Lógica pura en `lib/cardMotion.ts` (progreso por tarjeta, tramos y valores de cada elemento; con tests) sobre `lib/easing.ts`. `app/composables/useCardMotion.ts` escribe variables CSS `--fx-*` en el mismo rAF del recorrido (`useJourney`, opción `onFrame`).
 - Progreso: en el recorrido fijado (escritorio/tablet) sale del tramo del punto (0,6–0,85 del segmento; el Perfil, 0–0,25). En el pin móvil, 0,46–0,62 (el Perfil sigue la entrada del holograma). Sin pin, se calcula por la posición de la tarjeta en pantalla.

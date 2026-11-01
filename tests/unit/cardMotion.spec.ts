@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import {
   CORNER_ICON_KINDS,
@@ -134,5 +135,32 @@ describe('iconos', () => {
     expect(hexagon[3]).toEqual([36, 64])
     expect(hexagon[1]![0]).toBeGreaterThan(36)
     expect(radarPoints([0.5])[0]).toEqual([36, 25])
+  })
+})
+
+describe('Profile visible desde la carga (decisión de Maurizio)', () => {
+  const source = (file: string) => readFileSync(new URL(`../../app/components/${file}`, import.meta.url), 'utf8')
+  /** Reglas CSS (selector + cuerpo) cuyo selector incluye la clase dada. */
+  const rulesWith = (css: string, className: string) =>
+    [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].filter(([, selector]) => selector!.includes(className)).map(([rule]) => rule!)
+
+  it('el contenido animado de Profile no se oculta con p = 0: --fx solo mueve o escala, nunca la opacidad', () => {
+    const rules = ['card-fx', 'card-fx--scale'].flatMap((className) => rulesWith(source('JourneyCard.vue'), `.${className}`))
+    expect(rules.length).toBeGreaterThanOrEqual(2)
+    for (const rule of rules) {
+      expect(rule).not.toMatch(/opacity|visibility|display/)
+      expect(rule).toMatch(/var\(--fx\)/)
+    }
+  })
+
+  it('ningún componente de Profile liga su opacidad a --fx', () => {
+    for (const file of ['JourneyCard.vue', 'ProfileJourney.vue', 'ProfileCounters.vue']) {
+      expect(source(file)).not.toMatch(/opacity:\s*var\(--fx/)
+    }
+  })
+
+  it('con p = 0 el contenido está en su estado inicial (desplazado, no oculto) y con p = 1 en el final', () => {
+    expect(Object.values(cardMotionValues('profile', 0)).every((value) => value === 0)).toBe(true)
+    expect(Object.values(cardMotionValues('profile', 1)).every((value) => value === 1)).toBe(true)
   })
 })
