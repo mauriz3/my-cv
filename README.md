@@ -17,7 +17,7 @@ npm run pdf        # regenera public/Resume-Maurizio-Rendon-{en,es}.pdf desde da
 
 - `app/` páginas, layout, componentes, composables y utilidades (Nuxt 4).
 - `data/` contenido del CV: `cv.shared.ts` (fechas, enlaces, imágenes) + `cv.en.ts` / `cv.es.ts` (solo textos) + `getCv(locale)`.
-- `lib/` funciones puras con tests (periodos, años, recorrido, microanimaciones, visitas, movimiento, consentimiento).
+- `lib/` funciones puras con tests (periodos, años, recorrido, microanimaciones, visitas, movimiento, tema, consentimiento).
 - `i18n/locales/` textos de la interfaz.
 - `scripts/pdf/` generador del CV en PDF (EN/ES): lee `data/cv.*.ts` con `getCv`, así web y PDF comparten el texto (un test lo comprueba).
 - `public/` estáticos, `_headers` (CSP y cabeceras) y `_redirects`.
@@ -103,6 +103,13 @@ Las credenciales solo viven en Netlify: nunca en el repo, el cliente ni los regi
 - Lógica pura en `lib/cardMotion.ts` (progreso por tarjeta, tramos y valores de cada elemento; con tests) sobre `lib/easing.ts`. `app/composables/useCardMotion.ts` escribe variables CSS `--fx-*` en el mismo rAF del recorrido (`useJourney`, opción `onFrame`).
 - Progreso: en el recorrido fijado (escritorio/tablet) sale del tramo del punto (0,6–0,85 del segmento; el Perfil, 0–0,25). En el pin móvil, 0,46–0,62 (el Perfil sigue la entrada del holograma). Sin pin, se calcula por la posición de la tarjeta en pantalla.
 - Movimiento reducido o pausa global: estado final estático, sin saltos (las variables por defecto valen 1). El foco de teclado dentro de una tarjeta también fuerza el estado final.
+
+### Tema claro / oscuro (oscuro por defecto)
+
+- Botón sol/luna de la cabecera (`UColorModeButton` de Nuxt UI, que usa `@nuxtjs/color-mode`). Configuración en `nuxt.config.ts` (`colorMode`: `preference` y `fallback` = `dark`); constantes y lógica pura en `lib/theme.ts`.
+- **Decisión:** sin elección guardada, oscuro. `prefers-color-scheme` **no** se consulta: solo una elección explícita con el botón (`localStorage["nuxt-color-mode"]` = `light` | `dark`) cambia el tema, y se mantiene en todas las páginas e idiomas. El valor `system` que guardaba color-mode a visitas antiguas no es una elección: se borra y se vuelve al oscuro.
+- Sin parpadeo: el HTML prerenderizado ya sale con `<html class="dark">` y `<meta name="theme-color" content="#0d1117">` (también sin JS). El script inline `THEME_NO_FLASH_SCRIPT` (antes del de color-mode) solo quita `dark` si hay `light` guardado; su hash entra en la CSP con `scripts/build-headers.mjs`. `color-scheme` (barras de scroll y controles nativos) y `theme-color` siguen al tema.
+- No afecta a `og-cv.png` ni a los PDF (tienen su propia plantilla).
 
 ### Libros que recomiendo
 
