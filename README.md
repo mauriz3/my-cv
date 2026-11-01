@@ -39,8 +39,13 @@ Sin teléfono, email ni dirección en ningún sitio: contacto solo por LinkedIn,
 
 ### Visitas (`/visits`)
 
-- Página con Chart.js (solo se carga en esa página) y filtro 1 día / 1 semana / 1 mes. Cada gráfica tiene tabla alternativa. Bajo el filtro: «Datos actualizados hace X h/min» (sale del `generatedAt` del informe, `lib/updatedAgo.ts`) o «Datos de ejemplo» con el mock.
-- Contrato: `lib/visitsSchema.ts` (zod). En el cliente, `app/composables/useVisits.ts` pide `/api/visits/{1d,7d,30d}` (mismo origen, CSP `connect-src 'self'`) y **no sabe de dónde salen los datos**. La tarjeta «Visitas» del Inicio usa el mock en SVG.
+- Página con Chart.js (solo se carga en esa página) y filtro 1 día / 1 semana / 1 mes / **Datos de ejemplo** (radiogroup con flechas, 4 botones de 44 px que caben a 360 px). Cada gráfica tiene tabla alternativa.
+- Filtro por defecto (`lib/visitsFilter.ts`, lógica pura con tests): con datos reales (`sample: false`, instantánea de GA4) **1 mes**; si `/api/visits/30d` falla, no cumple el contrato mínimo o solo devuelve el mock (`sample: true`), **Datos de ejemplo**. Si se elige 1 día / 1 semana con la API caída, sale el aviso de error con «Reintentar».
+- «Datos de ejemplo» no pide nada a la API: `buildMockReport('30d')` se genera en el navegador y se carga en diferido (chunk propio de ~2 KB, solo al elegir ese filtro).
+- Nota bajo el filtro (icono + texto, no solo color): «Datos actualizados hace X h/min» con datos reales (`generatedAt`, `lib/updatedAgo.ts`); «Ejemplo con datos ficticios: no son visitas reales» si se elige el ejemplo habiendo datos reales; «Aún no hay datos reales: se muestra un ejemplo con datos ficticios» si no los hay.
+- Una sola fuente de verdad real/ejemplo: el campo `sample` del informe → `visitsNote` (`lib/visitsFilter.ts`) → `useVisitsNote`, que usan la página y la tarjeta «Visitas» del Inicio. La tarjeta dice «Datos actualizados hace X · solo agregados, sin IPs ni identificadores» con datos reales y «Datos de ejemplo (mock) · …» con el mock.
+- Contrato: `lib/visitsSchema.ts` (zod, en el servidor). En el cliente, `app/composables/useVisits.ts` pide `/api/visits/{1d,7d,30d}` (mismo origen, CSP `connect-src 'self'`), hace una comprobación mínima sin zod (`isUsableReport`) y **no sabe de dónde salen los datos**. La tarjeta «Visitas» del Inicio usa el informe de 30 días en SVG.
+- Con muy pocos datos (p. ej. 15 visitas, series con ceros, un solo país, heatmap casi vacío) las gráficas no se rompen: la línea usa interpolación `monotone` (no baja de 0) y el anillo de dispositivos no pinta bordes con un solo segmento.
 
 #### Datos reales de Google Analytics 4 (instantánea cada 3 h)
 
