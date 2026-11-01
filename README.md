@@ -97,7 +97,7 @@ Las credenciales solo viven en Netlify: nunca en el repo, el cliente ni los regi
 
 ### Libros que recomiendo
 
-- Sección del Perfil tras el recorrido (`#books`, sin entrada en el menú). Datos en `data/` (`books` en `cv.shared.ts` y textos en `cv.en.ts` / `cv.es.ts`); portadas optimizadas en `public/books/` con sus medidas reales (un test lo comprueba).
+- Sección del Perfil tras el recorrido (`#books`, sin entrada en el menú). Enlaces cortos con 301 en `public/_redirects`: `/en/books` → `/en/#books` y `/es/libros` → `/es/#books` (también con barra final). Sirven para Destacados de LinkedIn, que quita el `#`: pega `https://www.mauriziorendon.com/en/books` (o `/es/libros`); al seguir la redirección, LinkedIn lee la vista previa (`og:image`) del Perfil. No son páginas: no se prerenderizan ni se indexan (no hay sitemap). Un test (`tests/unit/redirects.spec.ts`) valida las reglas. Datos en `data/` (`books` en `cv.shared.ts` y textos en `cv.en.ts` / `cv.es.ts`); portadas optimizadas en `public/books/` con sus medidas reales (un test lo comprueba).
 
 ### Vista previa al compartir (Open Graph / Twitter)
 
