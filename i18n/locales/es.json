@@ -59,13 +59,18 @@
   "visits": {
     "subtitle": "Datos agregados de Google Analytics",
     "sampleNote": "Datos de ejemplo (mock) · solo agregados, sin IPs ni identificadores",
+    "updatedNote": "{updated} · solo agregados, sin IPs ni identificadores",
     "privacyNote": "Solo agregados, sin IPs ni identificadores",
-    "sampleData": "Datos de ejemplo",
+    "note": {
+      "sampleChosen": "Ejemplo con datos ficticios: no son visitas reales",
+      "sampleFallback": "Aún no hay datos reales: se muestra un ejemplo con datos ficticios"
+    },
     "rangeLabel": "Periodo",
     "range": {
       "1d": "1 día",
       "7d": "1 semana",
-      "30d": "1 mes"
+      "30d": "1 mes",
+      "sample": "Datos de ejemplo"
     },
     "comparison": {
       "1d": "frente al día anterior",

@@ -59,13 +59,18 @@
   "visits": {
     "subtitle": "Aggregated Google Analytics data",
     "sampleNote": "Sample data (mock) · aggregated only, no IPs or identifiers",
+    "updatedNote": "{updated} · aggregated only, no IPs or identifiers",
     "privacyNote": "Aggregated only, no IPs or identifiers",
-    "sampleData": "Sample data",
+    "note": {
+      "sampleChosen": "Example with made-up data, not real visits",
+      "sampleFallback": "No real data yet: showing an example with made-up data"
+    },
     "rangeLabel": "Period",
     "range": {
       "1d": "1 day",
       "7d": "1 week",
-      "30d": "1 month"
+      "30d": "1 month",
+      "sample": "Sample data"
     },
     "comparison": {
       "1d": "vs previous day",

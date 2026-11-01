@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {
   DEFAULT_VISITS_RANGE,
-  VISITS_RANGES,
   formatDuration,
   formatKpiChange,
   isEmptyReport,
@@ -9,7 +8,7 @@ import {
   kpiTrend,
   type KpiKey,
 } from '~~/lib/visits'
-import { formatUpdatedAgo } from '~~/lib/updatedAgo'
+import { VISITS_FILTERS, defaultVisitsFilter, type VisitsFilter } from '~~/lib/visitsFilter'
 
 /** Ancla del título: el botón «Ver visitas» del Inicio enlaza aquí y el foco llega al h1. */
 const TITLE_ID = 'visits-title'
@@ -21,26 +20,43 @@ const CARD_STAGGER_MS = 60
 const LAST_CARD_STAGGER = 9
 const ENTRANCE_VARS = { '--enter-ms': `${CARD_ENTER_MS}ms`, '--stagger-ms': `${CARD_STAGGER_MS}ms` }
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const route = useRoute()
 const { language, integer, percent } = useVisitsFormat()
 
 usePageSeo(() => t('nav.visits'))
 
-const range = ref(DEFAULT_VISITS_RANGE)
-const { report, status, retry } = useVisits(range)
+const filter = ref<VisitsFilter>(DEFAULT_VISITS_RANGE)
+const { report, status, dataState, retry } = useVisits(filter)
+/** Rango del informe a la vista (con «Datos de ejemplo», el del mock): textos de comparación y de la gráfica. */
+const range = computed(() => report.value?.range ?? DEFAULT_VISITS_RANGE)
 
-/** Se calcula al llegar cada informe (no hace falta que corra el reloj mientras se mira). */
-const freshness = computed(() => {
-  if (!report.value) return ''
-  if (report.value.sample) return t('visits.sampleData')
-  return formatUpdatedAgo(report.value.generatedAt, new Date(), locale.value === 'es' ? 'es' : 'en')
+/** Filtro por defecto según la primera respuesta (salvo que ya se haya elegido otro): 1 mes con datos reales; si no, el ejemplo. */
+watch(
+  dataState,
+  (state) => {
+    if (state && filter.value === DEFAULT_VISITS_RANGE) filter.value = defaultVisitsFilter(state)
+  },
+  { once: true },
+)
+const realDataAvailable = ref(false)
+watch(dataState, (state) => {
+  if (state === 'real') realDataAvailable.value = true
+})
+
+/** Nota bajo los filtros: antigüedad de los datos reales o aviso de ejemplo (elegido o porque no hay reales). */
+const visitsNoteState = useVisitsNote(report, realDataAvailable)
+const note = computed(() => {
+  const { kind, updatedAgo } = visitsNoteState.value
+  if (kind === 'none') return undefined
+  if (kind === 'updated') return { text: updatedAgo, sample: false }
+  return { text: t(`visits.note.${kind}`), sample: true }
 })
 const tables = useVisitsTables(report)
 
 const isLoading = computed(() => !report.value)
 const { isEntering } = useEntranceOnce(CARD_ENTER_MS + LAST_CARD_STAGGER * CARD_STAGGER_MS)
-const rangeOptions = computed(() => VISITS_RANGES.map((value) => ({ value, label: t(`visits.range.${value}`) })))
+const filterOptions = computed(() => VISITS_FILTERS.map((value) => ({ value, label: t(`visits.range.${value}`) })))
 
 /** Valor de cada KPI como número entero para el contador (el rebote, en puntos: 0,41 → 41). */
 const KPI_FORMATS: Record<KpiKey, { toCount: (value: number) => number; format: (count: number) => string }> = {
@@ -80,15 +96,24 @@ onMounted(() => {
         {{ t('visits.privacyNote') }}
       </p>
       <SegmentedControl
-        v-model="range"
-        :options="rangeOptions"
+        v-model="filter"
+        :options="filterOptions"
         :label="t('visits.rangeLabel')"
         class="w-full sm:w-auto sm:min-w-80"
         data-testid="visits-range"
       />
-      <!-- Bajo los filtros: antigüedad de la instantánea de GA4 o aviso de datos de ejemplo. Alto reservado: sin saltos al cargar. -->
-      <p class="min-h-4 basis-full text-xs text-muted sm:text-right" data-testid="visits-freshness">
-        {{ freshness }}
+      <!--
+        Bajo los filtros: antigüedad de la instantánea de GA4 o aviso de datos de ejemplo (icono + texto, no solo color).
+        Alto reservado: sin saltos al cargar.
+      -->
+      <p
+        class="flex min-h-4 basis-full items-center gap-1.5 text-xs sm:justify-end"
+        :class="note?.sample ? 'font-medium text-default' : 'text-muted'"
+        :data-sample="note?.sample || undefined"
+        data-testid="visits-freshness"
+      >
+        <UIcon v-if="note?.sample" name="i-lucide-flask-conical" class="size-3.5 shrink-0" aria-hidden="true" />
+        {{ note?.text }}
       </p>
     </div>
 
