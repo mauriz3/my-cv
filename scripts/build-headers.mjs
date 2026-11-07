@@ -10,6 +10,7 @@ import { createHash } from 'node:crypto'
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { ANALYTICS_CSP_SOURCES } from '../lib/analytics.ts'
+import { isDirectRun } from './isDirectRun.mjs'
 
 const OUTPUT_DIR = '.output/public'
 const HEADERS_FILE = join(OUTPUT_DIR, '_headers')
@@ -27,10 +28,11 @@ function* htmlFiles(directory) {
   }
 }
 
-function collectInlineScriptHashes() {
+/** Hash CSP de cada script inline ejecutable (sin `src`, sin JSON ni JSON-LD), sin repetir. */
+export function inlineScriptHashes(htmlDocuments) {
   const hashes = new Set()
-  for (const file of htmlFiles(OUTPUT_DIR)) {
-    for (const [, content] of readFileSync(file, 'utf8').matchAll(EXECUTABLE_INLINE_SCRIPT)) {
+  for (const html of htmlDocuments) {
+    for (const [, content] of html.matchAll(EXECUTABLE_INLINE_SCRIPT)) {
       if (content.trim() === '') continue
       hashes.add(`'sha256-${createHash('sha256').update(content).digest('base64')}'`)
     }
@@ -56,11 +58,19 @@ function withNoindex(headers) {
   return headers.replace(ALL_PATHS_RULE, `${ALL_PATHS_RULE}${NOINDEX_HEADER}\n`)
 }
 
-const hashes = collectInlineScriptHashes()
-let headers = withScriptHashes(readFileSync(HEADERS_FILE, 'utf8'), hashes)
-const isProduction = process.env.CONTEXT === PRODUCTION_CONTEXT
-if (isProduction) headers = withAnalyticsSources(headers)
-else headers = withNoindex(headers)
+/** `_headers` final a partir de la plantilla de `public/`, el HTML generado y el CONTEXT de Netlify. */
+export function buildHeaders(headersTemplate, htmlDocuments, context) {
+  const hashes = inlineScriptHashes(htmlDocuments)
+  const isProduction = context === PRODUCTION_CONTEXT
+  const withHashes = withScriptHashes(headersTemplate, hashes)
+  const headers = isProduction ? withAnalyticsSources(withHashes) : withNoindex(withHashes)
+  return { headers, hashCount: hashes.length, isProduction }
+}
 
-writeFileSync(HEADERS_FILE, headers)
-console.log(`Cabeceras: ${hashes.length} hashes CSP; noindex ${isProduction ? 'NO' : 'sí'} (CONTEXT=${process.env.CONTEXT ?? 'sin definir'})`)
+if (isDirectRun(import.meta.url)) {
+  const htmlDocuments = [...htmlFiles(OUTPUT_DIR)].map((file) => readFileSync(file, 'utf8'))
+  const context = process.env.CONTEXT
+  const { headers, hashCount, isProduction } = buildHeaders(readFileSync(HEADERS_FILE, 'utf8'), htmlDocuments, context)
+  writeFileSync(HEADERS_FILE, headers)
+  console.log(`Cabeceras: ${hashCount} hashes CSP; noindex ${isProduction ? 'NO' : 'sí'} (CONTEXT=${context ?? 'sin definir'})`)
+}

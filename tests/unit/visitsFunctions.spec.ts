@@ -83,3 +83,16 @@ describe('función programada visits-snapshot', () => {
     expect(String(log.error.mock.calls[0]?.[0])).toContain('403')
   })
 })
+
+describe('entrada de la función programada (Netlify)', () => {
+  it('sin credenciales de GA4 no toca la instantánea y solo avisa', async () => {
+    vi.stubEnv('GA_PROPERTY_ID', '')
+    vi.stubEnv('GA_SERVICE_ACCOUNT_JSON', '')
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    const { default: scheduledFunction } = await import('../../netlify/functions/visits-snapshot')
+    await scheduledFunction()
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('Sin GA_PROPERTY_ID'))
+    warn.mockRestore()
+    vi.unstubAllEnvs()
+  })
+})

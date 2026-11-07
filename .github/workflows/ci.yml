@@ -24,7 +24,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run typecheck
-      # Tests unitarios con cobertura (una sola pasada; sin umbral por ahora, solo informa).
+      # Tests (unitarios y de composables) con cobertura en una sola pasada; falla por debajo del 80 % (vitest.config.ts).
       - run: npm run coverage
       - name: Resumen de cobertura
         if: ${{ !cancelled() }}

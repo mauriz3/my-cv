@@ -9,9 +9,10 @@
 import { createServer } from 'node:http'
 import { readFile, stat } from 'node:fs/promises'
 import { extname, join, normalize } from 'node:path'
+import { isDirectRun } from './isDirectRun.mjs'
 
-const ROOT = process.argv[2] ?? '.output/public'
-const PORT = Number(process.env.PORT ?? 4173)
+const DEFAULT_ROOT = '.output/public'
+const DEFAULT_PORT = 4173
 const OMITTED_HEADERS = new Set(['x-robots-tag'])
 const CONTENT_TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -29,7 +30,7 @@ const CONTENT_TYPES = {
 }
 
 /** `_headers` de Netlify: una línea de ruta y debajo, indentadas, sus cabeceras. */
-function parseHeadersFile(text) {
+export function parseHeadersFile(text) {
   const rules = []
   for (const line of text.split('\n')) {
     if (line.trim() === '' || line.trim().startsWith('#')) continue
@@ -57,25 +58,34 @@ async function isFile(path) {
   return (await stat(path).catch(() => null))?.isFile() ?? false
 }
 
-async function resolveFile(urlPath) {
-  const base = join(ROOT, normalize(decodeURIComponent(urlPath)).replace(/^(\.\.[/\\])+/, ''))
+async function resolveFile(root, urlPath) {
+  const base = join(root, normalize(decodeURIComponent(urlPath)).replace(/^(\.\.[/\\])+/, ''))
   for (const candidate of [base, `${base}.html`, join(base, 'index.html')]) {
     if (await isFile(candidate)) return candidate
   }
   return null
 }
 
-const headerRules = parseHeadersFile(await readFile(join(ROOT, '_headers'), 'utf8').catch(() => ''))
+/** Servidor del sitio generado en `root` (sin escuchar todavía). */
+export async function createStaticServer(root) {
+  const headerRules = parseHeadersFile(await readFile(join(root, '_headers'), 'utf8').catch(() => ''))
+  return createServer(async (request, response) => {
+    const urlPath = new URL(request.url ?? '/', 'http://localhost').pathname
+    const file = await resolveFile(root, urlPath)
+    const servedFile = file ?? join(root, '404.html')
+    const body = await readFile(servedFile).catch(() => 'Not found')
+    response.setHeader('Content-Type', CONTENT_TYPES[extname(servedFile)] ?? 'application/octet-stream')
+    for (const rule of headerRules) {
+      if (rule.pattern.test(urlPath)) for (const [name, value] of rule.headers) response.setHeader(name, value)
+    }
+    response.writeHead(file ? 200 : 404)
+    response.end(request.method === 'HEAD' ? undefined : body)
+  })
+}
 
-createServer(async (request, response) => {
-  const urlPath = new URL(request.url ?? '/', 'http://localhost').pathname
-  const file = await resolveFile(urlPath)
-  const servedFile = file ?? join(ROOT, '404.html')
-  const body = await readFile(servedFile).catch(() => 'Not found')
-  response.setHeader('Content-Type', CONTENT_TYPES[extname(servedFile)] ?? 'application/octet-stream')
-  for (const rule of headerRules) {
-    if (rule.pattern.test(urlPath)) for (const [name, value] of rule.headers) response.setHeader(name, value)
-  }
-  response.writeHead(file ? 200 : 404)
-  response.end(request.method === 'HEAD' ? undefined : body)
-}).listen(PORT, () => console.log(`Sirviendo ${ROOT} en http://localhost:${PORT}`))
+if (isDirectRun(import.meta.url)) {
+  const root = process.argv[2] ?? DEFAULT_ROOT
+  const port = Number(process.env.PORT ?? DEFAULT_PORT)
+  const server = await createStaticServer(root)
+  server.listen(port, () => console.log(`Sirviendo ${root} en http://localhost:${port}`))
+}
