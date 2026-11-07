@@ -96,3 +96,7 @@ playwright-report
 
 # Local Netlify folder
 .netlify
+
+# Auditorías de CI (Lighthouse y axe)
+lighthouse-report
+.lighthouseci

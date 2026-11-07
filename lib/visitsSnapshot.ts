@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from './zod'
 import { VISITS_RANGES, type VisitsRange, type VisitsReport } from './visits'
 import { VisitsReportSchema } from './visitsSchema'
 

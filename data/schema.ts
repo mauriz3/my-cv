@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from '../lib/zod'
 
 /** Fecha con precisión de año (`2014`) o de mes (`2014-03`). */
 const PARTIAL_DATE_PATTERN = /^\d{4}(-(0[1-9]|1[0-2]))?$/

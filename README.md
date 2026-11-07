@@ -9,7 +9,10 @@ npm install
 npm run dev        # desarrollo
 npm run typecheck  # tipos
 npm run test       # tests unitarios (Vitest), incluye validación zod de los datos
+npm run coverage   # tests unitarios con cobertura (informe en coverage/index.html)
 npm run generate   # sitio estático en .output/public + hashes CSP
+npm run test:a11y  # axe sobre el sitio generado (requiere generate y Google Chrome)
+npm run lighthouse # Lighthouse sobre el sitio generado (requiere generate y Google Chrome)
 npm run pdf        # regenera public/Resume-Maurizio-Rendon-{en,es}.pdf desde data/ (ver scripts/pdf/README.md)
 ```
 
@@ -22,7 +25,7 @@ npm run pdf        # regenera public/Resume-Maurizio-Rendon-{en,es}.pdf desde da
 - `scripts/pdf/` generador del CV en PDF (EN/ES): lee `data/cv.*.ts` con `getCv`, así web y PDF comparten el texto (un test lo comprueba).
 - `public/` estáticos, `_headers` (CSP y cabeceras) y `_redirects`.
 - `server/api/visits/` endpoint de Visitas (se prerenderiza con el mock), `netlify/functions/` las funciones de Visitas (GA4) y `netlify/edge-functions/` la Edge Function `/geo`.
-- `tests/unit/` Vitest. Netlify ejecuta `npm run test && npm run generate`; si falla un test, no hay deploy.
+- `tests/unit/` Vitest; `tests/a11y/` axe con Playwright. Netlify ejecuta `npm run test && npm run generate`; si falla un test, no hay deploy.
 
 Sin teléfono, email ni dirección en ningún sitio: contacto solo por LinkedIn, CodePen y GitHub.
 
@@ -139,7 +142,18 @@ La imagen sale de `scripts/og-image.mjs` (azul de los tokens `--color-brand-*` d
 npm i --no-save playwright-core && node scripts/og-image.mjs
 ```
 
+## Calidad en CI: accesibilidad, Lighthouse y cobertura
+
+Los tres corren en cada PR y en cada push a master; axe y Lighthouse usan el sitio que genera `verify` (artefacto `site`, sin segundo build), servido en local con `scripts/serve-static.mjs`. Ese servidor imita a Netlify en lo que importa (`/ruta` → `ruta.html` o `ruta/index.html`, 404 con `404.html` y las cabeceras de `_headers`, CSP incluida, así una CSP rota también se detecta) y no envía `X-Robots-Tag`: fuera de producción el build lo añade a propósito y Lighthouse lo contaría como fallo de SEO (el artefacto de producción no lo lleva; lo comprueba `deploy-production`).
+
+- **Accesibilidad (job `a11y`)**: `tests/a11y/axe.spec.ts` (`@axe-core/playwright`, reglas WCAG 2.2 A/AA y best-practice) sobre `/en/`, `/es/`, `/en/visits` y `/en/privacy` en tema oscuro y claro (`localStorage["nuxt-color-mode"]`), con movimiento reducido para medir el estado final y no un fotograma de animación. **Falla con violaciones serious o critical**; las moderate/minor se listan en el log. `/en/books` se audita dos veces: el destino tras el salto (`/en/#books`, en ambos temas) y la página mínima en sí (se le quitan solo el meta refresh y el script del salto para que no navegue). El aviso de analítica solo existe en el build de producción, así que se audita en los push a master, no en las PR.
+- **Lighthouse (job `lighthouse`)**: `@lhci/cli` (versión fija vía `npx`, fuera de `package-lock`) con `lighthouserc.json`: 3 pasadas (mediana) en `/en/`, `/es/`, `/en/visits` y `/en/privacy`, preset móvil por defecto. Umbrales (fallan la CI): rendimiento ≥ 0,85, accesibilidad ≥ 0,95, buenas prácticas ≥ 0,9, SEO ≥ 0,95. `/en/books` no entra: redirige en cliente a `/en/`, que ya se mide. Sin servicio externo: informes en `lighthouse-report/` (`upload.target = filesystem`).
+- **Cobertura (en `verify`)**: `npm run coverage` (`@vitest/coverage-v8`, misma versión que vitest) sustituye a `npm run test`. Cuenta todo el código propio en TS/JS de `app/`, `lib/`, `data/`, `server/`, `netlify/` y `scripts/`, lo carguen los tests o no; no cuenta los `.vue` (los tests unitarios no montan componentes) ni tests, configuración y dependencias. Por ahora solo informa (sin umbral). La tabla sale en el resumen del job (`scripts/coverage-summary.mjs` → `$GITHUB_STEP_SUMMARY`).
+- **Ver los informes**: en GitHub → Actions → la ejecución → *Summary* (tabla de cobertura) y, abajo, *Artifacts*: `coverage` (abre `index.html`), `lighthouse-report` (un HTML por pasada y `manifest.json` con las puntuaciones) y `a11y-report` (informe HTML de Playwright). Se guardan 7 días.
+- **En local**: `npm run generate` y después `npm run test:a11y` o `npm run lighthouse` (levantan el servidor solos en el puerto 4173; necesitan Google Chrome instalado). Informes: `playwright-report/` (`npx playwright show-report`), `lighthouse-report/` y `coverage/index.html`.
+- Zod va sin JIT (`lib/zod.ts`, de donde todo importa `z`): su prueba de `new Function` chocaba con la CSP y Lighthouse la marcaba en buenas prácticas.
+
 ## Despliegue
 
-- La CI (`.github/workflows/ci.yml`) ejecuta typecheck, tests, generate y audit:check, más gitleaks.
+- La CI (`.github/workflows/ci.yml`) ejecuta typecheck, tests con cobertura, generate y audit:check, más gitleaks, axe y Lighthouse (`deploy-production` espera a todos).
 - Solo un push a master despliega (`deploy-production`, Netlify CLI con `--no-build`). Ese job hace checkout del repo y `npm ci --ignore-scripts` para que Netlify empaquete la Edge Function `/geo` y las funciones de `netlify/functions` (`netlify.toml` → `[functions]`). Después comprueba las cabeceras de producción, que `/geo` responde `{country}` con `no-store` y rechaza POST (405), y que `/api/visits/{1d,7d,30d}` lo sirve la función (`x-visits-source`) con el informe de su rango.
