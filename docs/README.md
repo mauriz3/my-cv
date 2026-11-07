@@ -3,6 +3,8 @@
 Diagramas del código de `master` en `278043d909a16da55414e8aaca40fd5c09b34a61`.
 Describen la implementación, no garantizan la configuración externa ni el estado de producción.
 
+- [Normas para agentes de IA](../AGENTS.md)
+- [Decisiones de arquitectura (ADR)](adr.md)
 - [Arquitectura y estado de la interfaz](arquitectura.md)
 - [Tipos TypeScript y contratos](tipos.md)
 - [Visitas: GA4, instantáneas y respaldo](visitas.md)

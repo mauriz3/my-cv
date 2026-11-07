@@ -146,4 +146,4 @@ npm i --no-save playwright-core && node scripts/og-image.mjs
 
 ## Documentación técnica
 
-[Diagramas de arquitectura, tipos y flujos](docs/README.md).
+[Diagramas de arquitectura, tipos y flujos](docs/README.md) · [Decisiones (ADR)](docs/adr.md) · [Normas para agentes](AGENTS.md).
