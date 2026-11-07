@@ -1,7 +1,7 @@
 # Decisiones de arquitectura (ADR)
 
 Un ADR registra contexto, decisión y consecuencias; se actualiza en cada PR que tome una decisión nueva.
-Fechas del primer commit/PR verificable (Atlantic/Canary); base: `origin/master` en `7edcb9f` y PRs pendientes.
+Fechas del primer commit/PR verificable (Atlantic/Canary); base: `master` en `278043d` más la PR #55 (`6a306fb`).
 
 ## ADR-001 · Nuxt 4 estático en Netlify
 **2026-10-24 · Aceptada** · `be08b7f`, `11391be`.
@@ -19,7 +19,7 @@ Fechas del primer commit/PR verificable (Atlantic/Canary); base: `origin/master`
 **2026-10-25 · Aceptada** · `c674d67`, `0324d77`.
 - **Contexto:** Evitar publicaciones paralelas.
 - **Decisión:** Tras verificaciones, publicar el artefacto con Netlify CLI `--no-build`, solo por push a master.
-- **Consecuencias:** No desplegar develop; auto-build de Netlify desactivado es requisito externo no verificado.
+- **Consecuencias:** No desplegar develop. Compilación automática de Netlify desactivada: verificado (confirmado por Maurizio, 2026-11-07).
 
 ## ADR-004 · CSP con hashes tras generar
 **2026-10-24 · Aceptada** · `be08b7f`, `95d753d`.
@@ -40,10 +40,10 @@ Fechas del primer commit/PR verificable (Atlantic/Canary); base: `origin/master`
 - **Consecuencias:** Solo agregados públicos; indicar real/ejemplo; credenciales exclusivamente servidor.
 
 ## ADR-007 · Zod sin JIT
-**2026-11-07 · Propuesta (PR pendiente)** · [PR #55](https://github.com/mauriz3/my-cv/pull/55).
-- **Contexto:** La prueba JIT viola CSP.
-- **Decisión:** Centralizar Zod con `jitless: true`.
-- **Consecuencias:** No relajar CSP; todavía no está en master.
+**2026-11-07 · Propuesta (PR #55)** · `ae0f801` ([PR #55](https://github.com/mauriz3/my-cv/pull/55)).
+- **Contexto:** Zod prueba `new Function` para compilar validadores; la CSP sin `unsafe-eval` lo bloquea y Lighthouse lo marca en buenas prácticas.
+- **Decisión:** `lib/zod.ts` aplica `z.config({ jitless: true })` y todo el código importa `z` desde ahí.
+- **Consecuencias:** No se relaja la CSP; validación algo más lenta, suficiente para estos datos. Aceptada al fusionar la PR #55.
 
 ## ADR-008 · Consentimiento según país
 **2026-10-31 · Aceptada** · `bc57e89`, `c706d1a`.
@@ -55,7 +55,7 @@ Fechas del primer commit/PR verificable (Atlantic/Canary); base: `origin/master`
 **2026-10-31 · Aceptada** · `95d753d`.
 - **Contexto:** Informar plazos de analítica.
 - **Decisión:** Declarar 14 meses para datos usuario/evento en `lib/privacy.ts`.
-- **Consecuencias:** Debe coincidir con GA Admin; ajuste externo no verificado. No equivale a duración de cookies.
+- **Consecuencias:** Coincide con GA Admin → Retención de datos: verificado (confirmado por Maurizio, 2026-11-07). No equivale a la duración de las cookies.
 
 ## ADR-010 · Libros: HTML 200 con Open Graph
 **2026-11-01 · Aceptada** · `4830a57` ([PR #48](https://github.com/mauriz3/my-cv/pull/48)).
@@ -76,10 +76,10 @@ Fechas del primer commit/PR verificable (Atlantic/Canary); base: `origin/master`
 - **Consecuencias:** Alternativa estática; contenido accesible sin animación.
 
 ## ADR-013 · Calidad ampliada en CI
-**2026-11-07 · Propuesta (PR pendiente)** · [PR #55](https://github.com/mauriz3/my-cv/pull/55).
-- **Contexto:** Ampliar typecheck, tests y audit.
-- **Decisión:** axe sin serious/critical; Lighthouse ≥0,85/0,95/0,90/0,95 (rendimiento/a11y/prácticas/SEO); objetivo cobertura TS ≥80 %.
-- **Consecuencias:** PR #55 solo informa cobertura, sin umbral: requisito del 80 % aún incumplido.
+**2026-11-07 · Propuesta (PR #55)** · `ae0f801`, `ff47458` ([PR #55](https://github.com/mauriz3/my-cv/pull/55)).
+- **Contexto:** Typecheck, tests y audit no detectaban regresiones de accesibilidad, rendimiento ni código sin probar.
+- **Decisión:** En cada PR y push a master: cobertura bloqueante ≥80 % (líneas, sentencias, funciones y ramas) sobre el TS/JS propio, sin `.vue`; axe WCAG 2.2 A/AA falla con serious/critical; Lighthouse (mediana de 3) ≥0,85/0,95/0,90/0,95 (rendimiento/a11y/prácticas/SEO). axe y Lighthouse usan el artefacto de `verify`.
+- **Consecuencias:** `deploy-production` espera a `verify`, `secrets`, `a11y` y `lighthouse`; los `.vue` solo los cubren axe y Lighthouse. Aceptada al fusionar la PR #55.
 
 ## ADR-014 · Tipos Node alineados
 **2026-11-05 · Aceptada** · `f4e21ed` ([PR #52](https://github.com/mauriz3/my-cv/pull/52)).

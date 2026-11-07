@@ -1,6 +1,6 @@
 # Arquitectura
 
-[Índice](README.md) · [Tipos](tipos.md) · [Visitas](visitas.md) · [Consentimiento](consentimiento.md) · [CI/CD](ci-cd.md)
+[Índice](README.md) · [Tipos](tipos.md) · [Visitas y GA4](ga4.md) · [Funcionalidades](funcionalidades.md) · [Seguridad](seguridad.md) · [Despliegue](despliegue.md)
 
 ## Módulos y límites de ejecución
 

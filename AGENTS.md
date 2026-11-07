@@ -10,13 +10,13 @@
 ## Calidad y comandos
 - Usar Node 24 (`.nvmrc`), npm y el lockfile; instalar con `npm ci`.
 - CI obligatoria: typecheck, tests, cobertura ≥80 % en TS, axe y Lighthouse con umbrales, `npm run audit:check`.
-- **Estado:** master aún no incorpora axe/Lighthouse/cobertura. PR #55 propone axe sin serious/critical y Lighthouse ≥0,85 rendimiento, ≥0,95 accesibilidad, ≥0,90 buenas prácticas y ≥0,95 SEO; cobertura solo informativa. No presentar el 80 % como implantado.
-- Comandos vigentes: `npm run dev`, `npm run typecheck`, `npm run test`, `npm run generate`, `npm run audit:check`, `npm run pdf`.
-- `generate` produce `.output/public` y hashes CSP; no omitir el posprocesado. No inventar comandos de calidad aún no fusionados.
+- Umbrales y configuración (PR #55): [calidad](docs/calidad.md). Axe falla con serious/critical; Lighthouse ≥0,85 rendimiento, ≥0,95 accesibilidad, ≥0,90 buenas prácticas y ≥0,95 SEO.
+- Comandos: `npm run dev`, `npm run typecheck`, `npm run test`, `npm run coverage`, `npm run generate`, `npm run test:a11y`, `npm run lighthouse`, `npm run audit:check`, `npm run pdf`.
+- `generate` produce `.output/public` y hashes CSP; no omitir el posprocesado.
 
 ## Código y arquitectura
 - Vue 3/Nuxt 4: Composition API, composables, `<script setup lang="ts">` y TypeScript estricto, incluido `noUncheckedIndexedAccess`.
-- Seguir [arquitectura](docs/arquitectura.md) y [decisiones](docs/adr.md): vistas presentan, composables coordinan, lógica pura se prueba en `lib/`; aislar adaptadores con E/S.
+- Seguir [arquitectura](docs/arquitectura.md), [tipos](docs/tipos.md) y [decisiones](docs/adr.md): vistas presentan, composables coordinan, lógica pura se prueba en `lib/`; aislar adaptadores con E/S.
 - KISS, DRY, YAGNI y SRP; nombres con intención y constantes con nombre, sin números mágicos.
 - Reutilizar tipos con `Pick`, `Omit`, `extends`, genéricos, `satisfies` y derivados `typeof`/`keyof` cuando simplifique, no por obligación ornamental.
 - Inferir de esquemas Zod con `z.infer`, `z.input` o `z.output`; no duplicar contratos a mano. Validar datos externos en sus límites; coerción explícita cuando proceda.
