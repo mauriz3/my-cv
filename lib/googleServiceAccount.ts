@@ -1,5 +1,5 @@
 import { createSign } from 'node:crypto'
-import { z } from 'zod'
+import { z } from './zod'
 
 /**
  * Token OAuth de Google para una cuenta de servicio (flujo JWT bearer, RFC 7523) firmando el JWT
