@@ -143,3 +143,7 @@ npm i --no-save playwright-core && node scripts/og-image.mjs
 
 - La CI (`.github/workflows/ci.yml`) ejecuta typecheck, tests, generate y audit:check, más gitleaks.
 - Solo un push a master despliega (`deploy-production`, Netlify CLI con `--no-build`). Ese job hace checkout del repo y `npm ci --ignore-scripts` para que Netlify empaquete la Edge Function `/geo` y las funciones de `netlify/functions` (`netlify.toml` → `[functions]`). Después comprueba las cabeceras de producción, que `/geo` responde `{country}` con `no-store` y rechaza POST (405), y que `/api/visits/{1d,7d,30d}` lo sirve la función (`x-visits-source`) con el informe de su rango.
+
+## Documentación técnica
+
+[Diagramas de arquitectura, tipos y flujos](docs/README.md).
