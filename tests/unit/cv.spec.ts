@@ -13,6 +13,7 @@ const GENERIC_ALT_TEXTS = ['image', 'imagen', 'img', 'photo', 'foto', 'screensho
 const PERSONAL_DATA_PATTERNS = [/@/, /mailto:/i, /tel:/i, /\+?\d[\d\s().-]{8,}\d/]
 const MAX_AREA_YEARS = 50
 const MAX_MOTIVATION_CHARS = 220
+const HISTORICAL_ONLY_SKILL = 'AWS'
 const END_TO_END_KEYWORDS = ['Node', 'React', 'Vue']
 
 const byIdSorted = (ids: string[]) => [...ids].sort()
@@ -142,6 +143,22 @@ describe('habilidades', () => {
 
   it('no incluye Jenkins', () => {
     expect(allSkills).not.toContain('Jenkins')
+  })
+
+  it('AWS no figura como skill ni en knowsAbout (EN/ES): solo en el histórico de System73', () => {
+    for (const locale of LOCALES) {
+      const cv = getCv(locale)
+      expect(cv.skillAreas.flatMap((area) => area.skills)).not.toContain(HISTORICAL_ONLY_SKILL)
+      const technologiesOf = (jobs: typeof cv.experience) =>
+        jobs.flatMap((job) => job.technologyGroups.flatMap((group) => group.technologies))
+      expect(technologiesOf(cv.experience.filter((job) => job.id === 'system73'))).toContain(HISTORICAL_ONLY_SKILL)
+      expect(technologiesOf(cv.experience.filter((job) => job.id !== 'system73'))).not.toContain(HISTORICAL_ONLY_SKILL)
+    }
+    for (const { texts } of textBlocks) {
+      const { system73, ...otherJobs } = texts.experience
+      expect(JSON.stringify(system73)).toContain(HISTORICAL_ONLY_SKILL)
+      expect(JSON.stringify(otherJobs)).not.toContain(HISTORICAL_ONLY_SKILL)
+    }
   })
 
   const skillsOf = (areaId: string) => cvFacts.skillAreas.find((area) => area.id === areaId)?.skills ?? []

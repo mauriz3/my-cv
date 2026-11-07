@@ -166,7 +166,7 @@ export const cvFacts: CvFacts = {
     {
       id: 'devops',
       periods: [{ start: '2016-02', end: '2018-02' }],
-      skills: ['Docker', 'AWS', 'Linux', 'Bash', 'Python', 'Git'],
+      skills: ['Docker', 'Linux', 'Bash', 'Python', 'Git'],
     },
   ],
 
