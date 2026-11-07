@@ -30,9 +30,6 @@
 - Conservar rutas EN/ES y enlaces cortos de libros con respuesta 200 y Open Graph.
 
 ## Contenido del CV
-- Usar «10+ años»; AWS solo en histórico de System73 (2016–2018), no como habilidad actual.
-- Mencionar IA, automatización, MCP y asistentes de chat; servidores y serverless/JAMstack, no solo serverless.
-- No presentarlo como ingeniero de datos: dashboards y gráficos no equivalen a esa especialidad. Nada de búsqueda de empleo.
 - Mantener web, PDFs y LinkedIn alineados. Regenerar PDFs desde `data/`, no mantener copias de contenido independientes.
 
 ## Privacidad y seguridad
