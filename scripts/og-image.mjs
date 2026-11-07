@@ -18,7 +18,7 @@ const DOMAIN = 'mauriziorendon.com'
 const fileUrl = (path) => pathToFileURL(join(ROOT, path)).href
 const FONT_INTER = fileUrl('node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2')
 const FONT_DISPLAY = fileUrl('node_modules/@fontsource-variable/space-grotesk/files/space-grotesk-latin-wght-normal.woff2')
-const AVATAR = fileUrl('public/me.png')
+const AVATAR = fileUrl('public/me.webp')
 
 /** Lee un token `--color-brand-N` de main.css: la imagen usa el azul real de la marca. */
 async function brandColor(css, step) {
