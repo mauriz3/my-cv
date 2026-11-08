@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { clamp01, countUpValue } from '~~/lib/easing'
+import { useReplayable } from '~/composables/useReplayable'
 
 /**
- * Número que cuenta de 0 a `value` al entrar en pantalla (si `animate` y el movimiento está activo en ese momento).
- * El HTML generado ya trae el valor final: sin JS o con menos movimiento no cambia nada.
+ * Número que cuenta de 0 a `value` al entrar en pantalla (si `animate` y las animaciones están activas).
+ * El HTML generado ya trae el valor final: sin JS o con animaciones apagadas no cambia nada.
  * `format` da forma al número (miles, «1m 46s»…); si `value` cambia después, se muestra al momento.
- * `progress` (0–1): la cuenta la lleva quien lo pasa (scroll del recorrido, Tanda F) en lugar del temporizador.
+ * `progress` (0–1): la cuenta la lleva quien lo pasa (scroll del recorrido) en lugar del temporizador.
  */
 const props = withDefaults(
   defineProps<{ value: number; animate?: boolean; format?: (value: number) => string; progress?: number }>(),
@@ -23,9 +24,8 @@ const shownValue = computed(() =>
 const root = useTemplateRef<HTMLElement>('root')
 let observer: IntersectionObserver | undefined
 let frame = 0
-let hasEntered = false
 
-function finish() {
+function showFinal() {
   cancelAnimationFrame(frame)
   displayedValue.value = props.value
 }
@@ -39,27 +39,49 @@ function countUp() {
   frame = requestAnimationFrame(step)
 }
 
-// Cuenta al entrar en pantalla, una vez. Si al entrar el movimiento está reducido, se queda en el valor final.
+function canCount() {
+  return props.animate && !isDriven.value
+}
+
+useReplayable({
+  element: () => root.value,
+  threshold: VISIBLE_THRESHOLD,
+  onEnter: 'once',
+  reset() {
+    if (!canCount()) return
+    cancelAnimationFrame(frame)
+    displayedValue.value = 0
+  },
+  play() {
+    if (!canCount()) return
+    displayedValue.value = 0
+    countUp()
+  },
+  finish() {
+    if (!canCount()) return
+    showFinal()
+  },
+  defer() {
+    if (!canCount()) return
+    cancelAnimationFrame(frame)
+    displayedValue.value = 0
+  },
+})
+
+// Cuenta al entrar en pantalla, una vez. Si al entrar las animaciones están apagadas, se queda en el valor final.
 onMounted(() => {
-  if (!props.animate || isDriven.value || !root.value) return
-  if (readDocumentMotion() === 'full') displayedValue.value = 0
+  if (!canCount() || !root.value) return
+  if (!isReduced.value && readDocumentMotion() === 'full') displayedValue.value = 0
   observer = new IntersectionObserver(
     ([entry]) => {
       if (!entry?.isIntersecting) return
       observer?.disconnect()
-      hasEntered = true
-      if (isReduced.value) finish()
+      if (isReduced.value) showFinal()
       else countUp()
     },
     { threshold: VISIBLE_THRESHOLD },
   )
   observer.observe(root.value)
-})
-
-// Pausa a mitad: salta al valor final. Reanudar antes de entrar en pantalla: contará al entrar.
-watch(isReduced, (reduced) => {
-  if (reduced) finish()
-  else if (props.animate && !hasEntered) displayedValue.value = 0
 })
 
 watch(

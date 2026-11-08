@@ -35,7 +35,7 @@ const TIMING_CSS_VARS = journeyTimingCssVars()
 
 const section = useTemplateRef<HTMLElement>('section')
 const { isMobilePinned } = useMobilePin(section)
-const cardMotion = useCardMotion(isMobilePinned)
+const cardMotion = useCardMotion(isMobilePinned, section)
 const { state, isStepping, isOnScreen, isPageHidden, visitsDraw, revealLastPoint } = useJourney(section, isMobilePinned, {
   onFrame: cardMotion.paint,
 })

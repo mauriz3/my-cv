@@ -26,11 +26,11 @@ flowchart TB
     subgraph Composables[Composables]
       UseCV[useCv y usePageSeo]
       UseVisits[useVisits, useVisitsTables y useVisitsNote]
-      Motion[useMotion, useJourney y useCardMotion]
+      Motion[useAnimations, useReplayable, useJourney y useCardMotion]
       Consent[useConsentBanner]
     end
     subgraph Biblioteca[lib]
-      Dominio[Periodos, recorrido, tema, sidebar y movimiento]
+      Dominio[Periodos, recorrido, tema, sidebar y animaciones]
       Contratos[visitsSchema, visitsFilter y visitsSnapshot]
       Analitica[analytics y consentRegion]
       Fuentes[visitsSource y visitsMock]
@@ -130,15 +130,14 @@ flowchart LR
   Clase --> Nav[AppNav restaura estado al montar]
   Expandido --> Nav
   Nav --> Boton[Botón invierte estado y persiste si es posible]
-  Movimiento[Script inline de app.vue] --> Preferencia{Preferencia full o reduced guardada}
-  Preferencia -->|Sí| Atributo[data-motion en html]
-  Preferencia -->|No| Sistema[prefers-reduced-motion]
-  Sistema --> Atributo
+  Animaciones[Script inline de app.vue] --> Preferencia{animations = on}
+  Preferencia -->|Sí y sin PRM| Full[data-motion full]
+  Preferencia -->|No, off o PRM| Reduced[data-motion reduced]
 ```
 
 Fuentes: [app.vue](../app/app.vue), [theme](../lib/theme.ts), [sidebar](../lib/sidebar.ts),
-[motion](../lib/motion.ts), [AppNav](../app/components/AppNav.vue) y [CSS](../app/assets/css/main.css).
-El tema **no** consulta la preferencia del sistema; movimiento sí lo hace si no hay elección.
+[animations](../lib/animations.ts), [AppNav](../app/components/AppNav.vue) y [CSS](../app/assets/css/main.css).
+El tema **no** consulta la preferencia del sistema. Las animaciones arrancan apagadas; al cargar, PRM manda sobre un `on` guardado.
 El colapso solo cambia la presentación desde `xl`; en móvil hay barra inferior y en tablet raíl.
 Los scripts de preferencias entran en los hashes CSP. Este flujo describe las preferencias,
 no todas las transiciones geométricas del recorrido.

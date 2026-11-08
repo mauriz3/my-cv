@@ -14,8 +14,9 @@ const SEGMENT_BORDER_PX = 2
 
 const { t } = useI18n()
 const { integer, percent } = useVisitsFormat()
-const { theme, updateMode } = useChartTheme()
+const { theme, updateMode: themeUpdateMode } = useChartTheme()
 const { isReduced } = useMotion()
+const { chartRef, updateMode } = useChartPlayback(DRAW_DURATION_MS, themeUpdateMode)
 const legend = useLegendToggle()
 
 const items = computed(() =>
@@ -69,6 +70,7 @@ const summary = computed(() =>
     <div class="relative min-h-0 flex-1">
       <Chart
         v-if="theme"
+        ref="chartRef"
         type="doughnut"
         :data="chartData"
         :options="chartOptions"

@@ -37,8 +37,9 @@ const AREA_TOP_ALPHA = 0.28
 
 const { t } = useI18n()
 const { integer, timeLabel } = useVisitsFormat()
-const { theme, updateMode } = useChartTheme()
+const { theme, updateMode: themeUpdateMode } = useChartTheme()
 const { isReduced } = useMotion()
+const { chartRef, updateMode } = useChartPlayback(DRAW_DURATION_MS, themeUpdateMode)
 const SERIES_KEYS = ['current', 'previous'] as const
 const legend = useLegendToggle()
 
@@ -126,6 +127,7 @@ const summary = computed(() => {
     <div class="relative min-h-0 flex-1">
       <Chart
         v-if="theme"
+        ref="chartRef"
         type="line"
         :data="chartData"
         :options="chartOptions"

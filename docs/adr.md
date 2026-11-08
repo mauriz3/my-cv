@@ -92,3 +92,14 @@ Fechas del primer commit/PR verificable (Atlantic/Canary); base: `master` en `89
 - **Contexto:** En producción, una primera visita desde la UE ve el aviso de analítica, que aparece tras hidratar y consultar `/geo` y pasa a ser el LCP; el job `lighthouse` del push a master falló por eso.
 - **Decisión:** El servidor de CI imita a Netlify (Brotli y `/geo` con la Edge Function real y país simulado). Dos perfiles en `lighthouserc.cjs`: visita fuera de la zona del aviso (US), con todos los umbrales bloqueantes; y primera visita UE (ES) con aviso, solo en push a master, donde a11y, buenas prácticas y SEO bloquean y el rendimiento solo avisa. Aprobado por Maurizio.
 - **Consecuencias:** El rendimiento con aviso queda visible sin bloquear el despliegue. Bajarlo exigiría rediseñar el aviso (prerenderizarlo visible y ocultarlo fuera de la UE, con riesgo de parpadeo); queda pendiente de decisión.
+
+## ADR-016 · Animaciones opt-in (apagadas por defecto)
+**2026-11-08 · Propuesta**.
+- **Contexto:** La web arrancaba con movimiento completo si no había elección (`localStorage["motion"]` o `prefers-reduced-motion`). El botón usaba `aria-pressed` y un copy fijo «Reducir movimiento». Maurizio pide el contrario: todo estático al cargar y un botón «Activar animaciones».
+- **Decisión:**
+  - Nueva clave `localStorage["animations"]` (`on` | `off`). Sin elección = OFF. La clave antigua `motion` se ignora y se borra al guardar la primera elección nueva.
+  - El atributo sigue siendo `<html data-motion="full | reduced">` (ON → `full`, OFF → `reduced`) para reutilizar el CSS.
+  - Al cargar, `prefers-reduced-motion` manda: con PRM activo la web queda estática aunque `animations=on`. Un clic manual en «Activar» anima solo en el documento actual (`override` en memoria) y no sobrevive a una recarga.
+  - El botón es una acción simple **sin `aria-pressed`**; el `aria-label` coincide con el copy visible («Activar» / «Desactivar animaciones»). Tres pulsos suaves en la primera sesión sin elección y sin PRM.
+  - Al activar, las gráficas visibles se reinician sin recargar y las escenas del recorrido alcanzan su progreso actual en 450 ms sin mover el scroll. Un registro compartido (`useReplayable`) evita repetir al cambiar tema, idioma o filtro.
+- **Consecuencias:** Sustituye el modelo «full por defecto» y la decisión de texto fijo/`aria-pressed` de `lib/motion.ts`. Hay que regenerar el hash CSP del script anterior al pintado. Profile y Visitas no cambian de diseño: solo su estado por defecto y el reinicio al activar.

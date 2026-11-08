@@ -1,5 +1,12 @@
 import type { InjectionKey, Ref } from 'vue'
 import {
+  SCENE_CATCH_UP_MS,
+  SCENE_VISIBLE_RATIO,
+  catchUpShown,
+  intersectionRatio,
+  meetsVisibility,
+} from '~~/lib/animations'
+import {
   MIN_CARD_PROGRESS_CHANGE,
   cardMotionCssVars,
   cardMotionKindOf,
@@ -7,6 +14,7 @@ import {
   mobileFirstCardProgress,
   pinnedCardProgress,
   profileCountProgress,
+  type CardMotionKind,
 } from '~~/lib/cardMotion'
 import {
   JOURNEY_POINTS,
@@ -16,6 +24,7 @@ import {
   type JourneyState,
 } from '~~/lib/journey'
 import { mobileCardStateAt } from '~~/lib/mobileJourney'
+import { useReplayable } from './useReplayable'
 
 /** Avance (0–1) de los contadores de Profile; sin recorrido (u otra página) no se inyecta y cuentan solos. */
 export const PROFILE_COUNT_KEY: InjectionKey<Readonly<Ref<number>>> = Symbol('profile-count')
@@ -25,18 +34,32 @@ const CARD_SELECTOR = '[data-point-index]'
 const ACTIVE_ATTRIBUTE = 'data-fx-active'
 const WIDE_PIN_QUERY = '(min-width: 768px)'
 
+interface LiveFrame {
+  section: HTMLElement
+  state: JourneyState
+  journeyProgress: number
+}
+
 /**
- * Microanimaciones de las tarjetas del recorrido (Tanda F), en el mismo rAF que el holograma (`useJourney`
+ * Microanimaciones de las tarjetas del recorrido, en el mismo rAF que el holograma (`useJourney`
  * llama a `paint` en cada fotograma con la sección en pantalla). Para cada tarjeta calcula p (lib/cardMotion)
  * según la maqueta (pin de escritorio/tablet, pin móvil o flujo) y escribe sus variables `--fx-*` solo si
- * p cambia. Con movimiento reducido no escribe nada y quita lo escrito: el CSS pinta el estado final.
+ * p cambia. Con animaciones apagadas no escribe nada y quita lo escrito: el CSS pinta el estado final.
+ * Al activar, las tarjetas visibles hacen un catch-up de 0 a su p real en 450 ms, sin mover el scroll.
  */
-export function useCardMotion(isMobilePinned: Readonly<Ref<boolean>>) {
+export function useCardMotion(
+  isMobilePinned: Readonly<Ref<boolean>>,
+  sectionRef?: Readonly<Ref<HTMLElement | null>>,
+) {
   const { motion } = useMotion()
-  /** 1 en el servidor y sin movimiento: los contadores muestran el valor final. */
+  /** 1 en el servidor y sin animación: los contadores muestran el valor final. */
   const profileCount = ref(1)
   const lastProgress = new Map<number, number>()
+  const catchingIndexes = new Set<number>()
   let wideQuery: MediaQueryList | undefined
+  let latest: LiveFrame | null = null
+  let catchingUp = false
+  let catchFrame = 0
 
   function progressOf(card: HTMLElement, index: number, state: JourneyState, journeyProgress: number): number {
     if (isMobilePinned.value) {
@@ -47,23 +70,81 @@ export function useCardMotion(isMobilePinned: Readonly<Ref<boolean>>) {
     return flowCardProgress(card.getBoundingClientRect().top, window.innerHeight)
   }
 
-  function paint(section: HTMLElement, state: JourneyState, journeyProgress: number) {
-    if (motion.value !== 'full') return
+  function writeProgress(card: HTMLElement, index: number, kind: CardMotionKind, progress: number) {
+    lastProgress.set(index, progress)
+    for (const [name, value] of Object.entries(cardMotionCssVars(kind, progress))) card.style.setProperty(name, value)
+    card.toggleAttribute(ACTIVE_ATTRIBUTE, progress > 0 && progress < 1)
+    if (kind === 'profile') profileCount.value = profileCountProgress(progress)
+  }
+
+  function eachCard(section: HTMLElement, visit: (card: HTMLElement, index: number, kind: CardMotionKind) => void) {
     for (const card of section.querySelectorAll<HTMLElement>(CARD_SELECTOR)) {
       const index = Number(card.dataset.pointIndex)
-      const kind = cardMotionKindOf(JOURNEY_POINTS[index]!.id)
+      const point = JOURNEY_POINTS[index]
+      if (!point) continue
+      const kind = cardMotionKindOf(point.id)
       if (!kind) continue
-      const progress = progressOf(card, index, state, journeyProgress)
-      if (Math.abs(progress - (lastProgress.get(index) ?? Number.NEGATIVE_INFINITY)) < MIN_CARD_PROGRESS_CHANGE) continue
-      lastProgress.set(index, progress)
-      for (const [name, value] of Object.entries(cardMotionCssVars(kind, progress))) card.style.setProperty(name, value)
-      card.toggleAttribute(ACTIVE_ATTRIBUTE, progress > 0 && progress < 1)
-      if (kind === 'profile') profileCount.value = profileCountProgress(progress)
+      visit(card, index, kind)
     }
   }
 
-  /** Movimiento reducido en caliente: estado final al momento, sin variables ni marcas. */
+  function paint(section: HTMLElement, state: JourneyState, journeyProgress: number) {
+    latest = { section, state, journeyProgress }
+    if (catchingUp || motion.value !== 'full') return
+    eachCard(section, (card, index, kind) => {
+      const progress = progressOf(card, index, state, journeyProgress)
+      if (Math.abs(progress - (lastProgress.get(index) ?? Number.NEGATIVE_INFINITY)) < MIN_CARD_PROGRESS_CHANGE) return
+      writeProgress(card, index, kind, progress)
+    })
+  }
+
+  function cancelCatchUpFrame() {
+    if (!catchFrame) return
+    cancelAnimationFrame(catchFrame)
+    catchFrame = 0
+  }
+
+  /** Visibles con p > 0: de 0 a pLive. El resto (fuera o ya en 0): pLive ya, sin tween. */
+  function beginCatchUp() {
+    if (!latest || motion.value !== 'full') return
+    cancelCatchUpFrame()
+    catchingIndexes.clear()
+    catchingUp = false
+    const frame = latest
+    eachCard(frame.section, (card, index, kind) => {
+      const pLive = progressOf(card, index, frame.state, frame.journeyProgress)
+      const box = card.getBoundingClientRect()
+      const visible = meetsVisibility(intersectionRatio(box.top, box.bottom, window.innerHeight), SCENE_VISIBLE_RATIO)
+      if (visible && pLive > 0) catchingIndexes.add(index)
+      writeProgress(card, index, kind, visible && pLive > 0 ? 0 : pLive)
+    })
+    if (catchingIndexes.size === 0) return
+    catchingUp = true
+    const startedAt = performance.now()
+    const step = (now: number) => {
+      catchFrame = 0
+      if (!catchingUp || !latest) return
+      const elapsed = now - startedAt
+      const current = latest
+      eachCard(current.section, (card, index, kind) => {
+        const pLive = progressOf(card, index, current.state, current.journeyProgress)
+        const progress = catchingIndexes.has(index) ? catchUpShown(elapsed, pLive) : pLive
+        writeProgress(card, index, kind, progress)
+      })
+      if (elapsed < SCENE_CATCH_UP_MS) catchFrame = requestAnimationFrame(step)
+      else {
+        catchingUp = false
+        catchingIndexes.clear()
+      }
+    }
+    catchFrame = requestAnimationFrame(step)
+  }
+
+  /** Animaciones apagadas: estado final al momento, sin variables ni marcas. */
   function reset(section: HTMLElement | null) {
+    cancelCatchUpFrame()
+    catchingUp = false
+    catchingIndexes.clear()
     lastProgress.clear()
     profileCount.value = 1
     for (const card of section?.querySelectorAll<HTMLElement>(CARD_SELECTOR) ?? []) {
@@ -76,6 +157,17 @@ export function useCardMotion(isMobilePinned: Readonly<Ref<boolean>>) {
   function invalidate() {
     lastProgress.clear()
   }
+
+  useReplayable({
+    element: () => sectionRef?.value ?? latest?.section ?? null,
+    threshold: SCENE_VISIBLE_RATIO,
+    onEnter: 'skip',
+    reset() {},
+    play: beginCatchUp,
+    finish() {
+      reset(sectionRef?.value ?? latest?.section ?? null)
+    },
+  })
 
   watch(isMobilePinned, invalidate)
 

@@ -121,10 +121,11 @@ h3 {
 }
 
 /*
- * Movimiento reducido (spec boton-global.md): nada se anima si se pide con el botón (`data-motion="reduced"`)
- * o el sistema lo pide y no se ha elegido «Aumentar movimiento». Las animaciones saltan a su estado final
- * (0,01 ms para que `fill-mode` deje el estado final) y solo se permiten las transiciones de color y sombra del hover.
- * Sin transiciones de posición, tamaño u opacidad: el cambio de maqueta al pausar se ve y se mide en el mismo fotograma.
+ * Animaciones apagadas (`data-motion="reduced"`, el valor por defecto y también con prefers-reduced-motion
+ * al cargar). Saltan a su estado final (0,01 ms para que `fill-mode` lo deje) y solo se permiten las
+ * transiciones de color y sombra del hover. Sin transiciones de posición, tamaño u opacidad: el cambio
+ * de maqueta al desactivar se ve y se mide en el mismo fotograma.
+ * El pulso del botón (`.animations-toggle[data-hint]`) es la excepción: su regla es más específica.
  */
 :root[data-motion='reduced'] *,
 :root[data-motion='reduced'] *::before,

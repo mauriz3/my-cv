@@ -32,6 +32,6 @@ flowchart TD
 Fuentes: [script de cabeceras](../scripts/build-headers.mjs), [plantilla](../public/_headers),
 [analytics](../lib/analytics.ts), [función Visitas](../netlify/functions/visits.ts) y [geo](../netlify/edge-functions/geo.ts).
 
-- El selector excluye scripts externos y los tipos JSON/JSON-LD de su expresión regular; no es un parser HTML general. Cubre los inline de consentimiento, tema, sidebar, movimiento y salto de Libros cuando aparecen en el HTML.
+- El selector excluye scripts externos y los tipos JSON/JSON-LD de su expresión regular; no es un parser HTML general. Cubre los inline de consentimiento, tema, sidebar, animaciones y salto de Libros cuando aparecen en el HTML.
 - La plantilla incluye HSTS, nosniff, `X-Frame-Options: DENY` y `frame-ancestors 'none'`, Referrer-Policy, Permissions-Policy y COOP.
 - Las funciones no heredan `_headers`: `/geo` fija `no-store`, nosniff y HSTS; Visitas añade nosniff, HSTS y, en respuestas válidas, caché y `x-visits-source`.

@@ -22,8 +22,9 @@ interface Cell {
 
 const { t } = useI18n()
 const { integer, weekDay, slotLabel } = useVisitsFormat()
-const { theme, updateMode } = useChartTheme()
+const { theme, updateMode: themeUpdateMode } = useChartTheme()
 const { isReduced } = useMotion()
+const { chartRef, updateMode } = useChartPlayback(DRAW_DURATION_MS, themeUpdateMode)
 
 const dayLabels = computed(() => props.hours.days.map(weekDay))
 const slotLabels = computed(() => props.hours.slots.map(slotLabel))
@@ -101,6 +102,7 @@ const summary = computed(() => {
     <div class="relative min-h-0 flex-1">
       <Chart
         v-if="theme"
+        ref="chartRef"
         type="matrix"
         :data="chartData"
         :options="chartOptions"

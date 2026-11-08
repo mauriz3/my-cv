@@ -7,7 +7,7 @@ no garantizan la configuración externa ni el estado de producción.
 - [Decisiones de arquitectura (ADR)](adr.md)
 - [Arquitectura y estado de la interfaz](arquitectura.md) (diagramas de componentes y módulos)
 - [Tipos TypeScript y contratos](tipos.md) (diagramas de clases)
-- [Funcionalidades](funcionalidades.md): Visitas, analítica y consentimiento (diagrama del aviso y `/geo`), movimiento, tema, libros y Open Graph
+- [Funcionalidades](funcionalidades.md): Visitas, analítica y consentimiento (diagrama del aviso y `/geo`), animaciones opt-in, tema, libros y Open Graph
 - [Visitas con GA4](ga4.md): instantánea, puesta en marcha, pruebas en local y diagramas de secuencia
 - [Calidad](calidad.md): tests, cobertura, axe y Lighthouse
 - [Seguridad](seguridad.md): CSP, cabeceras (diagrama de generación), dependencias y secretos

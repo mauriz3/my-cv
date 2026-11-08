@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
+import { SCENE_CATCH_UP_MS } from '~~/lib/animations'
 import {
   cardMotionCssVars,
   flowCardProgress,
@@ -117,6 +118,31 @@ describe('useCardMotion', () => {
     paint(section, stateWhileReading(SKILLS), 0.3)
     expect(fxVariables(cards[SKILLS]!)).toEqual([])
     reset(null)
+  })
+
+  it('al activar, la tarjeta visible alcanza su progreso en 450 ms y la de fuera salta al suyo', async () => {
+    vi.useFakeTimers()
+    try {
+      const { paint, section, cards } = await mountCardMotion({ wide: true })
+      setBox(section, { top: 0, height: VIEWPORT_HEIGHT })
+      setBox(cards[SKILLS]!, { top: 80, height: 200 })
+      setBox(cards[PROFILE]!, { top: VIEWPORT_HEIGHT + 40, height: 200 })
+      const state = stateWhileReading(SKILLS)
+      const progress = readingProgressOf(SKILLS)
+      paint(section, state, progress)
+      const pLive = pinnedCardProgress(SKILLS, cardStateAt(SKILLS, state), state, PINNED_TIMELINE)
+      const at = (kind: 'skills' | 'profile', value: number, name: string) => cardMotionCssVars(kind, value)[name]
+
+      useMotion().set('reduced')
+      useMotion().set('full')
+      expect(cards[SKILLS]!.style.getPropertyValue('--fx-radar-scale')).toBe(at('skills', 0, '--fx-radar-scale'))
+      expect(cards[PROFILE]!.style.getPropertyValue('--fx-eyebrow')).toBe(at('profile', 1, '--fx-eyebrow'))
+
+      await vi.advanceTimersByTimeAsync(SCENE_CATCH_UP_MS)
+      expect(cards[SKILLS]!.style.getPropertyValue('--fx-radar-scale')).toBe(at('skills', pLive, '--fx-radar-scale'))
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('al desmontar deja de escuchar el cambio de ancho', async () => {
