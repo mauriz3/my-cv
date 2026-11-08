@@ -34,6 +34,7 @@ const hasSectionLink = props.index > 0 && !props.ownAction
   >
     <article
       class="rounded-xl border border-default bg-elevated p-4 shadow-sm"
+      :class="{ 'journey-card--profile': index === 0 }"
       :aria-labelledby="`journey-${point.id}`"
     >
       <template v-if="$slots.title">
@@ -67,6 +68,10 @@ const hasSectionLink = props.index > 0 && !props.ownAction
 <style>
 .journey-card__header :is(h1, h2) {
   text-wrap: balance;
+}
+
+.journey-card--profile .journey-card__header + .journey-scene {
+  margin-top: 0.25rem;
 }
 
 /*

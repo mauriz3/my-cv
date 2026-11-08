@@ -88,11 +88,12 @@ describe('useCardMotion', () => {
     expect(cards[SKILLS]!.style.getPropertyValue('--fx-radar-scale')).not.toBe('')
   })
 
-  it('en el pin móvil la primera tarjeta sigue a la entrada del holograma', async () => {
-    const { paint, section, profileCount } = await mountCardMotion({ wide: false, mobilePinned: true })
+  it('en el pin móvil la primera tarjeta muestra cifras finales y anima KPI al scroll', async () => {
+    const { paint, section, profileCount, cards } = await mountCardMotion({ wide: false, mobilePinned: true })
     const journeyProgress = 0.01
     paint(section, journeyStateAt(journeyProgress), journeyProgress)
-    expect(profileCount.value).toBe(profileCountProgress(mobileFirstCardProgress(journeyProgress)))
+    expect(profileCount.value).toBe(1)
+    expect(Number(cards[PROFILE]!.style.getPropertyValue('--fx-kpi-0'))).toBeLessThan(1)
   })
 
   it('no reescribe si el avance apenas cambia; invalidate (cambio de maqueta) obliga a repintar', async () => {

@@ -2,11 +2,23 @@
 /**
  * Enlaces de contacto (solo redes: nunca teléfono, email ni dirección).
  * `labels="always"` muestra icono y texto; `labels="wide-only"` solo icono hasta xl.
+ * `pick` limita y ordena por etiqueta (p. ej. solo LinkedIn en la tarjeta Perfil, opción F).
  */
-defineProps<{ labels: 'always' | 'wide-only' }>()
+const props = defineProps<{
+  labels: 'always' | 'wide-only'
+  pick?: readonly string[]
+  /** Botones a ancho completo del contenedor (tarjeta Perfil, opción F). */
+  layout?: 'inline' | 'block'
+}>()
 
 const { t } = useI18n()
 const cv = useCv()
+
+const links = computed(() => {
+  const all = cv.value.contactLinks
+  if (!props.pick?.length) return all
+  return props.pick.map((label) => all.find((link) => link.label === label)).filter((link) => link != null)
+})
 
 function accessibleName(label: string) {
   return `${label} – ${cv.value.fullName} (${t('app.opensInNewTab')})`
@@ -14,8 +26,8 @@ function accessibleName(label: string) {
 </script>
 
 <template>
-  <ul class="flex flex-wrap items-center gap-2">
-    <li v-for="link in cv.contactLinks" :key="link.url">
+  <ul class="contact-links" :class="layout === 'block' ? 'contact-links--block' : 'flex flex-wrap items-center gap-2'">
+    <li v-for="link in links" :key="link.url">
       <UButton
         :to="link.url"
         :icon="CONTACT_ICONS[link.label] ?? DEFAULT_CONTACT_ICON"
@@ -25,10 +37,26 @@ function accessibleName(label: string) {
         rel="noopener noreferrer"
         color="primary"
         variant="outline"
-        class="min-h-11 min-w-11 justify-center"
+        :block="layout === 'block'"
+        class="min-h-11 justify-center"
+        :class="layout === 'block' ? 'w-full' : 'min-w-11'"
       >
         <span :class="labels === 'wide-only' ? 'hidden xl:inline' : undefined">{{ link.label }}</span>
       </UButton>
     </li>
   </ul>
 </template>
+
+<style>
+.contact-links--block {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.contact-links--block li {
+  width: 100%;
+}
+</style>

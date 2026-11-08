@@ -25,7 +25,6 @@ import { yearsInPeriods } from '~~/lib/years'
  */
 const { t } = useI18n({ useScope: 'local' })
 const { t: tGlobal } = useI18n()
-const localePath = useLocalePath()
 const cv = useCv()
 
 /** Tecnologías que caben en la tarjeta de Skills (el resto está en su sección). */
@@ -76,7 +75,6 @@ const skillChips = computed(() =>
 const flashSkillSet = computed(
   () => new Set(cv.value.skillAreas.find((area) => area.id === 'frontend')?.skills ?? []),
 )
-const spotlightProject = computed(() => cv.value.projects[0]!)
 const today = new Date()
 const areasByYears = computed(() =>
   [...cv.value.skillAreas].sort((a, b) => yearsInPeriods(b.periods, today) - yearsInPeriods(a.periods, today)),
@@ -131,23 +129,27 @@ const courses = computed(() =>
       <ol class="journey__cards">
         <JourneyCard :index="0" :state="cardStates[0]!">
           <template #title>
-            <h1 id="hero-title" class="mt-1 font-display text-3xl leading-tight font-bold text-highlighted">
+            <h1 id="hero-title" class="profile-card__name mt-1 font-display text-3xl leading-tight font-bold text-highlighted">
               {{ cv.fullName }}
             </h1>
+            <p class="card-fx profile-card__headline" :style="fx('headline')">{{ cv.headline }}</p>
           </template>
-          <p class="card-fx mt-1 text-sm font-medium" :style="fx('headline')">{{ cv.headline }}</p>
-          <p class="card-fx mt-2 text-sm text-muted" :style="fx('tagline')">{{ cv.tagline }}</p>
-          <ProfileCounters class="mt-3" />
-          <div class="mt-3 flex flex-wrap items-center gap-2">
-            <UButton
-              :to="cv.resumeUrl"
-              :label="tGlobal('app.downloadPdf')"
-              icon="i-lucide-download"
-              download
-              external
-              class="min-h-11"
-            />
-            <ContactLinks labels="wide-only" />
+          <p class="card-fx profile-card__pillars" :style="fx('tagline')">{{ t('profilePillars') }}</p>
+          <p class="sr-only">{{ cv.tagline }}</p>
+          <div class="profile-card__body">
+            <ProfileCounters note-sr-only />
+            <div class="profile-card__actions">
+              <UButton
+                :to="cv.resumeUrl"
+                :label="tGlobal('app.downloadPdf')"
+                icon="i-lucide-download"
+                download
+                external
+                block
+                class="profile-card__cta min-h-11"
+              />
+              <ContactLinks labels="always" :pick="['LinkedIn']" layout="block" class="profile-card__social" />
+            </div>
           </div>
         </JourneyCard>
 
@@ -229,28 +231,11 @@ const courses = computed(() =>
             </h2>
           </template>
           <p class="mt-1 text-sm text-muted">{{ t('projectsHint') }}</p>
-          <div class="journey-project-spotlight mt-2 flex flex-col gap-2 sm:flex-row sm:items-start">
-            <NuxtLink
-              :to="localePath('/projects')"
-              class="journey-project-spotlight__thumb group block w-full shrink-0 overflow-hidden rounded-lg border border-default shadow-sm transition-shadow hover:shadow-md focus-visible:outline-2 focus-visible:outline-primary sm:w-28"
-              :aria-label="spotlightProject.title"
-            >
-              <img
-                :src="`/${spotlightProject.image}`"
-                :alt="spotlightProject.imageAlt"
-                width="320"
-                height="180"
-                loading="lazy"
-                decoding="async"
-                class="aspect-video w-full object-cover"
-              >
-            </NuxtLink>
-            <ul class="flex min-w-0 flex-1 flex-wrap gap-1.5">
-              <li v-for="project in cv.projects" :key="project.id">
-                <UBadge color="neutral" variant="subtle" :label="project.title" />
-              </li>
-            </ul>
-          </div>
+          <ul class="mt-2 flex flex-wrap gap-1.5">
+            <li v-for="project in cv.projects" :key="project.id">
+              <UBadge color="neutral" variant="subtle" :label="project.title" />
+            </li>
+          </ul>
         </JourneyCard>
 
         <JourneyCard :index="5" :state="cardStates[5]!" own-action @focusin="revealLastPoint">
@@ -561,7 +546,11 @@ const courses = computed(() =>
   }
 
   :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__card[data-point-index='0'] > article {
+    min-height: unset;
+    max-height: min(58cqh, calc(100svh - var(--holo-height, 26cqh) - 5.5rem));
     padding-bottom: 0.5rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 
   :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__card {
@@ -598,12 +587,6 @@ const courses = computed(() =>
     pointer-events: auto;
   }
 
-  /* Profile lleva más contenido: cifras en una fila para que quepa en la zona de la tarjeta. */
-  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .profile-counters__list {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 0.375rem;
-  }
-
   :root[data-motion='full']
     .journey.is-on-screen:not([data-cards-fit='false'])
     :is(.journey__holo, .journey__curtain, .journey__line, .journey__card[data-state='current'], .holo__arm) {
@@ -617,25 +600,29 @@ const courses = computed(() =>
  */
 @media (min-width: 768px) {
   :root[data-motion='full'] .journey__card[data-point-index='0'] {
-    --fx-eyebrow: 0;
-    --fx-headline: 0;
-    --fx-tagline: 0;
-    --fx-kpi-0: 1;
-    --fx-kpi-1: 1;
-    --fx-kpi-2: 1;
-    --fx-kpi-3: 1;
+    --fx-eyebrow: 1;
+    --fx-headline: 1;
+    --fx-tagline: 1;
+    --fx-kpi-0: 0;
+    --fx-kpi-1: 0;
+    --fx-kpi-2: 0;
+    --fx-actions: 0;
+    --fx-note: 0;
+    --fx-glow: 0;
   }
 }
 
 @media (max-width: 767.98px) and (min-height: 520px) and (max-height: 950px) {
   :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__card[data-point-index='0'] {
-    --fx-eyebrow: 0;
-    --fx-headline: 0;
-    --fx-tagline: 0;
-    --fx-kpi-0: 1;
-    --fx-kpi-1: 1;
-    --fx-kpi-2: 1;
-    --fx-kpi-3: 1;
+    --fx-eyebrow: 1;
+    --fx-headline: 1;
+    --fx-tagline: 1;
+    --fx-kpi-0: 0;
+    --fx-kpi-1: 0;
+    --fx-kpi-2: 0;
+    --fx-actions: 0;
+    --fx-note: 0;
+    --fx-glow: 0;
   }
 }
 
@@ -887,13 +874,96 @@ const courses = computed(() =>
     color-mix(in srgb, var(--brand-vivid) calc(var(--chip-emphasis, 0) * 40%), transparent);
 }
 
-:root[data-motion='full'] .journey-project-spotlight__thumb:hover img,
-:root[data-motion='full'] .journey-project-spotlight__thumb:focus-visible img {
-  transform: scale(1.02);
+/*
+ * Perfil: cabecera fija al cargar (--fx-* copy en 1); al scroll entran KPI, bloque de cifras y CTA.
+ * Cifras legibles desde el inicio (PROFILE_COUNT_KEY).
+ */
+:root[data-motion='full'] .journey__card[data-point-index='0']:not(:focus-within) .journey-card__header .card-fx,
+:root[data-motion='full'] .journey__card[data-point-index='0']:not(:focus-within) .profile-card__headline,
+:root[data-motion='full'] .journey__card[data-point-index='0']:not(:focus-within) .profile-card__pillars {
+  translate: none;
+  scale: none;
 }
 
-.journey-project-spotlight__thumb img {
-  transition: transform 200ms ease;
+:root[data-motion='full'] .journey__card[data-point-index='0']:not(:focus-within) .profile-stats__fx {
+  translate: none;
+  scale: none;
+}
+
+.journey-card--profile {
+  padding: 1.25rem 1.25rem 1.375rem;
+  border-radius: 1rem;
+}
+
+.profile-card__name {
+  text-wrap: balance;
+}
+
+.profile-card__headline {
+  margin: 0.5rem 0 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ui-text-muted);
+  text-wrap: balance;
+}
+
+.profile-card__pillars {
+  margin: 0.75rem 0 0;
+  text-align: center;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ui-text-muted) 92%, var(--brand-vivid));
+}
+
+.journey-card--profile .journey-scene[data-scene='profile'] {
+  margin: 0.5rem auto 0;
+  max-width: 17.5rem;
+}
+
+.profile-card__body {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.profile-card__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.625rem;
+  width: 100%;
+}
+
+.profile-card__social {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.profile-card__social :is(ul, li) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.profile-card__social ul {
+  display: block;
+  width: 100%;
+}
+
+.journey__card[data-point-index='0'] > article {
+  border-color: color-mix(in srgb, var(--ui-border) 88%, var(--brand-vivid));
+}
+
+:root[data-motion='full'] .journey__card[data-point-index='0'][data-state='current'] > article {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--brand-vivid) calc(var(--fx-glow, 0) * 22%), var(--ui-border)),
+    0 1px 2px 0 rgb(0 0 0 / 0.05);
 }
 
 /* Experience: anillo en el marcador al pararse en el punto (como Visitas). */
@@ -984,6 +1054,7 @@ const courses = computed(() =>
 <i18n lang="json">
 {
   "en": {
+    "profilePillars": "Experience · Learning · Results",
     "status": "Journey · point {point} of {total}",
     "skillProfile": "Skill profile",
     "relativeProfile": "Relative profile",
@@ -994,6 +1065,7 @@ const courses = computed(() =>
     "projectsHint": "Open the Projects section and click a project to see its detail panel."
   },
   "es": {
+    "profilePillars": "Experiencia · Aprendizaje · Resultados",
     "status": "Recorrido · punto {point} de {total}",
     "skillProfile": "Perfil de habilidades",
     "relativeProfile": "Perfil relativo",

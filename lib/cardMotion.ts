@@ -42,11 +42,11 @@ export interface CardProgressRange {
 /**
  * Con pin la tarjeta no se mueve por la pantalla: p sale del avance dentro del tramo de su punto.
  * · Escritorio y tablet: desde que se muestra (fase «reveal», 0,6) hasta mitad de la lectura (0,85).
- * · Profile en escritorio y tablet: ya se lee al cargar, así que se anima con el primer scroll (0–0,25).
+ * · Profile en escritorio y tablet: ya se lee al cargar; el contenido entra repartido en casi todo el tramo del punto 1 (0–0,85).
  * · Móvil fijo (spec): la entrada de la tarjeta, 0,46–0,62 (Profile: ver `mobileFirstCardProgress`).
  */
 export const PINNED_CARD_RANGE: CardProgressRange = { from: 0.6, to: 0.85 }
-export const PINNED_FIRST_CARD_RANGE: CardProgressRange = { from: 0, to: 0.25 }
+export const PINNED_FIRST_CARD_RANGE: CardProgressRange = { from: 0, to: 0.85 }
 export const MOBILE_CARD_RANGE: CardProgressRange = { from: 0.46, to: 0.62 }
 
 export function pinnedCardRange(cardIndex: number, timeline: JourneyTimeline): CardProgressRange {
@@ -82,15 +82,17 @@ export const MIN_CARD_PROGRESS_CHANGE = 0.001
 
 /** Tramos de p (spec §3). */
 export const PROFILE_TIMING = {
-  eyebrow: { from: 0, to: 0.2 },
-  headline: { from: 0.12, to: 0.36 },
-  tagline: { from: 0.24, to: 0.48 },
-  kpiFrom: 0.4,
-  kpiTo: 0.8,
-  kpiStagger: 0.08,
-  counters: { from: 0.45, to: 0.9 },
+  eyebrow: { from: 0, to: 0.22 },
+  headline: { from: 0.08, to: 0.38 },
+  tagline: { from: 0.18, to: 0.5 },
+  kpiFrom: 0.08,
+  kpiTo: 0.88,
+  kpiStagger: 0.1,
+  counters: { from: 0.5, to: 0.95 },
+  actions: { from: 0.58, to: 0.98 },
+  glow: { from: 0.1, to: 1 },
 } as const
-export const PROFILE_KPI_COUNT = 4
+export const PROFILE_KPI_COUNT = 3
 
 const eased = (p: number, { from, to }: CardProgressRange) => easeInOutCubic(progressBetween(p, from, to))
 
@@ -107,20 +109,23 @@ export interface ProfileMotionOptions {
   profileKpisReady?: boolean
 }
 
-/** Tarjeta de Perfil legible en el recorrido: KPI y contadores ya en su valor final. */
+/** Con pin en el punto 1: textos en su sitio y cifras legibles; el scroll anima KPI, brillo y CTA. */
 export function profileMotionOptions(
   cardIndex: number,
   kind: CardMotionKind,
   cardState: CardState,
-  state: JourneyState,
-  journeyProgress: number,
-  timeline: JourneyTimeline,
+  _state: JourneyState,
+  _journeyProgress: number,
+  _timeline: JourneyTimeline,
   journeyPinned: boolean,
 ): ProfileMotionOptions | undefined {
   if (!journeyPinned || kind !== 'profile' || cardIndex !== 0 || cardState !== 'current') return undefined
-  if (timeline.startsReading && state.pointIndex === 0 && state.phase === 'read') return { profileKpisReady: true }
-  if (timeline === MOBILE_TIMELINE && journeyProgress >= timeline.entryShare) return { profileKpisReady: true }
-  return undefined
+  return { profileKpisReady: true }
+}
+
+/** Texto de cabecera y cuerpo: posición final mientras la tarjeta es la actual con pin. */
+function profileCopyProgress(p: number, range: CardProgressRange, options?: ProfileMotionOptions): number {
+  return options?.profileKpisReady ? 1 : eased(p, range)
 }
 
 export function profileCounterProgress(p: number, options?: ProfileMotionOptions): number {
@@ -132,16 +137,16 @@ export function profileCounterProgress(p: number, options?: ProfileMotionOptions
 export function cardMotionValues(kind: CardMotionKind, p: number, options?: ProfileMotionOptions): Record<string, number> {
   switch (kind) {
     case 'profile': {
-      const values: Record<string, number> = {
-        eyebrow: eased(p, PROFILE_TIMING.eyebrow),
-        headline: eased(p, PROFILE_TIMING.headline),
-        tagline: eased(p, PROFILE_TIMING.tagline),
-      }
+      const values = flatSceneValues('profile', p)
+      values.eyebrow = profileCopyProgress(p, PROFILE_TIMING.eyebrow, options)
+      values.headline = profileCopyProgress(p, PROFILE_TIMING.headline, options)
+      values.tagline = profileCopyProgress(p, PROFILE_TIMING.tagline, options)
+      values.actions = eased(p, PROFILE_TIMING.actions)
+      values.glow = eased(p, PROFILE_TIMING.glow)
+      values.note = profileCopyProgress(p, PROFILE_TIMING.counters, options)
       for (let index = 0; index < PROFILE_KPI_COUNT; index++) {
         const from = PROFILE_TIMING.kpiFrom + index * PROFILE_TIMING.kpiStagger
-        values[`kpi-${index}`] = options?.profileKpisReady
-          ? 1
-          : eased(p, { from, to: from + KPI_DURATION })
+        values[`kpi-${index}`] = eased(p, { from, to: from + KPI_DURATION })
       }
       return values
     }

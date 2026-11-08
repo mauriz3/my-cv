@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import {
   BARS,
+  PROFILE_FICHE_LINE,
+  PROFILE_FICHE_WINDOW,
+  PROFILE_FIELD_LINES,
+  PROFILE_PROGRESS_BAR,
+  PROFILE_VIEWFINDER,
   CODE_LINE,
   CODE_LINES,
   CURSOR_GAP,
@@ -78,6 +83,21 @@ const bars = computed(() =>
     return { x: BARS.firstX + BARS.step * index, y: BARS.baseY - height, height }
   }),
 )
+const profileFieldTokens = PROFILE_FIELD_LINES.flatMap((tokens, line) =>
+  tokens.map(([x, length, tone], token) => ({
+    part: `field-${line}-${token}`,
+    d: `M${x} ${PROFILE_FICHE_LINE.firstY + PROFILE_FICHE_LINE.step * line}H${x + length}`,
+    tone,
+  })),
+)
+const profileChromeY = PROFILE_FICHE_WINDOW.y + 6
+const profileCheck = computed(() => {
+  const x = PROFILE_FICHE_WINDOW.x + PROFILE_FICHE_WINDOW.width - 16
+  const y = PROFILE_FICHE_WINDOW.y + 16
+  return `${x - 5},${y} ${x - 1},${y + 4} ${x + 5},${y - 3}`
+})
+const viewfinder = PROFILE_VIEWFINDER
+
 const BAR_CAP_INSET = 1.5
 const FLASH_RADIUS = 12
 const FLASH_WAIST = 0.28
@@ -118,7 +138,114 @@ const TOP_BLOCK = STACK_BLOCKS_Y.length - 1
 <template>
   <figure class="journey-scene" :data-scene="props.kind" aria-hidden="true" data-testid="journey-scene">
     <svg :viewBox="VIEWBOX" preserveAspectRatio="xMidYMid meet" fill="none" aria-hidden="true" focusable="false">
-      <template v-if="kind === 'skills'">
+      <template v-if="kind === 'profile'">
+        <g class="journey-scene__profile-viewfinder" aria-hidden="true">
+          <path
+            class="s-acc"
+            :d="`M${viewfinder.x} ${viewfinder.y + viewfinder.arm}V${viewfinder.y}H${viewfinder.x + viewfinder.arm}`"
+            stroke-width="1.75"
+          />
+          <path
+            class="s-acc"
+            :d="`M${viewfinder.x + viewfinder.width - viewfinder.arm} ${viewfinder.y}H${viewfinder.x + viewfinder.width}V${viewfinder.y + viewfinder.arm}`"
+            stroke-width="1.75"
+          />
+          <path
+            class="s-acc"
+            :d="`M${viewfinder.x} ${viewfinder.y + viewfinder.height - viewfinder.arm}V${viewfinder.y + viewfinder.height}H${viewfinder.x + viewfinder.arm}`"
+            stroke-width="1.75"
+          />
+          <path
+            class="s-acc"
+            :d="`M${viewfinder.x + viewfinder.width - viewfinder.arm} ${viewfinder.y + viewfinder.height}H${viewfinder.x + viewfinder.width}V${viewfinder.y + viewfinder.height - viewfinder.arm}`"
+            stroke-width="1.75"
+          />
+        </g>
+        <g class="journey-scene__profile-fiche" v-bind="fx('window', 'scale', 'opacity')">
+          <rect
+            class="f-tint-soft s-main"
+            :x="PROFILE_FICHE_WINDOW.x"
+            :y="PROFILE_FICHE_WINDOW.y"
+            :width="PROFILE_FICHE_WINDOW.width"
+            :height="PROFILE_FICHE_WINDOW.height"
+            rx="10"
+            stroke-width="2"
+          />
+          <path
+            class="s-main"
+            :d="`M${PROFILE_FICHE_WINDOW.x} ${PROFILE_FICHE_WINDOW.chromeY}H${PROFILE_FICHE_WINDOW.x + PROFILE_FICHE_WINDOW.width}`"
+            stroke-width="1.5"
+          />
+          <circle class="f-acc" :cx="PROFILE_FICHE_WINDOW.x + 12" :cy="profileChromeY" r="2.5" />
+          <circle class="f-main" :cx="PROFILE_FICHE_WINDOW.x + 22" :cy="profileChromeY" r="2.5" />
+          <circle class="f-main" :cx="PROFILE_FICHE_WINDOW.x + 32" :cy="profileChromeY" r="2.5" />
+          <!-- Esquinas tipo marco (estático, opción F). -->
+          <path
+            class="s-track journey-scene__profile-corner"
+            :d="`M${PROFILE_FICHE_WINDOW.x + 6} ${PROFILE_FICHE_WINDOW.chromeY + 6}V${PROFILE_FICHE_WINDOW.chromeY + 16}H${PROFILE_FICHE_WINDOW.x + 16}`"
+            stroke-width="1.5"
+          />
+          <path
+            class="s-track journey-scene__profile-corner"
+            :d="`M${PROFILE_FICHE_WINDOW.x + PROFILE_FICHE_WINDOW.width - 6} ${PROFILE_FICHE_WINDOW.chromeY + 6}V${PROFILE_FICHE_WINDOW.chromeY + 16}H${PROFILE_FICHE_WINDOW.x + PROFILE_FICHE_WINDOW.width - 16}`"
+            stroke-width="1.5"
+          />
+          <path
+            class="s-track journey-scene__profile-corner"
+            :d="`M${PROFILE_FICHE_WINDOW.x + 6} ${PROFILE_FICHE_WINDOW.y + PROFILE_FICHE_WINDOW.height - 6}V${PROFILE_FICHE_WINDOW.y + PROFILE_FICHE_WINDOW.height - 16}H${PROFILE_FICHE_WINDOW.x + 16}`"
+            stroke-width="1.5"
+          />
+          <path
+            class="s-track journey-scene__profile-corner"
+            :d="`M${PROFILE_FICHE_WINDOW.x + PROFILE_FICHE_WINDOW.width - 6} ${PROFILE_FICHE_WINDOW.y + PROFILE_FICHE_WINDOW.height - 6}V${PROFILE_FICHE_WINDOW.y + PROFILE_FICHE_WINDOW.height - 16}H${PROFILE_FICHE_WINDOW.x + PROFILE_FICHE_WINDOW.width - 16}`"
+            stroke-width="1.5"
+          />
+        </g>
+        <path
+          v-for="token in profileFieldTokens"
+          :key="token.part"
+          :class="`s-${token.tone}`"
+          v-bind="fx(token.part, 'offset')"
+          :d="token.d"
+          pathLength="1"
+          stroke-width="4"
+        />
+        <rect
+          class="f-tint-soft s-track"
+          :x="PROFILE_PROGRESS_BAR.x"
+          :y="PROFILE_PROGRESS_BAR.y"
+          :width="PROFILE_PROGRESS_BAR.width"
+          :height="PROFILE_PROGRESS_BAR.height"
+          rx="3"
+          stroke-width="1.5"
+        />
+        <rect
+          class="journey-scene__profile-progress f-acc s-main"
+          v-bind="fx('progress', 'scale')"
+          :x="PROFILE_PROGRESS_BAR.x"
+          :y="PROFILE_PROGRESS_BAR.y"
+          :width="Math.round(PROFILE_PROGRESS_BAR.width * PROFILE_PROGRESS_BAR.fillShare)"
+          :height="PROFILE_PROGRESS_BAR.height"
+          rx="3"
+          stroke-width="0"
+        />
+        <circle
+          class="f-tint-soft s-track"
+          :cx="PROFILE_FICHE_WINDOW.x + PROFILE_FICHE_WINDOW.width - 16"
+          :cy="PROFILE_FICHE_WINDOW.y + 16"
+          r="9"
+          stroke-width="1.5"
+        />
+        <polyline
+          class="s-acc"
+          v-bind="fx('check', 'offset')"
+          :points="profileCheck"
+          pathLength="1"
+          stroke-width="2.25"
+        />
+      </template>
+
+      <template v-else-if="kind === 'skills'">
         <polygon class="s-track" :points="radarGuides[0]" stroke-width="2" />
         <polygon class="s-track" :points="radarGuides[1]" stroke-width="1.5" />
         <path v-for="d in radarAxes" :key="d" class="s-track" :d="d" stroke-width="1.5" />
@@ -373,4 +500,27 @@ const TOP_BLOCK = STACK_BLOCKS_Y.length - 1
 :root[data-motion='full'] .journey__card[data-fx-active] .journey-scene :is(.scene-fx--move, .scene-fx--scale, .scene-fx--rotate, .journey-scene__bar, .journey-scene__bar-cap) {
   will-change: transform;
 }
+
+.journey-scene__profile-fiche {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.journey-scene__profile-corner {
+  opacity: 0.55;
+}
+
+.journey-scene__profile-viewfinder {
+  opacity: 0.9;
+}
+
+.journey-scene__profile-progress {
+  transform-box: fill-box;
+  transform-origin: left center;
+}
+
+.journey-scene[data-scene='profile'] {
+  margin-block: 0.75rem 0.25rem;
+}
+
 </style>
