@@ -1,6 +1,6 @@
 # Documentación técnica
 
-Un tema, un fichero. Los diagramas describen el código de `master` en `278043d` más la PR #55 (`6a306fb`);
+Un tema, un fichero. Los diagramas describen el código de `master` en `8974b35`;
 no garantizan la configuración externa ni el estado de producción.
 
 - [Normas para agentes de IA](../AGENTS.md)

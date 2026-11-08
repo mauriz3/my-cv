@@ -1,7 +1,7 @@
 # Decisiones de arquitectura (ADR)
 
 Un ADR registra contexto, decisión y consecuencias; se actualiza en cada PR que tome una decisión nueva.
-Fechas del primer commit/PR verificable (Atlantic/Canary); base: `master` tras fusionar la PR #55 (`902537f`).
+Fechas del primer commit/PR verificable (Atlantic/Canary); base: `master` en `8974b35` (tras la PR #57).
 
 ## ADR-001 · Nuxt 4 estático en Netlify
 **2026-10-24 · Aceptada** · `be08b7f`, `11391be`.

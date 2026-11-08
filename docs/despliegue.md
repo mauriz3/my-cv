@@ -26,7 +26,7 @@ flowchart TD
     History[Checkout con historial completo] --> Gitleaks[gitleaks-action]
   end
   Artifact --> A11y[Job a11y: axe sobre el artefacto]
-  Artifact --> Lighthouse[Job lighthouse: lhci sobre el artefacto]
+  Artifact --> Lighthouse[Job lighthouse: perfil US bloqueante; en push a master también perfil UE con aviso]
   A11y --> Gate{Los cuatro jobs pasan y es push a master}
   Lighthouse --> Gate
   Artifact --> Gate
