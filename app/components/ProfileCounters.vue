@@ -3,16 +3,26 @@ import type { Period } from '~~/lib/period'
 import { toMonthIndex } from '~~/lib/years'
 
 /**
- * Cifras clave del Perfil, calculadas desde los datos (años en tecnología, años full stack,
- * proyectos e idiomas), con la nota de cómo se calculan. Cuentan de 0 al valor al entrar en pantalla o,
- * dentro del recorrido del Inicio (Tanda F), con el scroll (`PROFILE_COUNT_KEY`): cada cifra entra escalonada.
+ * Cifras clave del Perfil (años en tecnología, años full stack e idiomas) en una banda de tres
+ * columnas iguales. La nota de cálculo va debajo. En el recorrido del Inicio, el scroll anima
+ * acentos por columna (`PROFILE_COUNT_KEY` + `--fx-kpi-*`); los valores se leen desde el inicio.
  */
+const props = defineProps<{ noteSrOnly?: boolean }>()
+
 const { t, locale } = useI18n({ useScope: 'local' })
 const cv = useCv()
 
-/** Desde que hace Back End (Octane11) su perfil es full stack: ese área marca los años «full stack». */
+const LANGUAGE_CODES: Record<string, string> = {
+  spanish: 'ES',
+  english: 'EN',
+  italian: 'IT',
+}
+
+const languageCodes = computed(() =>
+  cv.value.languages.map((language) => LANGUAGE_CODES[language.id] ?? language.id.slice(0, 2).toUpperCase()).join(' · '),
+)
+
 const FULL_STACK_AREA_ID = 'backend'
-/** Avance de la cuenta ligado al scroll (solo en el recorrido); `undefined` = cuenta sola al entrar en pantalla. */
 const countProgress = inject(PROFILE_COUNT_KEY, undefined)
 const progress = computed(() => countProgress?.value)
 const fx = (name: string) => ({ '--fx': `var(--fx-${name}, 1)` })
@@ -25,14 +35,12 @@ function formatPartialDate(partialDate: string): string {
   return monthYear.value.format(new Date(Math.floor(monthIndex / MONTHS_PER_YEAR), monthIndex % MONTHS_PER_YEAR))
 }
 
-/** Inicio más antiguo de una lista de periodos (los datos garantizan al menos uno). */
 function earliestStart(periods: Period[]): string {
   return periods
     .map((period) => period.start)
     .reduce((earliest, start) => (toMonthIndex(start) < toMonthIndex(earliest) ? start : earliest))
 }
 
-/** Del primer mes con experiencia en cualquier área hasta hoy: los «años en tech». */
 const techPeriods = computed<Period[]>(() => [
   { start: earliestStart(cv.value.skillAreas.flatMap((area) => area.periods)), end: null },
 ])
@@ -53,48 +61,121 @@ const countersNote = computed(() =>
 </script>
 
 <template>
-  <div>
-    <ul class="profile-counters__list grid grid-cols-2 gap-3 xl:grid-cols-4">
-      <li class="card-fx--scale" :style="fx('kpi-0')">
-        <MetricCard :label="t('yearsInTech')">
-          <YearsFigure :periods="techPeriods" count-up :progress="progress" />
-        </MetricCard>
-      </li>
-      <li class="card-fx--scale" :style="fx('kpi-1')">
-        <MetricCard :label="t('yearsFullStack')">
-          <YearsFigure :periods="fullStackPeriods" count-up :progress="progress" />
-        </MetricCard>
-      </li>
-      <li class="card-fx--scale" :style="fx('kpi-2')">
-        <MetricCard :label="t('projects')">
-          <AnimatedNumber :value="cv.projects.length" animate :progress="progress" />
-        </MetricCard>
-      </li>
-      <li class="card-fx--scale" :style="fx('kpi-3')">
-        <MetricCard :label="t('languages')">
-          <AnimatedNumber :value="cv.languages.length" animate :progress="progress" />
-        </MetricCard>
-      </li>
-    </ul>
-    <p class="card-fx mt-2 text-xs text-muted" :style="fx('kpi-3')">{{ countersNote }}</p>
+  <div class="profile-stats">
+    <h2 class="sr-only">{{ t('statsHeading') }}</h2>
+    <div class="profile-stats__band">
+      <ul class="profile-stats__grid" role="list">
+        <li class="profile-stats__item profile-stats__fx" :style="fx('kpi-0')">
+          <p class="profile-stats__value">
+            <YearsFigure :periods="techPeriods" count-up :progress="progress" />
+          </p>
+          <p class="profile-stats__label">{{ t('yearsInTech') }}</p>
+        </li>
+        <li class="profile-stats__item profile-stats__fx" :style="fx('kpi-1')">
+          <p class="profile-stats__value">
+            <YearsFigure :periods="fullStackPeriods" count-up :progress="progress" />
+          </p>
+          <p class="profile-stats__label">{{ t('yearsFullStack') }}</p>
+        </li>
+        <li class="profile-stats__item profile-stats__fx" :style="fx('kpi-2')">
+          <p class="profile-stats__value">
+            <AnimatedNumber :value="cv.languages.length" animate :progress="progress" />
+          </p>
+          <p class="profile-stats__label">{{ t('languages') }}</p>
+          <p class="profile-stats__meta" aria-hidden="true">{{ languageCodes }}</p>
+        </li>
+      </ul>
+    </div>
+
+    <p class="profile-stats__note profile-stats__fx" :class="{ 'sr-only': props.noteSrOnly }" :style="fx('note')">
+      {{ countersNote }}
+    </p>
   </div>
 </template>
+
+<style>
+.profile-stats__band {
+  position: relative;
+  overflow: clip;
+  border-block: 1px solid var(--ui-border);
+  background: transparent;
+}
+
+.profile-stats__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.profile-stats__item {
+  display: flex;
+  min-height: 4.25rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  padding: 0.875rem 0.35rem;
+  text-align: center;
+}
+
+.profile-stats__item:not(:last-child) {
+  border-inline-end: 1px solid var(--ui-border);
+}
+
+.profile-stats__value {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 2.8vw, 1.875rem);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--brand-vivid);
+  font-variant-numeric: tabular-nums;
+}
+
+.profile-stats__label {
+  margin: 0;
+  max-width: 9rem;
+  font-size: 0.625rem;
+  line-height: 1.25;
+  color: var(--ui-text-muted);
+  text-wrap: balance;
+}
+
+.profile-stats__meta {
+  margin: 0.125rem 0 0;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ui-text-muted) 82%, transparent);
+}
+
+.profile-stats__note {
+  margin: 0.625rem 0 0;
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  color: var(--ui-text-muted);
+}
+
+</style>
 
 <i18n lang="json">
 {
   "en": {
+    "statsHeading": "Key figures",
     "yearsInTech": "Years in tech",
     "yearsFullStack": "Years full stack",
-    "projects": "Projects",
     "languages": "Languages",
-    "countersNote": "Computed from dates ({today}): in tech since {techSince}, full stack since {fullStackSince}. Projects listed on this site."
+    "countersNote": "From dates ({today}): in tech since {techSince}, full stack since {fullStackSince}."
   },
   "es": {
+    "statsHeading": "Cifras clave",
     "yearsInTech": "Años en tecnología",
     "yearsFullStack": "Años full stack",
-    "projects": "Proyectos",
     "languages": "Idiomas",
-    "countersNote": "Calculado desde las fechas ({today}): en tecnología desde {techSince}, full stack desde {fullStackSince}. Proyectos publicados en esta web."
+    "countersNote": "Desde las fechas ({today}): en tecnología desde {techSince}, full stack desde {fullStackSince}."
   }
 }
 </i18n>

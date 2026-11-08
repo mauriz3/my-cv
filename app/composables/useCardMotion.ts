@@ -78,7 +78,11 @@ export function useCardMotion(
 
   function progressOf(card: HTMLElement, index: number, state: JourneyState, journeyProgress: number): number {
     if (isMobilePinned.value) {
-      if (index === 0) return mobileFirstCardProgress(journeyProgress)
+      if (index === 0) {
+        const entry = mobileFirstCardProgress(journeyProgress)
+        const onPoint = pinnedCardProgress(0, mobileCardStateAt(0, state), state, MOBILE_TIMELINE)
+        return Math.min(1, Math.max(entry, onPoint))
+      }
       return pinnedCardProgress(index, mobileCardStateAt(index, state), state, MOBILE_TIMELINE)
     }
     if (wideQuery?.matches) return pinnedCardProgress(index, cardStateAt(index, state), state, PINNED_TIMELINE)

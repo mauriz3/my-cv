@@ -15,8 +15,8 @@ import {
   progressBetween,
 } from './easing'
 
-export type SceneKind = 'skills' | 'experience' | 'education' | 'projects'
-export const SCENE_KINDS: readonly SceneKind[] = ['skills', 'experience', 'education', 'projects']
+export type SceneKind = 'profile' | 'skills' | 'experience' | 'education' | 'projects'
+export const SCENE_KINDS: readonly SceneKind[] = ['profile', 'skills', 'experience', 'education', 'projects']
 
 export const SCENE_VIEWBOX = { width: 280, height: 100 } as const
 
@@ -49,6 +49,74 @@ const at = (p: number, { from, to }: Range) => progressBetween(p, from, to)
 const span = (from: number, length: number): Range => ({ from, to: from + length })
 /** 0 hasta que empieza la fase, 1 desde entonces (aparición sin fundido). */
 const shownFrom = (p: number, from: number) => (p > from ? 1 : 0)
+
+export type CodeTone = 'main' | 'acc' | 'track'
+
+/* ---------- Profile: ficha CV (ventana + campos + verificación) ---------- */
+
+/** Ficha centrada en el viewBox 280×100 (como opción F: marco + tres campos). */
+export const PROFILE_FICHE_WINDOW = { x: 30, y: 8, width: 220, height: 84, chromeY: 24, pad: 22 } as const
+export const PROFILE_FICHE_INNER_X = PROFILE_FICHE_WINDOW.x + PROFILE_FICHE_WINDOW.pad
+const PROFILE_INNER_W = PROFILE_FICHE_WINDOW.width - PROFILE_FICHE_WINDOW.pad * 2
+
+/** Dos líneas de texto; la barra inferior se anima aparte (`progress`). */
+export const PROFILE_FIELD_LINES: readonly (readonly (readonly [number, number, CodeTone])[])[] = [
+  [[PROFILE_FICHE_INNER_X, PROFILE_INNER_W, 'main']],
+  [[PROFILE_FICHE_INNER_X, PROFILE_INNER_W - 28, 'main']],
+]
+export const PROFILE_FICHE_LINE = { firstY: 42, step: 14 } as const
+export const PROFILE_PROGRESS_BAR = {
+  x: PROFILE_FICHE_INNER_X,
+  y: PROFILE_FICHE_WINDOW.y + PROFILE_FICHE_WINDOW.height - 22,
+  width: PROFILE_INNER_W,
+  height: 6,
+  fillShare: 0.62,
+} as const
+/** Esquinas exteriores (visor) alrededor de la ficha, opción F. */
+export const PROFILE_VIEWFINDER = { x: 16, y: 2, width: 248, height: 96, arm: 12 } as const
+
+export const PROFILE_SCENE_TIMING = {
+  window: { from: 0, to: 0.17 },
+  windowScaleFrom: 0.9,
+  windowOpacityFrom: 0.32,
+  lineFrom: 0.14,
+  lineStagger: 0.1,
+  lineDuration: 0.14,
+  check: { from: 0.72, to: 0.98 },
+} as const
+
+function profileSceneValues(p: number): SceneValues {
+  const window = at(p, PROFILE_SCENE_TIMING.window)
+  const values: SceneValues = {
+    window: {
+      scale: lerp(PROFILE_SCENE_TIMING.windowScaleFrom, 1, overshootOut(window, POP_OVERSHOOT)),
+      opacity: lerp(PROFILE_SCENE_TIMING.windowOpacityFrom, 1, window),
+    },
+    check: { offset: 1 - easeOutCubic(at(p, PROFILE_SCENE_TIMING.check)) },
+  }
+  PROFILE_FIELD_LINES.forEach((tokens, line) => {
+    const typed = at(p, span(PROFILE_SCENE_TIMING.lineFrom + line * PROFILE_SCENE_TIMING.lineStagger, PROFILE_SCENE_TIMING.lineDuration))
+    const head = lerp(
+      tokens[0]![0],
+      tokens.at(-1)![0] + tokens.at(-1)![1],
+      typed,
+    )
+    tokens.forEach(([x, length], token) => {
+      values[`field-${line}-${token}`] = { offset: 1 - clamp01((head - x) / length) }
+    })
+  })
+  const progressTyped = at(
+    p,
+    span(
+      PROFILE_SCENE_TIMING.lineFrom + PROFILE_FIELD_LINES.length * PROFILE_SCENE_TIMING.lineStagger,
+      PROFILE_SCENE_TIMING.lineDuration,
+    ),
+  )
+  values.progress = {
+    scale: lerp(0.001, 1, progressTyped),
+  }
+  return values
+}
 
 /* ---------- Skills: radar hexagonal + 6 barras ---------- */
 
@@ -223,7 +291,6 @@ function educationValues(p: number): SceneValues {
 
 /* ---------- Projects: ventana de código + deploy + pila de bloques ---------- */
 
-export type CodeTone = 'main' | 'acc' | 'track'
 /** Fichas de cada línea de código: [x inicial, longitud, tono]. Líneas en y = 36 + 12·i. */
 export const CODE_LINES: readonly (readonly (readonly [number, number, CodeTone])[])[] = [
   [
@@ -304,6 +371,7 @@ function projectsValues(p: number): SceneValues {
 /* ---------- Valores por escena y paso a variables ---------- */
 
 const VALUES_OF: Record<SceneKind, (p: number) => SceneValues> = {
+  profile: profileSceneValues,
   skills: skillsValues,
   experience: experienceValues,
   education: educationValues,

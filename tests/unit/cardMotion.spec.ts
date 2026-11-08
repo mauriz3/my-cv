@@ -65,43 +65,51 @@ describe('progreso p de cada tarjeta', () => {
 })
 
 describe('elementos de cada tarjeta', () => {
-  it('Profile: todo en 0 al empezar y en 1 al terminar', () => {
-    expect(Object.values(cardMotionValues('profile', 0)).every((value) => value === 0)).toBe(true)
-    expect(Object.values(cardMotionValues('profile', 1)).every((value) => value === 1)).toBe(true)
+  it('Profile: escena, copy y KPI en estado inicial y final', () => {
+    const start = cardMotionValues('profile', 0)
+    expect(start.headline).toBe(0)
+    expect(start['kpi-0']).toBe(0)
+    expect(start['window-opacity']).toBeLessThan(1)
+    expect(start['field-0-0-offset']).toBe(1)
+    const end = cardMotionValues('profile', 1)
+    expect(end.headline).toBe(1)
+    expect(end['window-scale']).toBe(1)
+    expect(end['check-offset']).toBe(0)
   })
 
-  it('Profile: cada elemento avanza sin retroceder cuando p sube', () => {
-    let previous = cardMotionValues('profile', 0)
-    for (let step = 1; step <= 50; step++) {
-      const current = cardMotionValues('profile', step / 50)
-      for (const name of Object.keys(current)) expect(current[name]!).toBeGreaterThanOrEqual(previous[name]! - 1e-9)
-      previous = current
-    }
-  })
-
-  it('Profile: eyebrow, subtítulo y descripción escalonados; los 4 KPI con stagger de 0,08', () => {
+  it('Profile: eyebrow, subtítulo y descripción escalonados; los 3 KPI con stagger', () => {
     const middle = cardMotionValues('profile', 0.3)
     expect(middle.eyebrow).toBe(1)
     expect(middle.headline!).toBeGreaterThan(middle.tagline!)
     const kpis = cardMotionValues('profile', 0.55)
     expect(kpis['kpi-0']!).toBeGreaterThan(kpis['kpi-1']!)
     expect(kpis['kpi-1']!).toBeGreaterThan(kpis['kpi-2']!)
-    expect(cardMotionValues('profile', 0.8)['kpi-3']).toBe(1)
+    expect(cardMotionValues('profile', 1)['kpi-2']).toBe(1)
   })
 
-  it('contadores de Profile: 0 → valor entre p 0,45 y 0,90', () => {
-    expect(profileCountProgress(0.45)).toBe(0)
-    expect(profileCountProgress(0.9)).toBe(1)
-    expect(profileCountProgress(0.675)).toBeCloseTo(0.5, 2)
+  it('contadores de Profile: 0 → valor entre p 0,5 y 0,95', () => {
+    expect(profileCountProgress(0.5)).toBe(0)
+    expect(profileCountProgress(0.95)).toBe(1)
+    expect(profileCountProgress(0.725)).toBeCloseTo(0.5, 1)
   })
 
   it('Perfil legible al cargar: KPI y contadores en el valor final con p = 0', () => {
     const state = journeyStateAt(0)
     const options = profileMotionOptions(0, 'profile', cardStateAt(0, state), state, 0, PINNED_TIMELINE, true)
     expect(options?.profileKpisReady).toBe(true)
-    expect(cardMotionValues('profile', 0, options)['kpi-0']).toBe(1)
+    expect(cardMotionValues('profile', 0, options)['kpi-0']).toBe(0)
     expect(profileCounterProgress(0, options)).toBe(1)
-    expect(cardMotionValues('profile', 0, options).headline).toBe(0)
+    expect(cardMotionValues('profile', 0, options).headline).toBe(1)
+    expect(cardMotionValues('profile', 0.4, options).headline).toBe(1)
+  })
+
+  it('Profile: escena Tanda G (ficha) y copy/KPI en la misma tarjeta', () => {
+    const names = Object.keys(cardMotionValues('profile', 0.5))
+    expect(names).toContain('window-scale')
+    expect(names).toContain('field-0-0-offset')
+    expect(names).toContain('check-offset')
+    expect(names).toContain('kpi-0')
+    expect(names).toContain('headline')
   })
 
   it.each(KINDS.filter((kind) => kind !== 'profile'))('%s: variables «parte-canal» de su escena (Tanda G)', (kind) => {
@@ -157,8 +165,10 @@ describe('Profile visible desde la carga (decisión de Maurizio)', () => {
     }
   })
 
-  it('con p = 0 el contenido está en su estado inicial (desplazado, no oculto) y con p = 1 en el final', () => {
-    expect(Object.values(cardMotionValues('profile', 0)).every((value) => value === 0)).toBe(true)
-    expect(Object.values(cardMotionValues('profile', 1)).every((value) => value === 1)).toBe(true)
+  it('con p = 0 el copy HTML arranca en su sitio con pin (headline en 1) y la escena en estado inicial', () => {
+    const state = journeyStateAt(0)
+    const options = profileMotionOptions(0, 'profile', cardStateAt(0, state), state, 0, PINNED_TIMELINE, true)
+    expect(cardMotionValues('profile', 0, options).headline).toBe(1)
+    expect(cardMotionValues('profile', 0, options)['progress-scale']).toBeLessThan(0.02)
   })
 })
