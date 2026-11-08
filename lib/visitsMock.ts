@@ -7,6 +7,7 @@ import {
   percentagePointChange,
   relativeChange,
   sum,
+  type ReportedPagePath,
   type VisitsRange,
   type VisitsReport,
 } from './visits'
@@ -77,14 +78,14 @@ const SOURCE_SHARES: Record<(typeof SOURCE_KEYS)[number], number> = {
 }
 const COUNTRY_VISITS_30D = { ES: 412, US: 236, MX: 118, GB: 97, DE: 84, AR: 61, IN: 52, IT: 49 }
 /** Real site paths (no locale prefix). */
-const PAGE_VIEWS_30D = {
-  '/': 1120,
-  '/experience': 684,
-  '/projects': 512,
-  '/skills': 437,
-  '/Resume-Maurizio-Rendon-en.pdf': 268,
-  '/education': 190,
-}
+const PAGE_VIEWS_30D: readonly (readonly [ReportedPagePath, number])[] = [
+  ['/', 1120],
+  ['/experience', 684],
+  ['/projects', 512],
+  ['/skills', 437],
+  ['/Resume-Maurizio-Rendon-en.pdf', 268],
+  ['/education', 190],
+]
 /** `[day][3 h slot]`, Monday through Sunday. */
 const HOUR_SLOT_VISITS_30D = [
   [6, 6, 5, 27, 34, 24, 40, 19],
@@ -137,7 +138,7 @@ export function buildMockReport(range: VisitsRange): VisitsReport {
       Object.entries(COUNTRY_VISITS_30D).map(([iso, visits]) => ({ iso, visits: scaled(visits) })),
     ),
     sources: SOURCE_KEYS.map((key) => ({ key, value: SOURCE_SHARES[key] })),
-    pages: Object.entries(PAGE_VIEWS_30D).map(([path, views]) => ({ path, views: scaled(views) })),
+    pages: PAGE_VIEWS_30D.map(([path, views]) => ({ path, views: scaled(views) })),
     hours: {
       days: [...WEEK_DAYS],
       slots: [...HOUR_SLOTS],

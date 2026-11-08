@@ -1,19 +1,22 @@
-# Este archivo manda sobre la configuración de la UI de Netlify (comando de build y carpeta publicada).
+# Netlify settings that override the UI. Production deploys come only from GitHub Actions
+# (`netlify deploy --no-build` in .github/workflows/ci.yml, after verify, secrets, a11y and Lighthouse).
 [build]
-  command = "npm run test && npm run generate"
+  # No Netlify-side build: `ignore` exiting 0 skips any build Netlify would start from Git (auto-builds,
+  # deploy previews), so nothing bypasses CI even if continuous deployment is switched on by mistake.
+  ignore = "exit 0"
   publish = ".output/public"
-  # Edge Function `/geo` (país de la visita para el aviso de analítica; la ruta va en su `config` inline).
-  # `netlify deploy --no-build` la empaqueta desde aquí: el job deploy-production hace checkout del repo.
+  # Edge Function `/geo` (visitor country for the analytics notice; its path lives in its inline `config`).
+  # `netlify deploy --no-build` bundles it from here: the deploy-production job checks out the repo.
   edge_functions = "netlify/edge-functions"
 
 [build.environment]
-  NODE_VERSION = "24" # mismo valor que .nvmrc
+  NODE_VERSION = "24" # same as .nvmrc
 
-# Funciones de Visitas (datos de GA4): `visits` sirve /api/visits/:range y `visits-snapshot` (programada, cada 3 h)
-# guarda la instantánea en Netlify Blobs. Rutas y horario van en el `config` de cada función.
-# Variables (solo en Netlify, ámbito Functions): GA_PROPERTY_ID y GA_SERVICE_ACCOUNT_JSON.
+# Visits functions (GA4 data): `visits` serves /api/visits/:range and `visits-snapshot` (scheduled, every 3 h)
+# stores the snapshot in Netlify Blobs. Paths, schedule and rate limits live in each function's `config`.
+# Variables (Netlify only, Functions scope): GA_PROPERTY_ID and GA_SERVICE_ACCOUNT_JSON.
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
 
-# El `noindex` fuera de producción lo añade scripts/build-headers.mjs en `_headers`.
+# Non-production `noindex` is added to `_headers` by scripts/build-headers.mjs.

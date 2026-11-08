@@ -1,9 +1,21 @@
 import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import type { AddressInfo } from 'node:net'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { acceptsBrotli, createStaticServer, parseHeadersFile } from '../../scripts/serve-static.mjs'
+import {
+  SERVER_HOST,
+  SERVER_READY_MARKER,
+  acceptsBrotli,
+  createStaticServer,
+  parseHeadersFile,
+  serverReadyMessage
+} from '../../scripts/serve-static.mjs'
+
+const lighthouseConfig = createRequire(import.meta.url)('../../lighthouserc.cjs') as {
+  ci: { collect: { startServerReadyPattern: string; url: string[] } }
+}
 
 const HEADERS_FILE = `/*
   X-Robots-Tag: noindex, nofollow
@@ -57,14 +69,22 @@ describe('scripts/serve-static.mjs', () => {
     expect(acceptsBrotli()).toBe(false)
   })
 
+  it('Lighthouse waits for the ready line the server prints and audits the loopback host', () => {
+    const { startServerReadyPattern, url } = lighthouseConfig.ci.collect
+    const readyLine = serverReadyMessage('.output/public', 4173)
+    expect(readyLine.startsWith(SERVER_READY_MARKER)).toBe(true)
+    expect(new RegExp(startServerReadyPattern).test(readyLine)).toBe(true)
+    for (const auditedUrl of url) expect(new URL(auditedUrl).hostname).toBe(SERVER_HOST)
+  })
+
   describe('server', () => {
     let baseUrl = ''
     let server: Awaited<ReturnType<typeof createStaticServer>>
 
     beforeAll(async () => {
       server = await createStaticServer(createSite(), { geoCountry: 'FR' })
-      await new Promise<void>((resolve) => server.listen(0, resolve))
-      baseUrl = `http://localhost:${(server.address() as AddressInfo).port}`
+      await new Promise<void>((resolve) => server.listen(0, SERVER_HOST, resolve))
+      baseUrl = `http://${SERVER_HOST}:${(server.address() as AddressInfo).port}`
     })
 
     afterAll(() => new Promise<void>((resolve) => server.close(() => resolve())))
@@ -127,11 +147,12 @@ describe('scripts/serve-static.mjs', () => {
     const root = mkdtempSync(join(tmpdir(), 'serve-static-'))
     writeFileSync(join(root, 'index.html'), 'ok')
     const server = await createStaticServer(root)
-    await new Promise<void>((resolve) => server.listen(0, resolve))
-    const response = await fetch(`http://localhost:${(server.address() as AddressInfo).port}/`)
+    await new Promise<void>((resolve) => server.listen(0, SERVER_HOST, resolve))
+    const origin = `http://${SERVER_HOST}:${(server.address() as AddressInfo).port}`
+    const response = await fetch(`${origin}/`)
     expect(await response.text()).toBe('ok')
     expect(response.headers.get('content-security-policy')).toBeNull()
-    expect(await (await fetch(`http://localhost:${(server.address() as AddressInfo).port}/geo`)).json()).toEqual({ country: 'ES' })
+    expect(await (await fetch(`${origin}/geo`)).json()).toEqual({ country: 'ES' })
     await new Promise<void>((resolve) => server.close(() => resolve()))
   })
 })

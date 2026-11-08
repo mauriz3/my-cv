@@ -1,5 +1,5 @@
 import { z } from './zod'
-import { DEVICE_KEYS, HOUR_SLOTS, SOURCE_KEYS, VISITS_RANGES, WEEK_DAYS } from './visits'
+import { DEVICE_KEYS, HOUR_SLOTS, REPORTED_PAGE_PATHS, SOURCE_KEYS, VISITS_RANGES, WEEK_DAYS } from './visits'
 
 /**
  * Contract for `GET /api/visits/:range` (GA4 snapshot or mock).
@@ -32,7 +32,8 @@ export const VisitsReportSchema = z
     countries: z.array(z.object({ iso: z.string().regex(/^([A-Z]{2}|OTHER)$/), visits: Count })),
     /** Share in % (sums to 100). */
     sources: z.array(BreakdownItem(SOURCE_KEYS)),
-    pages: z.array(z.object({ path: z.string().startsWith('/'), views: Count })),
+    /** Only allowlisted site paths: a snapshot carrying anything else is rejected. */
+    pages: z.array(z.object({ path: z.enum(REPORTED_PAGE_PATHS), views: Count })),
     hours: z.object({
       days: z.array(z.enum(WEEK_DAYS)),
       slots: z.array(z.enum(HOUR_SLOTS)),

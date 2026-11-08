@@ -1,3 +1,4 @@
+import { createRequire } from 'node:module'
 import { runInNewContext } from 'node:vm'
 import { describe, expect, it } from 'vitest'
 import {
@@ -139,6 +140,18 @@ describe('analytics CSP', () => {
       expect(sources).toEqual(
         expect.arrayContaining(['https://*.googletagmanager.com', 'https://*.google-analytics.com', 'https://*.analytics.google.com']),
       )
+    }
+  })
+
+  it('Lighthouse in CI blocks every analytics origin (no real hits from audits)', () => {
+    const lighthouseConfig = createRequire(import.meta.url)('../../lighthouserc.cjs') as {
+      ci: { collect: { settings: { blockedUrlPatterns: string[] } } }
+    }
+    const patterns = lighthouseConfig.ci.collect.settings.blockedUrlPatterns
+    const origins = Object.values(ANALYTICS_CSP_SOURCES).flat()
+    for (const origin of origins) {
+      const domain = new URL(origin.replace('*.', '')).hostname.replace(/^www\./, '')
+      expect(patterns).toContain(`*${domain}*`)
     }
   })
 })

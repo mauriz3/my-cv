@@ -103,3 +103,14 @@ First commit/PR dates verified (Atlantic/Canary); base: `master` at `8974b35` (a
   - Button is a simple action **without `aria-pressed`**; `aria-label` matches visible copy («Activar» / «Desactivar animaciones»). On first session with no choice and no PRM, three soft pulses with amber ring (`--ui-secondary`, OFF button color) start when the button mounts. They stop on click or focus, on tab hide, or after three cycles; scroll and outside taps do not stop them.
   - When enabled, visible charts reset without reload and journey scenes catch up to current progress in 450 ms without moving scroll. Shared registry (`useReplayable`) avoids repeat on theme, locale, or filter change.
 - **Consequences:** Replaces «full by default» and fixed copy/`aria-pressed` from `lib/motion.ts`. Must regenerate CSP hash for pre-paint script. Profile and Visits design unchanged: only default state and reset on enable. Visits CTA halo shares `.cta-halo` class; its animation unchanged.
+
+## ADR-017 · Fail-closed supply chain and abuse limits
+**2026-11-08 · Proposed** (security review of 2026-11-08).
+- **Context:** `audit:check` passed when `npm audit` failed without results; `netlify-cli` (run with the deploy token) and `@lhci/cli` were downloaded with `npx` outside the lockfile; GA4 page paths were published unfiltered; query strings bypassed the Visits CDN cache; Lighthouse and axe could send real GA hits from CI; `deepmerge` GHSA-gcqx-w48m-w2h4 has no patched release.
+- **Decision:**
+  - `scripts/audit.mjs` fails closed on any audit without a valid report.
+  - `netlify-cli` and `@lhci/cli` are exact devDependencies run with `npx --no-install` / `npm run`; `overrides` pins `basic-ftp` 6.2.6 (high advisory surfaced by pinning).
+  - Allowlist of reported page paths in code and schema; Visits cache key ignores the query (`Netlify-Vary: query=none`, durable cache); code-based rate limits (60/min per IP) on `/api/visits/:range` and `/geo`.
+  - CI audits block Google Analytics domains; local audit server binds `127.0.0.1`; `netlify.toml` skips any Netlify-side build (`ignore = "exit 0"`).
+  - `deepmerge` advisory accepted (build-time only, trusted config, not shipped). Review by 2027-02-08.
+- **Consequences:** `npm ci` installs more devDependencies (slower cold install, cached by `setup-node`). A new page must be added to `REPORTED_PAGE_PATHS` (a test enforces it). `/geo` can still be influenced by the visitor's own `X-Forwarded-For` through Netlify's lookup: documented, fail-safe, stricter check pending a preview test. Secret scanning and push protection remain for the owner to enable.

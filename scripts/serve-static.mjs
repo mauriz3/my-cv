@@ -6,6 +6,7 @@
  * and serves `/geo` with the real Edge Function and a simulated country (GEO_COUNTRY, default ES).
  * Does not send `X-Robots-Tag`: non-production builds add it on purpose and Lighthouse would
  * score it as an SEO failure; the production artifact does not include it (checked by deploy-production).
+ * Listens on loopback only (127.0.0.1): never exposed to the network.
  * Usage: node scripts/serve-static.mjs [folder]   (port: PORT, default 4173; `/geo` country: GEO_COUNTRY)
  */
 import { createServer } from 'node:http'
@@ -17,6 +18,10 @@ import { isDirectRun } from './isDirectRun.mjs'
 
 const DEFAULT_ROOT = '.output/public'
 const DEFAULT_PORT = 4173
+/** Loopback only: CI and local audits must not expose the site to other hosts. */
+export const SERVER_HOST = '127.0.0.1'
+/** Start of the line printed once listening; lighthouserc.cjs waits for it (`startServerReadyPattern`). */
+export const SERVER_READY_MARKER = 'Serving'
 /**
  * Country returned by `/geo` locally (real Edge Function, simulated country). Default ES: analytics notice
  * appears, as for EU/EEA visits in production (the strictest case).
@@ -121,9 +126,14 @@ export async function createStaticServer(root, { geoCountry = DEFAULT_GEO_COUNTR
   })
 }
 
+/** Line printed when the server is ready (starts with `SERVER_READY_MARKER`). */
+export function serverReadyMessage(root, port) {
+  return `${SERVER_READY_MARKER} ${root} at http://${SERVER_HOST}:${port}`
+}
+
 if (isDirectRun(import.meta.url)) {
   const root = process.argv[2] ?? DEFAULT_ROOT
   const port = Number(process.env.PORT ?? DEFAULT_PORT)
   const server = await createStaticServer(root, { geoCountry: process.env.GEO_COUNTRY || DEFAULT_GEO_COUNTRY })
-  server.listen(port, () => console.log(`Serving ${root} at http://localhost:${port}`))
+  server.listen(port, SERVER_HOST, () => console.log(serverReadyMessage(root, port)))
 }

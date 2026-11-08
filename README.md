@@ -27,7 +27,7 @@ npm run dev
 | `npm run test:a11y` | axe on the generated site (requires `generate` and Google Chrome) |
 | `npm run lighthouse` | Lighthouse on the generated site (requires `generate` and Google Chrome) |
 | `npm run lighthouse:consent` | Same with the analytics notice (visit from the EU; production build) |
-| `npm run audit:check` | `npm audit` with justified exceptions |
+| `npm run audit:check` | `npm audit` with justified exceptions (fails if the audit itself fails) |
 | `npm run pdf` | Regenerate CV PDFs from `data/` ([scripts/pdf/README.md](scripts/pdf/README.md)) |
 | `npm run visits:snapshot` | Local GA4 snapshot ([docs/ga4.md](docs/ga4.md)) |
 
@@ -48,11 +48,11 @@ Raster assets in WebP (lossless for screenshots, quality 85 for covers); only `o
 
 ## CI and quality
 
-Every PR and every push to master runs `.github/workflows/ci.yml`: typecheck, tests with coverage (fails below 80%), generate, `audit:check`, gitleaks, axe (fails on serious/critical violations), and Lighthouse (per-category thresholds). Reports are stored as workflow artifacts in Actions. Details: [docs/quality.md](docs/quality.md). Security (CSP, headers, dependencies): [docs/security.md](docs/security.md).
+Every PR and every push to master runs `.github/workflows/ci.yml`: typecheck, tests with coverage (fails below 80%), generate, `audit:check`, gitleaks, axe (fails on serious/critical violations), and Lighthouse (per-category thresholds). Reports are stored as workflow artifacts in Actions; CI tools (Lighthouse CI, Netlify CLI) come from the lockfile and audits never send Google Analytics hits. Details: [docs/quality.md](docs/quality.md). Security (CSP, headers, dependencies): [docs/security.md](docs/security.md).
 
 ## Deployment
 
-Only a push to master deploys to Netlify (job `deploy-production`, after full CI passes) and then verifies production. Details: [docs/deployment.md](docs/deployment.md).
+Only a push to master deploys to Netlify (job `deploy-production`, after full CI passes) and then verifies production; Netlify itself never builds. Details: [docs/deployment.md](docs/deployment.md).
 
 ## Documentation
 
