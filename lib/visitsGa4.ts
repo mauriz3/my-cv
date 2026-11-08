@@ -6,10 +6,12 @@ import {
   SOURCE_KEYS,
   WEEK_DAYS,
   groupSmallCountries,
+  isReportedPagePath,
   percentagePointChange,
   relativeChange,
   sum,
   type CountryVisits,
+  type ReportedPagePath,
   type VisitsRange,
   type VisitsReport,
 } from './visits'
@@ -293,9 +295,13 @@ export function pageWithoutLocale(path: string): string {
   return withSlash.length > 1 ? withSlash.replace(/\/$/, '') : '/'
 }
 
+/** Views per allowlisted site page; any other `pagePath` is discarded (lib/visits.ts `REPORTED_PAGE_PATHS`). */
 function mapPages(response: RunReportResponse): VisitsReport['pages'] {
-  const views = new Map<string, number>()
-  for (const row of rowsOf(response)) addTo(views, pageWithoutLocale(row.dims.pagePath ?? '/'), row.metrics.screenPageViews ?? 0)
+  const views = new Map<ReportedPagePath, number>()
+  for (const row of rowsOf(response)) {
+    const path = pageWithoutLocale(row.dims.pagePath ?? '/')
+    if (isReportedPagePath(path)) addTo(views, path, row.metrics.screenPageViews ?? 0)
+  }
   return [...views]
     .map(([path, count]) => ({ path, views: Math.round(count) }))
     .sort((a, b) => b.views - a.views)

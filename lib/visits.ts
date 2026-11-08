@@ -34,6 +34,29 @@ export type WeekDay = (typeof WEEK_DAYS)[number]
 /** 3-hour slots (start hour). */
 export const HOUR_SLOTS = ['00', '03', '06', '09', '12', '15', '18', '21'] as const
 
+/**
+ * Allowlist of site paths (locale prefix removed) the «Most viewed pages» chart may show:
+ * navigation pages, privacy, and the resume PDFs. Any other GA4 `pagePath` (spam hits, typos, old URLs)
+ * is dropped, so free text from requests never reaches the public report.
+ * Kept in sync with navigation, privacy, and resume links by tests/unit/visits.spec.ts.
+ */
+export const REPORTED_PAGE_PATHS = [
+  '/',
+  '/skills',
+  '/experience',
+  '/projects',
+  '/education',
+  '/visits',
+  '/privacy',
+  '/Resume-Maurizio-Rendon-en.pdf',
+  '/Resume-Maurizio-Rendon-es.pdf',
+] as const
+export type ReportedPagePath = (typeof REPORTED_PAGE_PATHS)[number]
+
+export function isReportedPagePath(path: string): path is ReportedPagePath {
+  return (REPORTED_PAGE_PATHS as readonly string[]).includes(path)
+}
+
 export type { VisitsReport }
 export type VisitsKpis = VisitsReport['kpis']
 export type CountryVisits = VisitsReport['countries'][number]

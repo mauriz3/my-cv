@@ -15,12 +15,20 @@ const BASE_HEADERS = {
   'strict-transport-security': 'max-age=31536000; includeSubDomains',
 }
 /**
- * Browser always revalidates; Netlify CDN caches 10 min and serves stale while refreshing.
- * Snapshot updates every 3 h and each deploy clears the cache.
+ * The report depends only on the path, but Netlify's default cache key for functions includes the whole query
+ * string, so `?anything` would bypass the cache and invoke the function. `Netlify-Vary: query=<name>` keys only on
+ * the listed parameter and puts every other query string under one shared cache object; `none` is never read,
+ * so `/api/visits/7d?x=1` and `/api/visits/7d` share the cached response.
+ */
+const CACHE_KEY_WITHOUT_QUERY = 'query=none'
+/**
+ * Browser always revalidates; Netlify CDN caches 10 min (durable: shared by all edge nodes) and serves stale
+ * while refreshing. Snapshot updates every 3 h and each deploy clears the cache.
  */
 const CACHE_HEADERS = {
   'cache-control': 'public, max-age=0, must-revalidate',
-  'netlify-cdn-cache-control': 'public, max-age=600, stale-while-revalidate=3600',
+  'netlify-cdn-cache-control': 'public, durable, max-age=600, stale-while-revalidate=3600',
+  'netlify-vary': CACHE_KEY_WITHOUT_QUERY,
 }
 const ALLOWED_METHODS = ['GET', 'HEAD']
 const NOT_FOUND = 404
@@ -47,5 +55,9 @@ export function createVisitsHandler(store: SnapshotStore) {
 
 export default createVisitsHandler(blobSnapshotStore())
 
-// Netlify reads `config` statically: literal values only.
-export const config = { path: '/api/visits/:range' }
+// Netlify reads `config` statically: literal values only. Rate limit per visitor IP (code-based rule, all plans):
+// far above what the page needs (one request per range shown), it caps scripted bursts with 429.
+export const config = {
+  path: '/api/visits/:range',
+  rateLimit: { windowLimit: 60, windowSize: 60, aggregateBy: ['ip', 'domain'] },
+}

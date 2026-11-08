@@ -9,7 +9,7 @@ browser ── GET /api/visits/:range ── netlify/functions/visits.ts ◄─�
 ```
 
 - `visits-snapshot` (scheduled, `0 */3 * * *` UTC): queries GA4 (`runReport`, 7 reports per range) for 1d, 7d, and 30d, validates each report with zod, and stores all three together. A failing range keeps the previous one; if all fail, nothing is written.
-- `visits` serves `/api/visits/:range` on Netlify: snapshot report or, if missing or invalid, `buildMockReport`. Responds with `x-visits-source: snapshot | mock`, 10 min CDN cache (`Netlify-CDN-Cache-Control`), browser always revalidates. Mock JSON remains prerendered as static fallback.
+- `visits` serves `/api/visits/:range` on Netlify: snapshot report or, if missing or invalid, `buildMockReport`. Responds with `x-visits-source: snapshot | mock`, 10 min durable CDN cache (`Netlify-CDN-Cache-Control`) whose key ignores the query string (`Netlify-Vary: query=none`), browser always revalidates; per-IP rate limit of 60 requests/min (`config.rateLimit`). Mock JSON remains prerendered as static fallback.
 - Code (pure and tested, no network): `lib/googleServiceAccount.ts` (JWT RS256 signed with `node:crypto` → OAuth token; no `google-auth-library`), `lib/visitsGa4.ts` (periods, requests, mapping to contract), `lib/visitsSnapshot.ts` (snapshot and store), `lib/visitsSource.ts` (sources `snapshot` → `mock`; live data only needs a `live` source in front) and `lib/visitsBlobStore.ts` / `lib/visitsFileStore.ts` (Netlify Blobs / local file).
 - GA4 → contract mapping:
   - Visits = `sessions`; visitors = `totalUsers`; average duration = `averageSessionDuration`; bounce = `bounceRate`. Each KPI compared to previous period of same length.
@@ -17,7 +17,7 @@ browser ── GET /api/visits/:range ── netlify/functions/visits.ts ◄─�
   - Devices = `deviceCategory` in %; categories not in contract (e.g. «smart tv») dropped.
   - Countries = `countryId`; under 5 visits or «(not set)» go to «Otros».
   - Sources = `sessionDefaultChannelGroup`: Organic Search, Direct, Referral; LinkedIn by `sessionSource` (linkedin, lnkd.in); rest to «Otros».
-  - Pages = `screenPageViews` by `pagePath` without locale prefix (`/es/x` and `/en/x` summed), top 6. **Deviation:** CV PDF from mock does not appear because GA4 counts downloads as events, not page views.
+  - Pages = `screenPageViews` by `pagePath` without locale prefix (`/es/x` and `/en/x` summed), top 6, **only allowlisted site paths** (`REPORTED_PAGE_PATHS` in `lib/visits.ts`; the schema enforces the same list, so spam or unknown paths never reach the public JSON). **Deviation:** CV PDF from mock does not appear because GA4 counts downloads as events, not page views.
   - Hours = `dayOfWeek` × `hour` in 3 h buckets, Monday to Sunday.
 
 ## One-time setup

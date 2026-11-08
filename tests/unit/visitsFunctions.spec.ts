@@ -11,12 +11,23 @@ function memoryStore(initial?: unknown): SnapshotStore & { value: () => unknown 
   return { value: () => value, read: async () => value, write: async (snapshot: VisitsSnapshot) => void (value = snapshot) }
 }
 
-const request = (method = 'GET') => new Request('https://example.test/api/visits/7d', { method })
+const request = (method = 'GET', query = '') => new Request(`https://example.test/api/visits/7d${query}`, { method })
 const silentLog = () => ({ info: vi.fn(), warn: vi.fn(), error: vi.fn() })
 
 describe('function /api/visits/:range', () => {
-  it('served at same path as prerendered JSON', () => {
+  it('served at same path as prerendered JSON, with a per-IP rate limit', () => {
     expect(visitsConfig.path).toBe('/api/visits/:range')
+    expect(visitsConfig.rateLimit).toEqual({ windowLimit: 60, windowSize: 60, aggregateBy: ['ip', 'domain'] })
+  })
+
+  it('arbitrary query strings share the cached response (cache key ignores the query)', async () => {
+    const handler = createVisitsHandler(memoryStore())
+    const plain = await handler(request(), { params: { range: '7d' } })
+    const withQuery = await handler(request('GET', '?cache-buster=1'), { params: { range: '7d' } })
+    expect(plain.headers.get('netlify-vary')).toBe('query=none')
+    expect(withQuery.headers.get('netlify-vary')).toBe('query=none')
+    expect(await withQuery.json()).toEqual(await plain.json())
+    expect(plain.headers.get('netlify-cdn-cache-control')).toContain('durable')
   })
 
   it('without snapshot returns mock, short CDN cache, and security headers', async () => {

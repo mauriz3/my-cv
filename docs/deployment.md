@@ -2,7 +2,8 @@
 
 - CI (`.github/workflows/ci.yml`) runs typecheck, tests with coverage, generate, and audit:check, plus gitleaks, axe, and Lighthouse (`deploy-production` waits for all).
 - Only a push to master deploys (`deploy-production`, Netlify CLI with `--no-build`). That job checks out the repo and runs `npm ci --ignore-scripts` so Netlify bundles the `/geo` Edge Function and functions from `netlify/functions` (`netlify.toml` → `[functions]`). It then checks production headers, that `/geo` returns `{country}` with `no-store` and rejects POST (405), that `/api/visits/{1d,7d,30d}` is served by the function (`x-visits-source`) with the report for its range, and that `/en/books` and `/es/libros` return 200 with `og:image`.
-- If Netlify builds itself (`netlify.toml`), it runs `npm run test && npm run generate`: if a test fails, there is no deploy. Netlify automatic builds are disabled (confirmed by Maurizio, 2026-11-07), so in practice only GitHub Actions publishes.
+- Netlify never builds: `netlify.toml` has no build command and `ignore = "exit 0"`, so any build Netlify would start from Git (auto-build, deploy preview) is skipped even if continuous deployment were switched on by mistake. Netlify automatic builds are also disabled in the UI (confirmed by Maurizio, 2026-11-07). Only GitHub Actions publishes.
+- `netlify-cli` and `@lhci/cli` come from `package-lock.json` (exact devDependencies): the deploy step runs `npx --no-install netlify deploy …`, which fails rather than downloading a copy.
 - The GitHub `production` environment can require manual approval (Settings → Environments) without changing the workflow.
 
 ## CI and deployment flow
@@ -36,7 +37,7 @@ flowchart TD
   subgraph Deploy[Job deploy-production, environment production]
     Code[Checkout, Node, npm ci without scripts] --> Download[Download same site artifact]
     Download --> Check[Reject artifact with X-Robots-Tag]
-    Check --> Publish[Pinned Netlify CLI: deploy no-build prod]
+    Check --> Publish[Netlify CLI from lockfile: deploy no-build prod]
     Publish --> Smoke[Check headers, geo, Visits, Books links]
   end
   Publish --> Netlify[Static site and Functions and Edge Function bundle]

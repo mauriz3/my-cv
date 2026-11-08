@@ -106,7 +106,7 @@ describe('response mapping', () => {
     expect(shares).toEqual({ organic: 41, direct: 28, linkedin: 18, referral: 9, other: 4 })
   })
 
-  it('pages: no locale prefix, merged, top six', () => {
+  it('pages: no locale prefix, merged, top six, only allowlisted site paths', () => {
     expect(report.pages).toEqual([
       { path: '/', views: 500 },
       { path: '/experience', views: 200 },

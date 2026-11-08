@@ -46,6 +46,7 @@ describe('/geo response', () => {
     const failing = [
       () => Promise.reject(new TypeError('offline')),
       () => Promise.resolve(new Response('not found', { status: 404 })),
+      () => Promise.resolve(new Response('rate limited', { status: 429 })),
       () => Promise.resolve(new Response('<html>', { status: 200 })),
     ]
     for (const fetchFn of failing) expect(await fetchVisitorCountry(fetchFn as typeof fetch)).toBeNull()
@@ -87,7 +88,16 @@ describe('Edge Function /geo', () => {
     expect(post.headers.get('cache-control')).toBe('no-store')
   })
 
-  it('is served on the same origin the client uses', () => {
+  it('trusts only Netlify geolocation, never client headers', async () => {
+    const spoofed = new Request('https://example.test/geo', {
+      headers: { 'x-forwarded-for': '8.8.8.8', 'x-country': 'US', 'x-nf-geo': 'US', 'cf-ipcountry': 'US' },
+    })
+    expect(await geo(spoofed, { geo: { country: { code: 'ES' } } }).json()).toEqual({ country: 'ES' })
+    expect(await geo(spoofed, {}).json()).toEqual({ country: null })
+  })
+
+  it('is served on the same origin the client uses, with a per-IP rate limit', () => {
     expect(geoConfig.path).toBe(GEO_ENDPOINT)
+    expect(geoConfig.rateLimit).toEqual({ windowLimit: 60, windowSize: 60, aggregateBy: ['ip', 'domain'] })
   })
 })

@@ -81,7 +81,7 @@ Sources: [Nuxt config](../nuxt.config.ts), [layout](../app/layouts/default.vue),
 - Outside production `analyticsId` is empty: analytics, notice, and footer (`AppFooter`) do not mount.
 - Updates only change `analytics_storage`: accept does not grant ad permissions.
 - Region: EU27 + Iceland, Liechtenstein, Norway, United Kingdom, and Switzerland. `parseGeoCountry` normalizes to uppercase and requires two letters, not a full ISO catalog.
-- Country comes from edge context (not browser geolocation), is not stored, and `/geo` does not add CORS. Off Netlify the route may be missing and counts as unknown country.
+- Country comes from edge context (not browser geolocation), is not stored, and `/geo` does not add CORS. Off Netlify the route may be missing and counts as unknown country. Request headers are never read; the visitor can still influence Netlify's own lookup (see [security.md](security.md)), which only changes their own notice. `/geo` has a per-IP rate limit (60/min); a 429 counts as unknown country → notice.
 - Notice stays closed while country resolves; `wait_for_update` (500 ms) and `/geo` timeout (3 s) can expire at different times.
 - **Limit:** `denied` does not mean zero requests to Google. gtag.js loads and configures before decision and Consent Mode can measure without cookies; do not describe as full block. Revoke does not explicitly clear existing cookies. If `setItem` fails, choice applies only for current visit.
 

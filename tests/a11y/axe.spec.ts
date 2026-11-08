@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
+import { ANALYTICS_CSP_SOURCES } from '../../lib/analytics'
 import { THEME_STORAGE_KEY } from '../../lib/theme'
 
 /** Fails on violations at this impact or higher; moderate/minor are only listed in the report. */
@@ -10,6 +11,16 @@ const PAGES = ['/en/', '/es/', '/en/visits', '/en/privacy']
 /** Books short link: minimal page that client-redirects to the Profile section. */
 const BOOKS_SHORT_LINK = '/en/books'
 const BOOKS_DESTINATION = /\/en\/#books$/
+
+/** Measurement domains (`https://*.google-analytics.com` → `google-analytics.com`). */
+const MEASUREMENT_DOMAINS = ANALYTICS_CSP_SOURCES['connect-src'].map((source) => new URL(source.replace('*.', '')).hostname)
+const isMeasurementRequest = (url: URL) =>
+  MEASUREMENT_DOMAINS.some((domain) => url.hostname === domain || url.hostname.endsWith(`.${domain}`))
+
+/** The production artifact carries gtag: CI never sends real hits to Google Analytics. */
+test.beforeEach(async ({ context }) => {
+  await context.route(isMeasurementRequest, (route) => route.abort('blockedbyclient'))
+})
 
 async function expectNoBlockingViolations(page: Page) {
   const { violations } = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze()

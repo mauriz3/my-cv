@@ -82,11 +82,14 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc
+          cache: npm
+      # @lhci/cli is an exact devDependency pinned by package-lock: `npm ci` installs it, nothing is fetched ad hoc.
+      # No scripts: `nuxt prepare` is not needed to serve and audit the artifact.
+      - run: npm ci --ignore-scripts
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: site
           path: .output/public
-      # @lhci/cli goes with fixed version via npx (such as netlify-cli): it does not enter package-lock or npm ci.
       # Visit from outside the region with notice: all thresholds are blocking.
       - run: npm run lighthouse
       # Only the production build carries the notice of analytics: first visit from the EU (ES), informative performance.
@@ -134,7 +137,7 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
-      # No scripts (`nuxt prepare` is not needed here): only the dependencies that esbuild puts in the functions.
+      # No scripts (`nuxt prepare` is not needed here): the dependencies esbuild puts in the functions and netlify-cli.
       - run: npm ci --ignore-scripts
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
@@ -143,8 +146,9 @@ jobs:
       - name: The production artifact does not carry noindex
         run: "! grep -qi 'X-Robots-Tag' site/_headers"
       - name: Netlify deploy (production)
-        # Secrets exist only in this step.
-        run: npx --yes netlify-cli@27.14.2 deploy --dir=site --no-build --prod --message "${{ github.sha }}"
+        # Secrets exist only in this step. netlify-cli is an exact devDependency pinned by package-lock (installed
+        # by `npm ci` above); `--no-install` fails instead of downloading an unpinned copy.
+        run: npx --no-install netlify deploy --dir=site --no-build --prod --message "${{ github.sha }}"
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}

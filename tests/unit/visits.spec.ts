@@ -5,6 +5,7 @@ import {
   changeDirection,
   MIN_VISITS_PER_COUNTRY,
   OTHER_COUNTRIES_ISO,
+  REPORTED_PAGE_PATHS,
   VISITS_RANGES,
   formatDuration,
   formatInteger,
@@ -15,6 +16,7 @@ import {
   groupSmallCountries,
   heatAlpha,
   isEmptyReport,
+  isReportedPagePath,
   isVisitsRange,
   kpiChange,
   kpiTrend,
@@ -25,6 +27,9 @@ import {
   visitsEndpoint,
   withAlpha,
 } from '../../lib/visits'
+import { NAV_ITEMS } from '../../app/utils/navigation'
+import { cvFacts } from '../../data/cv.shared'
+import { PRIVACY_PATH } from '../../lib/privacy'
 import { MOCK_GENERATED_AT, buildMockReport } from '../../lib/visitsMock'
 import { VisitsReportSchema } from '../../lib/visitsSchema'
 
@@ -183,5 +188,24 @@ describe('change direction', () => {
     expect(changeDirection(-3)).toBe('down')
     expect(changeDirection(0.12)).toBe('up')
     expect(changeDirection(0)).toBe('flat')
+  })
+})
+
+describe('reported page allowlist', () => {
+  it('covers every navigation page, privacy, and the resume PDFs', () => {
+    const sitePaths = [...NAV_ITEMS.map((item) => item.path), PRIVACY_PATH, ...Object.values(cvFacts.resumeUrls)]
+    expect([...REPORTED_PAGE_PATHS].sort()).toEqual([...new Set(sitePaths)].sort())
+  })
+
+  it('accepts only allowlisted paths', () => {
+    expect(isReportedPagePath('/experience')).toBe(true)
+    expect(isReportedPagePath('/buy-cheap-pills.example')).toBe(false)
+    expect(isReportedPagePath('/experience/')).toBe(false)
+  })
+
+  it('schema rejects a report with a page outside the allowlist', () => {
+    const report = buildMockReport('7d')
+    const tampered = { ...report, pages: [...report.pages, { path: '/spam', views: 1 }] }
+    expect(VisitsReportSchema.safeParse(tampered).success).toBe(false)
   })
 })

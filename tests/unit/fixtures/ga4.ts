@@ -84,6 +84,8 @@ export function fakeRunReport(request: RunReportRequest): RunReportResponse {
         [['/en/skills'], [90]],
         [['/es/visits'], [40]],
         [['/es/education'], [30]],
+        [['/en/buy-cheap-pills.example'], [999]],
+        [['/es/visits?utm_source=spam'], [25]],
       ])
     case 'dayOfWeek,hour':
       return response(dims, metrics, [

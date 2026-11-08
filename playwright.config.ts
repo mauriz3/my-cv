@@ -2,7 +2,8 @@ import { defineConfig } from '@playwright/test'
 
 /** Accessibility audit (axe) on the generated site (`npm run generate`), served locally. */
 const PORT = 4173
-const BASE_URL = `http://localhost:${PORT}`
+/** Loopback only, as scripts/serve-static.mjs listens (SERVER_HOST). */
+const BASE_URL = `http://127.0.0.1:${PORT}`
 
 export default defineConfig({
   testDir: 'tests/a11y',
