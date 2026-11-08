@@ -1,7 +1,7 @@
 # Decisiones de arquitectura (ADR)
 
 Un ADR registra contexto, decisión y consecuencias; se actualiza en cada PR que tome una decisión nueva.
-Fechas del primer commit/PR verificable (Atlantic/Canary); base: `master` en `278043d` más la PR #55 (`6a306fb`).
+Fechas del primer commit/PR verificable (Atlantic/Canary); base: `master` tras fusionar la PR #55 (`902537f`).
 
 ## ADR-001 · Nuxt 4 estático en Netlify
 **2026-10-24 · Aceptada** · `be08b7f`, `11391be`.
@@ -40,10 +40,10 @@ Fechas del primer commit/PR verificable (Atlantic/Canary); base: `master` en `27
 - **Consecuencias:** Solo agregados públicos; indicar real/ejemplo; credenciales exclusivamente servidor.
 
 ## ADR-007 · Zod sin JIT
-**2026-11-07 · Propuesta (PR #55)** · `ae0f801` ([PR #55](https://github.com/mauriz3/my-cv/pull/55)).
+**2026-11-07 · Aceptada** · `ae0f801` ([PR #55](https://github.com/mauriz3/my-cv/pull/55)).
 - **Contexto:** Zod prueba `new Function` para compilar validadores; la CSP sin `unsafe-eval` lo bloquea y Lighthouse lo marca en buenas prácticas.
 - **Decisión:** `lib/zod.ts` aplica `z.config({ jitless: true })` y todo el código importa `z` desde ahí.
-- **Consecuencias:** No se relaja la CSP; validación algo más lenta, suficiente para estos datos. Aceptada al fusionar la PR #55.
+- **Consecuencias:** No se relaja la CSP; validación algo más lenta, suficiente para estos datos.
 
 ## ADR-008 · Consentimiento según país
 **2026-10-31 · Aceptada** · `bc57e89`, `c706d1a`.
@@ -76,13 +76,19 @@ Fechas del primer commit/PR verificable (Atlantic/Canary); base: `master` en `27
 - **Consecuencias:** Alternativa estática; contenido accesible sin animación.
 
 ## ADR-013 · Calidad ampliada en CI
-**2026-11-07 · Propuesta (PR #55)** · `ae0f801`, `ff47458` ([PR #55](https://github.com/mauriz3/my-cv/pull/55)).
+**2026-11-07 · Aceptada** · `ae0f801`, `ff47458` ([PR #55](https://github.com/mauriz3/my-cv/pull/55)).
 - **Contexto:** Typecheck, tests y audit no detectaban regresiones de accesibilidad, rendimiento ni código sin probar.
 - **Decisión:** En cada PR y push a master: cobertura bloqueante ≥80 % (líneas, sentencias, funciones y ramas) sobre el TS/JS propio, sin `.vue`; axe WCAG 2.2 A/AA falla con serious/critical; Lighthouse (mediana de 3) ≥0,85/0,95/0,90/0,95 (rendimiento/a11y/prácticas/SEO). axe y Lighthouse usan el artefacto de `verify`.
-- **Consecuencias:** `deploy-production` espera a `verify`, `secrets`, `a11y` y `lighthouse`; los `.vue` solo los cubren axe y Lighthouse. Aceptada al fusionar la PR #55.
+- **Consecuencias:** `deploy-production` espera a `verify`, `secrets`, `a11y` y `lighthouse`; los `.vue` solo los cubren axe y Lighthouse.
 
 ## ADR-014 · Tipos Node alineados
 **2026-11-05 · Aceptada** · `f4e21ed` ([PR #52](https://github.com/mauriz3/my-cv/pull/52)).
 - **Contexto:** Runtime Node 24.
 - **Decisión:** Dependabot ignora mayores de `@types/node`.
 - **Consecuencias:** Revisar manualmente al cambiar el runtime.
+
+## ADR-015 · Lighthouse con perfil de visita UE
+**2026-11-08 · Aceptada** · [PR #57](https://github.com/mauriz3/my-cv/pull/57).
+- **Contexto:** En producción, una primera visita desde la UE ve el aviso de analítica, que aparece tras hidratar y consultar `/geo` y pasa a ser el LCP; el job `lighthouse` del push a master falló por eso.
+- **Decisión:** El servidor de CI imita a Netlify (Brotli y `/geo` con la Edge Function real y país simulado). Dos perfiles en `lighthouserc.cjs`: visita fuera de la zona del aviso (US), con todos los umbrales bloqueantes; y primera visita UE (ES) con aviso, solo en push a master, donde a11y, buenas prácticas y SEO bloquean y el rendimiento solo avisa. Aprobado por Maurizio.
+- **Consecuencias:** El rendimiento con aviso queda visible sin bloquear el despliegue. Bajarlo exigiría rediseñar el aviso (prerenderizarlo visible y ocultarlo fuera de la UE, con riesgo de parpadeo); queda pendiente de decisión.

@@ -10,7 +10,7 @@
 ## Calidad y comandos
 - Usar Node 24 (`.nvmrc`), npm y el lockfile; instalar con `npm ci`.
 - CI obligatoria: typecheck, tests, cobertura ≥80 % en TS, axe y Lighthouse con umbrales, `npm run audit:check`.
-- Umbrales y configuración (PR #55): [calidad](docs/calidad.md). Axe falla con serious/critical; Lighthouse ≥0,85 rendimiento, ≥0,95 accesibilidad, ≥0,90 buenas prácticas y ≥0,95 SEO.
+- Umbrales y configuración: [calidad](docs/calidad.md). Axe falla con serious/critical; Lighthouse ≥0,85 rendimiento, ≥0,95 accesibilidad, ≥0,90 buenas prácticas y ≥0,95 SEO (en el perfil de visita UE con aviso, el rendimiento solo avisa: ADR-015).
 - Comandos: `npm run dev`, `npm run typecheck`, `npm run test`, `npm run coverage`, `npm run generate`, `npm run test:a11y`, `npm run lighthouse`, `npm run audit:check`, `npm run pdf`.
 - `generate` produce `.output/public` y hashes CSP; no omitir el posprocesado.
 
