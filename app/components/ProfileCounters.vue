@@ -130,7 +130,7 @@ const countersNote = computed(() =>
   font-size: clamp(1.5rem, 2.8vw, 1.875rem);
   font-weight: 700;
   line-height: 1.1;
-  color: var(--brand-vivid);
+  color: var(--ui-primary);
   font-variant-numeric: tabular-nums;
 }
 
@@ -149,7 +149,7 @@ const countersNote = computed(() =>
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--ui-text-muted) 82%, transparent);
+  color: var(--ui-text-muted);
 }
 
 .profile-stats__note {
