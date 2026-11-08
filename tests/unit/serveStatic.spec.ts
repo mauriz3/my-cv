@@ -3,7 +3,7 @@ import type { AddressInfo } from 'node:net'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { createStaticServer, parseHeadersFile } from '../../scripts/serve-static.mjs'
+import { acceptsBrotli, createStaticServer, parseHeadersFile } from '../../scripts/serve-static.mjs'
 
 const HEADERS_FILE = `/*
   X-Robots-Tag: noindex, nofollow
@@ -30,6 +30,7 @@ function createSite(): string {
   writeFileSync(join(root, 'api/visits/7d'), '{"range":"7d"}')
   writeFileSync(join(root, '_nuxt/app.js'), 'console.log(1)')
   writeFileSync(join(root, '_nuxt/builds/latest.json'), '{}')
+  writeFileSync(join(root, 'me.webp'), 'RIFF')
   return root
 }
 
@@ -48,12 +49,20 @@ describe('scripts/serve-static.mjs', () => {
     expect(nuxtAsset!.test('/_nuxt/builds/latest.json')).toBe(false)
   })
 
+  it('acepta Brotli solo si el cliente lo pide sin q=0', () => {
+    expect(acceptsBrotli('gzip, deflate, br')).toBe(true)
+    expect(acceptsBrotli('br;q=1.0, gzip;q=0.5')).toBe(true)
+    expect(acceptsBrotli('gzip, br;q=0')).toBe(false)
+    expect(acceptsBrotli('gzip')).toBe(false)
+    expect(acceptsBrotli()).toBe(false)
+  })
+
   describe('servidor', () => {
     let baseUrl = ''
     let server: Awaited<ReturnType<typeof createStaticServer>>
 
     beforeAll(async () => {
-      server = await createStaticServer(createSite())
+      server = await createStaticServer(createSite(), { geoCountry: 'FR' })
       await new Promise<void>((resolve) => server.listen(0, resolve))
       baseUrl = `http://localhost:${(server.address() as AddressInfo).port}`
     })
@@ -85,6 +94,28 @@ describe('scripts/serve-static.mjs', () => {
       expect((await fetch(`${baseUrl}/..%2F..%2F..%2Fetc%2Fpasswd`)).status).toBe(404)
     })
 
+    it('comprime el texto con Brotli como Netlify, no las imágenes', async () => {
+      const page = await fetch(`${baseUrl}/en`, { headers: { 'accept-encoding': 'br' } })
+      expect(page.headers.get('content-encoding')).toBe('br')
+      expect(page.headers.get('vary')).toBe('Accept-Encoding')
+      expect(await page.text()).toBe('<h1>Perfil</h1>') // fetch lo descomprime: Brotli válido
+      const plain = await fetch(`${baseUrl}/en`, { headers: { 'accept-encoding': 'identity' } })
+      expect(plain.headers.get('content-encoding')).toBeNull()
+      expect(await plain.text()).toBe('<h1>Perfil</h1>')
+      const image = await fetch(`${baseUrl}/me.webp`, { headers: { 'accept-encoding': 'br' } })
+      expect(image.headers.get('content-encoding')).toBeNull()
+      expect(image.headers.get('content-type')).toBe('image/webp')
+    })
+
+    it('/geo responde con la Edge Function y el país simulado', async () => {
+      const geo = await fetch(`${baseUrl}/geo`)
+      expect(geo.status).toBe(200)
+      expect(geo.headers.get('cache-control')).toBe('no-store')
+      expect(await geo.json()).toEqual({ country: 'FR' })
+      expect(await (await fetch(`${baseUrl}/geo`, { method: 'HEAD' })).text()).toBe('')
+      expect((await fetch(`${baseUrl}/geo`, { method: 'POST' })).status).toBe(405)
+    })
+
     it('HEAD devuelve las cabeceras sin cuerpo', async () => {
       const head = await fetch(`${baseUrl}/en`, { method: 'HEAD' })
       expect(head.status).toBe(200)
@@ -100,6 +131,7 @@ describe('scripts/serve-static.mjs', () => {
     const response = await fetch(`http://localhost:${(server.address() as AddressInfo).port}/`)
     expect(await response.text()).toBe('ok')
     expect(response.headers.get('content-security-policy')).toBeNull()
+    expect(await (await fetch(`http://localhost:${(server.address() as AddressInfo).port}/geo`)).json()).toEqual({ country: 'ES' })
     await new Promise<void>((resolve) => server.close(() => resolve()))
   })
 })

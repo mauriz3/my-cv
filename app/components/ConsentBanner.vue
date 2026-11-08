@@ -86,14 +86,14 @@ watch(isVisible, async (visible) => {
   "en": {
     "title": "Visit statistics",
     "text": "I use Google Analytics to count visits in aggregate (pages, country, device). No ads and no Google signals. If you accept, a measurement cookie is stored (_ga, up to 2 years); if you reject, none is stored.",
-    "moreInfo": "Learn more",
+    "moreInfo": "Privacy details",
     "accept": "Accept",
     "reject": "Reject"
   },
   "es": {
     "title": "Estadísticas de visitas",
     "text": "Uso Google Analytics para contar visitas de forma agregada (páginas, país, dispositivo). Sin publicidad ni señales de Google. Si aceptas, se guarda una cookie de medición (_ga, hasta 2 años); si rechazas, no se guarda ninguna.",
-    "moreInfo": "Más información",
+    "moreInfo": "Detalles de privacidad",
     "accept": "Aceptar",
     "reject": "Rechazar"
   }

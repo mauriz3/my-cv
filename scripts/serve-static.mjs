@@ -2,17 +2,26 @@
  * Servidor estático mínimo para las auditorías de CI (axe y Lighthouse) sobre `.output/public`.
  * Imita lo que importa de Netlify: `/ruta` → `ruta.html` o `ruta/index.html`, 404 con `404.html`
  * y las cabeceras de `_headers` (CSP incluida), así una CSP rota también se nota aquí.
+ * Comprime texto con Brotli como Netlify (sin ello Lighthouse mide varias veces más bytes que en producción)
+ * y responde `/geo` con la Edge Function real y un país simulado (GEO_COUNTRY, por defecto ES).
  * `X-Robots-Tag` no se envía: fuera de producción el build lo añade a propósito y Lighthouse lo
  * puntuaría como fallo de SEO; el artefacto de producción no lo lleva (lo comprueba deploy-production).
- * Uso: node scripts/serve-static.mjs [carpeta]   (puerto: PORT, por defecto 4173)
+ * Uso: node scripts/serve-static.mjs [carpeta]   (puerto: PORT, por defecto 4173; país de /geo: GEO_COUNTRY)
  */
 import { createServer } from 'node:http'
 import { readFile, stat } from 'node:fs/promises'
 import { extname, join, normalize } from 'node:path'
+import { brotliCompressSync } from 'node:zlib'
+import geo, { config as geoConfig } from '../netlify/edge-functions/geo.ts'
 import { isDirectRun } from './isDirectRun.mjs'
 
 const DEFAULT_ROOT = '.output/public'
 const DEFAULT_PORT = 4173
+/**
+ * País que devuelve `/geo` en local (la Edge Function real, con el país simulado). Por defecto España: el aviso
+ * de analítica aparece, como para las visitas de la UE/EEE en producción (el caso más exigente).
+ */
+const DEFAULT_GEO_COUNTRY = 'ES'
 const OMITTED_HEADERS = new Set(['x-robots-tag'])
 const CONTENT_TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -27,6 +36,17 @@ const CONTENT_TYPES = {
   '.woff2': 'font/woff2',
   '.pdf': 'application/pdf',
   '.txt': 'text/plain; charset=utf-8'
+}
+
+/** Tipos que Netlify sirve comprimidos (texto); imágenes, fuentes y PDF ya van comprimidos. */
+const COMPRESSIBLE_EXTENSIONS = new Set(['.html', '.js', '.css', '.json', '.svg', '.txt'])
+
+/** ¿Acepta el cliente Brotli? (`Accept-Encoding: gzip, deflate, br`, sin `br;q=0`). */
+export function acceptsBrotli(acceptEncoding = '') {
+  return acceptEncoding.split(',').some((part) => {
+    const [coding = '', ...params] = part.split(';').map((token) => token.trim())
+    return coding === 'br' && !params.includes('q=0')
+  })
 }
 
 /** `_headers` de Netlify: una línea de ruta y debajo, indentadas, sus cabeceras. */
@@ -66,15 +86,33 @@ async function resolveFile(root, urlPath) {
   return null
 }
 
-/** Servidor del sitio generado en `root` (sin escuchar todavía). */
-export async function createStaticServer(root) {
+/** `/geo` con la Edge Function de producción y el país simulado (sin borde de Netlify en local). */
+async function serveGeo(request, response, country) {
+  const geoResponse = geo(new Request('http://localhost/geo', { method: request.method }), { geo: { country: { code: country } } })
+  response.writeHead(geoResponse.status, Object.fromEntries(geoResponse.headers))
+  response.end(request.method === 'HEAD' ? undefined : await geoResponse.text())
+}
+
+/** Servidor del sitio generado en `root` (sin escuchar todavía). `geoCountry`: país que responde `/geo`. */
+export async function createStaticServer(root, { geoCountry = DEFAULT_GEO_COUNTRY } = {}) {
   const headerRules = parseHeadersFile(await readFile(join(root, '_headers'), 'utf8').catch(() => ''))
+  /** Brotli por fichero, una sola vez (el sitio generado no cambia mientras sirve). */
+  const compressed = new Map()
   return createServer(async (request, response) => {
     const urlPath = new URL(request.url ?? '/', 'http://localhost').pathname
+    if (urlPath === geoConfig.path) return serveGeo(request, response, geoCountry)
     const file = await resolveFile(root, urlPath)
     const servedFile = file ?? join(root, '404.html')
-    const body = await readFile(servedFile).catch(() => 'Not found')
+    let body = await readFile(servedFile).catch(() => Buffer.from('Not found'))
     response.setHeader('Content-Type', CONTENT_TYPES[extname(servedFile)] ?? 'application/octet-stream')
+    if (COMPRESSIBLE_EXTENSIONS.has(extname(servedFile))) {
+      response.setHeader('Vary', 'Accept-Encoding')
+      if (acceptsBrotli(request.headers['accept-encoding'])) {
+        body = compressed.get(servedFile) ?? brotliCompressSync(body)
+        compressed.set(servedFile, body)
+        response.setHeader('Content-Encoding', 'br')
+      }
+    }
     for (const rule of headerRules) {
       if (rule.pattern.test(urlPath)) for (const [name, value] of rule.headers) response.setHeader(name, value)
     }
@@ -86,6 +124,6 @@ export async function createStaticServer(root) {
 if (isDirectRun(import.meta.url)) {
   const root = process.argv[2] ?? DEFAULT_ROOT
   const port = Number(process.env.PORT ?? DEFAULT_PORT)
-  const server = await createStaticServer(root)
+  const server = await createStaticServer(root, { geoCountry: process.env.GEO_COUNTRY || DEFAULT_GEO_COUNTRY })
   server.listen(port, () => console.log(`Sirviendo ${root} en http://localhost:${port}`))
 }
