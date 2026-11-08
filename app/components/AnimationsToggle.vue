@@ -19,9 +19,11 @@ import { registerPulseStop, useAnimations } from '~/composables/useAnimations'
 const { t } = useI18n({ useScope: 'local' })
 const { motion, stored, prefersReducedMotion, toggle } = useAnimations()
 
-/** Vacío hasta montar: el primer render coincide con el HTML del servidor (el copy visible lo decide el CSS). */
-const label = ref('')
-const labelReady = ref(false)
+/**
+ * En el servidor y antes de hidratar vale el copy de OFF: el HTML arranca estático.
+ * Tras montar se alinea con el estado efectivo (también en EN).
+ */
+const label = ref(t('enable'))
 /** Vacío hasta la primera pulsación: así no se anuncia nada al cargar. */
 const announcement = ref('')
 /** Escape oculta el tooltip hasta salir del botón (WCAG 1.4.13). */
@@ -49,9 +51,7 @@ function syncLabel() {
   label.value = motion.value === 'full' ? t('disable') : t('enable')
 }
 
-watch(motion, () => {
-  if (labelReady.value) syncLabel()
-})
+watch(motion, syncLabel)
 
 function onClick() {
   toggle()
@@ -75,7 +75,6 @@ function rememberHint() {
 }
 
 onMounted(() => {
-  labelReady.value = true
   syncLabel()
   if (
     !shouldPulse({
@@ -114,7 +113,7 @@ onBeforeUnmount(stopHint)
       :class="{ 'animations-toggle--tooltip-off': isTooltipDismissed }"
       :style="hintStyle"
       :data-hint="hint ? '' : undefined"
-      :aria-label="label || undefined"
+      :aria-label="label"
       data-testid="animations-toggle"
       @click="onClick"
       @pointerenter="stopHint"
