@@ -1,7 +1,7 @@
 import { useReplayable } from './useReplayable'
 
 /**
- * Entrada animada de una página, una sola vez al montar si las animaciones están activas.
+ * Animated entry of a page, only once when riding if animations are active.
  * Al desactivar termina al momento. Al volver a activar, se repite una sola vez.
  */
 export function useEntranceOnce(durationMs: number) {

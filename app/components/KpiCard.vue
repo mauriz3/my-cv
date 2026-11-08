@@ -2,15 +2,15 @@
 import { changeDirection, type Trend } from '~~/lib/visits'
 
 /**
- * Cifra clave de Visitas: etiqueta, valor (cuenta hacia arriba al verse) y cambio frente al periodo anterior.
- * `loading`: mismas líneas con marcadores grises (el alto no cambia al llegar los datos).
+ * Key number of visits: label, value (count up when viewed) and change compared to the previous period.
+ * `loading`: same lines with grey markers (the height does not change when the data arrives).
  */
 defineProps<{
   loading: boolean
   label: string
   value: number
   format: (value: number) => string
-  /** Cambio frente al periodo anterior (número) y su texto ya formateado. */
+  /** Change compared to the previous period (number) and its already formatted text. */
   change: number
   changeText: string
   trend: Trend
@@ -19,7 +19,7 @@ defineProps<{
 
 const { t } = useI18n()
 
-/** La flecha dice hacia dónde va; el color, si es bueno (en el rebote, bajar es bueno). */
+/** The arrow says where it's going; the color, if it's good (on the bounce, going down is good). */
 const DIRECTION_ICONS = { up: 'i-lucide-arrow-up-right', down: 'i-lucide-arrow-down-right', flat: 'i-lucide-minus' }
 </script>
 
@@ -30,7 +30,7 @@ const DIRECTION_ICONS = { up: 'i-lucide-arrow-up-right', down: 'i-lucide-arrow-d
       <span v-if="loading" class="skeleton inline-block h-[1em] w-24 rounded align-middle" />
       <AnimatedNumber v-else :value="value" :format="format" animate />
     </p>
-    <!-- Cambio y comparación en líneas propias: el alto es el mismo con datos y sin ellos. -->
+    <!-- Change and comparison in own lines: the height is the same with data and without them. -->
     <p class="mt-1 text-xs">
       <span v-if="loading" class="skeleton inline-block h-[1em] w-12 rounded align-middle" />
       <span v-else class="inline-flex items-center gap-1 font-medium tabular-nums" :class="`kpi-trend--${trend}`">

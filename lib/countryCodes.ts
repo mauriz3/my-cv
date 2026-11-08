@@ -1,6 +1,6 @@
 /**
- * ISO 3166-1 alfa-2 → numérico (el `id` de los países en world-atlas `countries-110m.json`).
- * Solo los países que dibuja ese mapa (fuente: lukes/ISO-3166-Countries-with-Regional-Codes).
+ * ISO 3166-1 alpha-2 → numeric (country `id` in world-atlas `countries-110m.json`).
+ * Only countries drawn on that map (source: lukes/ISO-3166-Countries-with-Regional-Codes).
  */
 const ALPHA2_TO_NUMERIC_PAIRS = `
   AF:004 AL:008 DZ:012 AO:024 AQ:010 AR:032 AM:051 AU:036 AT:040 AZ:031 BS:044 BD:050

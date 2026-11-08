@@ -2,28 +2,28 @@ import { describe, expect, it } from 'vitest'
 import { absoluteUrl, pointHeadToCanonical, SITE_ORIGIN, SOCIAL_IMAGE, socialImageMeta } from '../../lib/socialMeta'
 
 describe('absoluteUrl', () => {
-  it('resuelve rutas contra el dominio de producción', () => {
+  it('resolves paths against the production domain', () => {
     expect(absoluteUrl('/og-cv.png')).toBe('https://www.mauriziorendon.com/og-cv.png')
     expect(absoluteUrl('/es/visits')).toBe(`${SITE_ORIGIN}/es/visits`)
   })
 
-  it('acepta otro origen', () => {
+  it('accepts another origin', () => {
     expect(absoluteUrl('/en', 'https://deploy-preview-1--x.netlify.app')).toBe('https://deploy-preview-1--x.netlify.app/en')
   })
 })
 
 describe('socialImageMeta', () => {
-  it('da imagen absoluta 1200×630 PNG con el mismo texto alternativo en Open Graph y Twitter', () => {
-    const meta = socialImageMeta('Texto alternativo')
+  it('yields absolute 1200×630 PNG with the same alt text on Open Graph and Twitter', () => {
+    const meta = socialImageMeta('Alternative text')
     expect(meta).toEqual({
       ogImage: 'https://www.mauriziorendon.com/og-cv.png',
       ogImageWidth: 1200,
       ogImageHeight: 630,
       ogImageType: 'image/png',
-      ogImageAlt: 'Texto alternativo',
+      ogImageAlt: 'Alternative text',
       twitterCard: 'summary_large_image',
       twitterImage: 'https://www.mauriziorendon.com/og-cv.png',
-      twitterImageAlt: 'Texto alternativo'
+      twitterImageAlt: 'Alternative text'
     })
     expect(SOCIAL_IMAGE.width / SOCIAL_IMAGE.height).toBeCloseTo(1.905, 2)
   })
@@ -42,7 +42,7 @@ describe('pointHeadToCanonical', () => {
     ]
   }
 
-  it('canonical y og:url apuntan a la página canónica, sin hreflang; og:locale se mantiene', () => {
+  it('canonical and og:url point at the canonical page, no hreflang; og:locale unchanged', () => {
     expect(pointHeadToCanonical(head, 'https://x.test/en')).toEqual({
       link: [{ id: 'i18n-can', rel: 'canonical', href: 'https://x.test/en' }],
       meta: [
@@ -52,7 +52,7 @@ describe('pointHeadToCanonical', () => {
     })
   })
 
-  it('acepta una cabecera sin etiquetas', () => {
+  it('accepts a head with no tags', () => {
     expect(pointHeadToCanonical({}, 'https://x.test/en')).toEqual({ link: [], meta: [] })
   })
 })

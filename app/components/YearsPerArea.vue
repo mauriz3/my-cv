@@ -2,8 +2,8 @@
 import { yearsInPeriods } from '~~/lib/years'
 
 /**
- * Panel «Years per area»: una barra por área con sus años calculados desde las fechas.
- * Las áreas que ya terminaron (p. ej. DevOps) se muestran atenuadas.
+ * Years per area panel: one bar per area with its years calculated from the dates.
+ * Areas that have already been completed (e.g. DevOps) are shown as dimmed.
  */
 const { t, locale } = useI18n({ useScope: 'local' })
 const cv = useCv()

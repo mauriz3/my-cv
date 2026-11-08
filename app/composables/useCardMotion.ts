@@ -29,11 +29,11 @@ import {
 import { mobileCardStateAt } from '~~/lib/mobileJourney'
 import { useReplayable } from './useReplayable'
 
-/** Avance (0–1) de los contadores de Profile; sin recorrido (u otra página) no se inyecta y cuentan solos. */
+/** Advance (0–1) of Profile counters; no stroke (or other page) is not injected and counts alone. */
 export const PROFILE_COUNT_KEY: InjectionKey<Readonly<Ref<number>>> = Symbol('profile-count')
 
 const CARD_SELECTOR = '[data-point-index]'
-/** Marca de tarjeta a mitad de animación: solo entonces lleva `will-change`. */
+/** Card mark halfway through animation: only then does it carry `will-change`. */
 const ACTIVE_ATTRIBUTE = 'data-fx-active'
 const WIDE_PIN_QUERY = '(min-width: 768px)'
 
@@ -44,10 +44,10 @@ interface LiveFrame {
 }
 
 /**
- * Microanimaciones de las tarjetas del recorrido, en el mismo rAF que el holograma (`useJourney`
- * llama a `paint` en cada fotograma con la sección en pantalla). Para cada tarjeta calcula p (lib/cardMotion)
- * según la maqueta (pin de escritorio/tablet, pin móvil o flujo) y escribe sus variables `--fx-*` solo si
- * p cambia. Con animaciones apagadas no escribe nada y quita lo escrito: el CSS pinta el estado final.
+ * Microanimations of the tour cards, in the same rAF as the hologram (`useJourney`
+ * calls` paint `in each frame with the on-screen section). For each card calculate p (lib/cardMotion)
+ * depending on the mockup (desktop/tablet pin, mobile pin or flow) and write its variables` --fx-* `only if
+ * p changes. With off animations, it does not write anything and removes what is written: the CSS paints the final state.
  * Al activar, las tarjetas visibles hacen un catch-up de 0 a su p real en 450 ms, sin mover el scroll.
  */
 export function useCardMotion(
@@ -55,7 +55,7 @@ export function useCardMotion(
   sectionRef?: Readonly<Ref<HTMLElement | null>>,
 ) {
   const { motion } = useMotion()
-  /** 1 en el servidor y sin animación: los contadores muestran el valor final. */
+  /** 1 on the server and without animation: the counters show the final value. */
   const profileCount = ref(1)
   const lastProgress = new Map<number, number>()
   const catchingIndexes = new Set<number>()
@@ -178,7 +178,7 @@ export function useCardMotion(
     catchFrame = requestAnimationFrame(step)
   }
 
-  /** Animaciones apagadas: estado final al momento, sin variables ni marcas. */
+  /** Animations off: final state at the moment, without variables or marks. */
   function reset(section: HTMLElement | null) {
     cancelCatchUpFrame()
     catchingUp = false

@@ -4,20 +4,20 @@ import { defineConfig } from 'vitest/config'
 
 const ROOT_DIR = fileURLToPath(new URL('.', import.meta.url))
 
-/** Mínimo exigido en las cuatro métricas de cobertura (líneas, sentencias, funciones y ramas). */
+/** Minimum required on all four coverage metrics (lines, statements, functions, branches). */
 const COVERAGE_THRESHOLD_PERCENT = 80
 
 export default defineConfig({
   test: {
     projects: [
-      // Lógica pura, datos, funciones de Netlify y scripts: Node, sin Nuxt.
-      // `~~` (raíz) como en Nuxt, para la ruta de Nitro de `server/`.
+      // Pure logic, data, Netlify functions, and scripts: Node, no Nuxt.
+      // `~~` (root) as in Nuxt, for Nitro's `server/` path.
       { resolve: { alias: { '~~': ROOT_DIR } }, test: { name: 'unit', include: ['tests/unit/**/*.spec.ts'], environment: 'node' } },
-      // Composables y utilidades de `app/`: entorno Nuxt (@nuxt/test-utils, happy-dom) con auto-imports e i18n.
+      // `app/` composables and utils: Nuxt env (@nuxt/test-utils, happy-dom) with auto-imports and i18n.
       await defineVitestProject({ test: { name: 'nuxt', include: ['tests/nuxt/**/*.spec.ts'], environment: 'nuxt' } })
     ],
-    // `npm run coverage`. Cuenta todo el código propio en TS/JS, lo carguen los tests o no. Los `.vue`
-    // (componentes y páginas) aún no entran: los cubren axe/Playwright y tendrán sus tests en otra PR.
+    // `npm run coverage`. Counts all owned TS/JS whether tests load it or not. `.vue`
+    // files (components and pages) are not included yet: axe/Playwright cover them; unit tests land in another PR.
     coverage: {
       provider: 'v8',
       include: ['app/{composables,utils}/**/*.ts', '{lib,data,server,netlify,scripts}/**/*.{ts,mjs}'],

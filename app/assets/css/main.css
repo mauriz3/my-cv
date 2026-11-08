@@ -3,7 +3,7 @@
 @import '@fontsource-variable/inter';
 @import '@fontsource-variable/space-grotesk';
 
-/* Escala propia «graphite» (neutrales, afinada para el modo editor). Fuente: paleta v2 de Disañador. */
+/* Graphite own scale (neutral, fine-tuned for editor mode). Source: Disconnector v2 palette. */
 @theme {
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Space Grotesk Variable', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
@@ -20,7 +20,7 @@
   --color-graphite-900: #161b22;
   --color-graphite-950: #0d1117;
 
-  /* Medidas de la navegación (Figma): sidebar en escritorio, raíl en tablet. */
+  /* Navigation measurements (Figma): sidebar on desktop, rail on tablet. */
   --size-sidebar: 264px;
   --size-rail: 88px;
   --size-bottom-bar: 64px;
@@ -28,7 +28,7 @@
 
 /*
  * Escala «brand» azul (Tanda C): 700 = brand claro, 400 = brand oscuro, 500 = vivid, 800 / 300 = hover.
- * `static`: Nuxt UI la referencia en tiempo de ejecución (primary), así Tailwind no la recorta.
+ * `static`: Nuxt UI the reference at runtime (primary), so Tailwind does not trim it.
  */
 @theme static {
   --color-brand-50: #e6f6fd;
@@ -44,7 +44,7 @@
   --color-brand-950: #0b2a3a;
 }
 
-/* Sidebar colapsado (solo escritorio): `<html class="sidebar-collapsed">` lo pone el script anterior al pintado. */
+/* Collapsed sidebar (desktop only): `<html class="sidebar-collapsed">` is set by the script before the painting. */
 @custom-variant collapsed (&:where(.sidebar-collapsed, .sidebar-collapsed *));
 
 :root {
@@ -64,9 +64,9 @@
   --brand-hover: var(--color-brand-800);
   --brand-soft: var(--color-brand-50);
   --brand-vivid: var(--color-brand-500);
-  /* Ámbar de acento (destellos, hitos, cursor de las escenas del recorrido y serie 2 de las gráficas). */
+  /* Accent amber (flashes, milestones, cursor of the scenes of the tour and series 2 of the graphs). */
   --accent: #b45309;
-  /* Puntos del recorrido y escala secuencial (mapa/heatmap): ≥ 3:1 sobre la superficie (revisión final). */
+  /* Route points and sequential scale (map/heatmap): ≥ 3:1 on the surface (final revision). */
   --marker-current: var(--color-brand-600);
   --marker-pending: var(--color-graphite-400);
   --chart-sequential: var(--color-brand-700);
@@ -121,11 +121,10 @@ h3 {
 }
 
 /*
- * Animaciones apagadas (`data-motion="reduced"`, el valor por defecto y también con prefers-reduced-motion
- * al cargar). Saltan a su estado final (0,01 ms para que `fill-mode` lo deje) y solo se permiten las
- * transiciones de color y sombra del hover. Sin transiciones de posición, tamaño u opacidad: el cambio
- * de maqueta al desactivar se ve y se mide en el mismo fotograma.
- * El pulso del botón (`.animations-toggle[data-hint]` y su `::after`) es la excepción: su regla es más específica.
+ * Animations off (`data-motion="reduced"`, the default value and also with prefers-reduced-motion
+ * on load). Jump to final state (0.01ms so `fill-mode` applies) with only hover color and shadow
+ * transitions allowed. No position, size, or opacity transitions: toggling motion is visible and measurable in one frame.
+ * The pulse of the button (`.animations-toggle [data-hint]` and its`::after `) is the exception: its rule is more specific.
  */
 :root[data-motion='reduced'] *,
 :root[data-motion='reduced'] *::before,
@@ -150,8 +149,8 @@ h3 {
 }
 
 /*
- * Halo de llamada a la acción: el mismo `::after` para el CTA de Visitas y el pulso de animaciones.
- * 4 px por fuera del botón, detrás del relleno. Cada uno concreta el color y la animación.
+ * Call to action halo: the same `::after` for the Visits CTA and the animation pulse.
+ * 4 px outside the button, behind the padding. Each one specifies the color and animation.
  */
 .cta-halo {
   position: relative;
@@ -168,10 +167,10 @@ h3 {
   pointer-events: none;
 }
 
-/* ---------- Visitas: entrada escalonada de tarjetas · marcador de carga compartido (visitas y libros) ---------- */
+/* ---------- Visits: staggered card entry · shared load marker (visits and books) ---------- */
 
-/* Solo con movimiento completo y mientras la página entra (`data-entering`, useEntranceOnce): con «reducido» las tarjetas
- * ya están en su sitio y, al reanudar, la entrada no se repite. */
+/* Only with full movement and while the page is entering (`data-entering`, useEntranceOnce): with "reduced" cards
+ * are already in place and, when resuming, the entry is not repeated.
 :root[data-motion='full'] [data-entering] .visits-card {
   animation: visits-card-in var(--enter-ms) cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: calc(var(--stagger, 0) * var(--stagger-ms));

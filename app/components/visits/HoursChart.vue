@@ -6,7 +6,7 @@ import { heatAlpha, withAlpha, type VisitsReport } from '~~/lib/visits'
 
 ChartJS.register(MatrixController, MatrixElement, CategoryScale, Tooltip, finishAnimationsWhenDisabled)
 
-/** Mapa de calor día × franja de 3 h (escala secuencial del azul vivo). */
+/** Heat map day × 3 h strip (sequential scale of bright blue). */
 const props = defineProps<{ hours: VisitsReport['hours'] }>()
 
 const DRAW_DURATION_MS = 600
@@ -110,7 +110,7 @@ const summary = computed(() => {
         :aria-label="summary"
       />
     </div>
-    <!-- Escala de color (de menos a más visitas). -->
+    <!-- Color scale (from fewer to more visits). -->
     <p class="flex min-h-9 items-center justify-center gap-2 text-xs text-muted" aria-hidden="true">
       {{ t('visits.hours.less') }}
       <span

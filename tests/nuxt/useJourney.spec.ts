@@ -7,10 +7,10 @@ import { FakeIntersectionObserver, setBox, stubIntersectionObserver, withSetup }
 
 const VIEWPORT_HEIGHT = 800
 const SECTION_HEIGHT = 8800
-/** Un fotograma (rAF) con temporizadores falsos. */
+/** One animation frame (rAF) with fake timers. */
 const FRAME_MS = 20
 
-/** Recorrido con una tarjeta por punto; el primer hijo es el escenario (sticky en la maqueta fijada). */
+/** Journey with one card per point; first child is the stage (sticky in pinned layout). */
 function journeySection() {
   const section = document.createElement('section')
   const stage = document.createElement('div')
@@ -26,20 +26,20 @@ function journeySection() {
   return { section, stage }
 }
 
-/** Top de la sección para un progreso del recorrido. */
+/** Section top for a given journey progress. */
 const topAt = (progress: number) => -progress * (SECTION_HEIGHT - VIEWPORT_HEIGHT)
 
-/** Primer progreso en el que el holograma camina entre dos puntos. */
+/** First progress value where the hologram walks between two points. */
 function firstWalkingProgress(): number {
   const steps = 1000
   const step = Array.from({ length: steps }, (_, index) => index / steps).find(
     (progress) => journeyStateAt(progress).phase === 'walk'
   )
-  if (step === undefined) throw new Error('Sin tramo de caminar')
+  if (step === undefined) throw new Error('No walk segment')
   return step
 }
 
-/** Coloca la sección en la ventana (top relativo) y dispara el scroll. */
+/** Positions the section in the viewport (relative top) and fires scroll. */
 async function scrollTo(section: HTMLElement, top: number) {
   setBox(section, { top, height: SECTION_HEIGHT })
   window.dispatchEvent(new Event('scroll'))
@@ -68,14 +68,14 @@ describe('useJourney', () => {
     return { ...result, section, stage, isMobilePinned, wrapper, observer: FakeIntersectionObserver.last() }
   }
 
-  it('fuera de pantalla no hace nada con el scroll', async () => {
+  it('off-screen, scroll does nothing', async () => {
     const { section, state } = await mountJourney()
     await scrollTo(section, -4000)
     expect(section.style.getPropertyValue('--journey-position')).toBe('')
     expect(state.value.pointIndex).toBe(0)
   })
 
-  it('en pantalla, cada scroll pinta en el siguiente fotograma la posición y el estado del recorrido', async () => {
+  it('on-screen, each scroll paints journey position and state on the next frame', async () => {
     const onFrame = vi.fn<(element: HTMLElement, state: JourneyState, progress: number) => void>()
     const { section, state, isOnScreen, observer } = await mountJourney({ onFrame })
     observer.intersect(true)
@@ -91,7 +91,7 @@ describe('useJourney', () => {
     expect(onFrame).toHaveBeenLastCalledWith(section, expect.objectContaining({ pointIndex: expected.pointIndex }), progress)
   })
 
-  it('la zancada avanza solo mientras se hace scroll', async () => {
+  it('step advances only while scrolling', async () => {
     const { section, isStepping, observer } = await mountJourney()
     observer.intersect(true)
     await scrollTo(section, topAt(firstWalkingProgress()))
@@ -100,7 +100,7 @@ describe('useJourney', () => {
     expect(isStepping.value).toBe(false)
   })
 
-  it('con el pin móvil escribe las variables del fotograma y el dibujo de Visitas', async () => {
+  it('with mobile pin, writes frame variables and Visits draw', async () => {
     const { section, visitsDraw, observer } = await mountJourney({ mobilePinned: true })
     observer.intersect(true)
     await scrollTo(section, -(SECTION_HEIGHT - VIEWPORT_HEIGHT))
@@ -110,14 +110,14 @@ describe('useJourney', () => {
     expect(frame.state.pointIndex).toBe(LAST_POINT_INDEX)
   })
 
-  it('sabe si la pestaña está oculta', async () => {
+  it('tracks whether the tab is hidden', async () => {
     const { isPageHidden } = await mountJourney()
     vi.spyOn(document, 'hidden', 'get').mockReturnValue(true)
     document.dispatchEvent(new Event('visibilitychange'))
     expect(isPageHidden.value).toBe(true)
   })
 
-  it('revealLastPoint lleva al final del recorrido solo con el escenario fijado', async () => {
+  it('revealLastPoint scrolls to journey end only when stage is pinned', async () => {
     const scrollToSpy = vi.fn()
     vi.stubGlobal('scrollTo', scrollToSpy)
     const { section, stage, revealLastPoint } = await mountJourney()
@@ -130,7 +130,7 @@ describe('useJourney', () => {
     expect(scrollToSpy).toHaveBeenCalledWith({ top: window.scrollY + 100 + SECTION_HEIGHT - VIEWPORT_HEIGHT, behavior: 'instant' })
   })
 
-  it('al pausar el movimiento a mitad deja a la vista la tarjeta del punto actual', async () => {
+  it('when pausing motion mid-scroll, scrolls current point card into view', async () => {
     const { section, state, observer } = await mountJourney()
     observer.intersect(true)
     await scrollTo(section, -readingProgressOf(2) * (SECTION_HEIGHT - VIEWPORT_HEIGHT))
@@ -143,7 +143,7 @@ describe('useJourney', () => {
     expect(card.scrollIntoView).toHaveBeenCalledWith({ block: 'center', behavior: 'instant' })
   })
 
-  it('al reanudar vuelve al punto de lectura de esa tarjeta si sigue a la vista', async () => {
+  it('on resume, restores that card’s read scroll position if still in view', async () => {
     const scrollToSpy = vi.fn()
     vi.stubGlobal('scrollTo', scrollToSpy)
     const { section, observer } = await mountJourney()
@@ -164,7 +164,7 @@ describe('useJourney', () => {
     })
   })
 
-  it('al reanudar sin la tarjeta pausada a la vista, va a la tarjeta más centrada', async () => {
+  it('on resume without paused card in view, scrolls to most centered card', async () => {
     const scrollToSpy = vi.fn()
     vi.stubGlobal('scrollTo', scrollToSpy)
     useMotion().set('reduced')
@@ -181,7 +181,7 @@ describe('useJourney', () => {
     })
   })
 
-  it('al desmontar deja de escuchar el scroll y de observar', async () => {
+  it('on unmount, stops listening to scroll and observing', async () => {
     const { section, wrapper, observer } = await mountJourney()
     observer.intersect(true)
     wrapper.unmount()

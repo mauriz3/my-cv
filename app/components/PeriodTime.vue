@@ -3,8 +3,8 @@ import { durationOf, formatDuration } from '~~/lib/duration'
 import { formatPartialDate, isSingleDate, type Period } from '~~/lib/period'
 
 /**
- * Periodo con `<time>` y fechas según el idioma activo. `end: null` = «Present / Actualidad».
- * Con `showDuration` añade entre paréntesis la duración (meses si es menos de un año; años si es más).
+ * Period with `<time>` and dates according to the active language. `end: null` = `Present / Actualidad'.
+ * With `showDuration` add the duration in parentheses (months if less than one year; years if more).
  */
 const props = defineProps<{ period: Period; showDuration?: boolean }>()
 const { t, locale } = useI18n()

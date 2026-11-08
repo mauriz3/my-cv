@@ -13,7 +13,7 @@ import { withAlpha, type VisitsReport } from '~~/lib/visits'
 
 ChartJS.register(PolarAreaController, ArcElement, RadialLinearScale, Tooltip, finishAnimationsWhenDisabled)
 
-/** Fuentes de tráfico (área polar, sin marcas en el eje radial). */
+/** Traffic sources (polar area, no marks on radial axis). */
 const props = defineProps<{ sources: VisitsReport['sources'] }>()
 
 const DRAW_DURATION_MS = 800

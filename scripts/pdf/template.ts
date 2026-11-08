@@ -1,4 +1,4 @@
-/** HTML semántico de una columna (h1/h2/h3, listas) para imprimir el CV con Chromium. */
+/** Semantic single-column HTML (h1/h2/h3, lists) to print the CV with Chromium. */
 import { formatPdfPeriod, type PdfContent, type PdfLink, type PdfPeriod } from './content'
 
 const HTML_ESCAPES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }
@@ -23,7 +23,7 @@ const renderHeader = (content: PdfContent) => `
     </ul>
   </header>`
 
-/** Línea «Empresa · lugar · fechas»; omite las partes que no existan. */
+/** «Company · location · dates» line; omits missing parts. */
 const renderMeta = (organization: string, location: string | undefined, period: PdfPeriod, content: PdfContent) => {
   const parts = [`<span class="cv-org">${escapeHtml(organization)}</span>`]
   if (location) parts.push(escapeHtml(location))
@@ -61,7 +61,7 @@ const renderLanguages = (content: PdfContent) =>
 const renderProjects = (content: PdfContent) => content.projects.map((item) =>
   `<p class="cv-row"><span class="cv-row-label">${escapeHtml(item.title)}</span>${PROJECT_SEPARATOR}${escapeHtml(item.description)} ${renderLink(item)}</p>`).join('')
 
-/** Pie «Maurizio Rendon · CV · Page X of Y» con márgenes de @page (Chrome ≥ 131). */
+/** Footer «Maurizio Rendon · CV · Page X of Y» with @page margins (Chrome ≥ 131). */
 const renderFooterStyle = ({ footer }: PdfContent) => `
   <style>
     @page { @bottom-center {
@@ -70,7 +70,7 @@ const renderFooterStyle = ({ footer }: PdfContent) => `
     } }
   </style>`
 
-/** `stylesheetHref`: URL del CSS de impresión (las fuentes se resuelven relativas a él). */
+/** `stylesheetHref`: print CSS URL (fonts resolve relative to it). */
 export function renderCvHtml(content: PdfContent, stylesheetHref: string): string {
   const { headings } = content
   return `<!doctype html>

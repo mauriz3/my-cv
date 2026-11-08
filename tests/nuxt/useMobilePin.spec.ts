@@ -10,7 +10,7 @@ function setHeight(element: HTMLElement, property: 'offsetHeight' | 'clientHeigh
   Object.defineProperty(element, property, { configurable: true, value })
 }
 
-/** Recorrido con su zona de tarjetas y una tarjeta de la altura pedida. */
+/** Journey section with card zone and a card at the requested height. */
 function journeySection(cardHeight: number) {
   const section = document.createElement('section')
   const zone = document.createElement('div')
@@ -34,7 +34,7 @@ describe('useMobilePin', () => {
     document.documentElement.removeAttribute(MOTION_ATTRIBUTE)
   })
 
-  it('fija el recorrido en un móvil con movimiento si las tarjetas caben en su zona', async () => {
+  it('pins journey on mobile with motion when cards fit their zone', async () => {
     stubMatchMedia({ [MOBILE_PIN_QUERY]: true })
     const { section } = journeySection(ZONE_HEIGHT)
     const { result } = await withSetup(() => useMobilePin(ref(section)))
@@ -42,7 +42,7 @@ describe('useMobilePin', () => {
     expect(section.hasAttribute('data-cards-fit')).toBe(false)
   })
 
-  it('si una tarjeta no cabe vuelve a la versión estática y lo marca para el CSS', async () => {
+  it('when a card does not fit, falls back to static and sets CSS marker', async () => {
     stubMatchMedia({ [MOBILE_PIN_QUERY]: true })
     const { section } = journeySection(ZONE_HEIGHT + 1)
     const { result } = await withSetup(() => useMobilePin(ref(section)))
@@ -50,7 +50,7 @@ describe('useMobilePin', () => {
     expect(section.getAttribute('data-cards-fit')).toBe('false')
   })
 
-  it('sigue a la ventana: al salir del tamaño móvil deja de fijar; al volver, mide de nuevo', async () => {
+  it('follows viewport: unpins when leaving mobile size; remeasures when returning', async () => {
     const media = stubMatchMedia({ [MOBILE_PIN_QUERY]: false })
     const { section, card } = journeySection(ZONE_HEIGHT)
     const { result, wrapper } = await withSetup(() => useMobilePin(ref(section)))
@@ -66,7 +66,7 @@ describe('useMobilePin', () => {
     expect(media.listenerCount(MOBILE_PIN_QUERY)).toBe(0)
   })
 
-  it('con movimiento reducido no fija; al reanudar vuelve a medir', async () => {
+  it('with reduced motion, does not pin; remeasures when motion resumes', async () => {
     stubMatchMedia({ [MOBILE_PIN_QUERY]: true })
     const { section } = journeySection(ZONE_HEIGHT)
     const { result } = await withSetup(() => useMobilePin(ref(section)))

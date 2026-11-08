@@ -1,7 +1,7 @@
 <script setup lang="ts" generic="Value extends string">
 /**
- * Control segmentado de una sola elección (radiogroup): clic, o flechas / Inicio / Fin con el foco dentro.
- * La píldora del seleccionado se desliza (200 ms; sin transición con movimiento reducido).
+ * Segmented control of a single choice (radiogroup): click, or arrows / Start / End with the focus inside.
+ * The selected pill slides (200 ms; no transition with reduced movement).
  */
 const props = defineProps<{ options: readonly { value: Value; label: string }[]; label: string }>()
 const model = defineModel<Value>({ required: true })

@@ -7,11 +7,11 @@ import { buildMockReport } from '../../lib/visitsMock'
 import { VISITS_SNAPSHOT_VERSION } from '../../lib/visitsSnapshot'
 
 const ROUTE = '/api/visits/:range'
-/** Ruta en variable: usa auto-imports de Nitro que el typecheck de los tests no conoce (aquí se simulan con h3). */
+/** Dynamic route: Nitro auto-imports that unit typecheck does not know (simulated here with h3). */
 const ROUTE_MODULE = '../../server/api/visits/[range].get'
 const ORIGIN = 'http://localhost'
 
-/** Carga la ruta de Nitro con las utilidades de h3 que Nitro auto-importa y la monta en una app h3. */
+/** Loads the Nitro route with h3 utilities Nitro auto-imports and mounts it on an h3 app. */
 async function visitsRoute(snapshotFile?: string) {
   vi.resetModules()
   vi.stubGlobal('defineEventHandler', defineEventHandler)
@@ -24,19 +24,19 @@ async function visitsRoute(snapshotFile?: string) {
   return (path: string) => handle(new Request(`${ORIGIN}${path}`))
 }
 
-describe('ruta Nitro GET /api/visits/:range', () => {
+describe('Nitro GET /api/visits/:range', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
     vi.unstubAllEnvs()
   })
 
-  it('sin instantánea local responde el mock del rango (lo que se prerrenderiza)', async () => {
+  it('without local snapshot returns range mock (what prerender uses)', async () => {
     const response = await (await visitsRoute())('/api/visits/30d')
     expect(response.status).toBe(200)
     expect(await response.json()).toEqual(buildMockReport('30d'))
   })
 
-  it('con VISITS_SNAPSHOT_FILE sirve el informe de ese fichero', async () => {
+  it('with VISITS_SNAPSHOT_FILE serves report from that file', async () => {
     const file = join(mkdtempSync(join(tmpdir(), 'visits-route-')), 'snapshot.json')
     const report = { ...buildMockReport('7d'), sample: false }
     writeFileSync(file, JSON.stringify({ version: VISITS_SNAPSHOT_VERSION, updatedAt: report.generatedAt, reports: { '7d': report } }))
@@ -44,7 +44,7 @@ describe('ruta Nitro GET /api/visits/:range', () => {
     expect((await response.json()).sample).toBe(false)
   })
 
-  it('404 en rangos desconocidos', async () => {
+  it('404 for unknown ranges', async () => {
     const response = await (await visitsRoute())('/api/visits/1y')
     expect(response.status).toBe(404)
   })

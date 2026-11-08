@@ -6,17 +6,17 @@ const MAIN_CSS = readFileSync(new URL('../../app/assets/css/main.css', import.me
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/
 
 describe('scripts/og-image.mjs', () => {
-  it('lee los azules de la marca de main.css', () => {
+  it('reads brand blues from main.css', () => {
     const palette = brandPalette(MAIN_CSS)
     for (const color of Object.values(palette)) expect(color).toMatch(HEX_COLOR)
     expect(palette.brand).toBe(brandColor(MAIN_CSS, 700))
   })
 
-  it('falla si main.css pierde un token de marca', () => {
+  it('fails if main.css loses a brand token', () => {
     expect(() => brandColor('--color-brand-700: #123456;', 900)).toThrow('--color-brand-900')
   })
 
-  it('compone la imagen con nombre, titular y dominio, sin datos de contacto', () => {
+  it('composes the image with name, headline, and domain, without contact data', () => {
     const palette = { brand: '#111111', brandDeep: '#222222', brandSoft: '#333333', brandAccent: '#444444' }
     const html = ogImageHtml(palette)
     expect(html).toContain('<h1>Maurizio Rendon</h1>')

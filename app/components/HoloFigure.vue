@@ -1,8 +1,8 @@
 <script setup lang="ts">
 /**
  * Holograma de cuerpo entero (SVG inline, decorativo): pelo negro de punta, piel morena y camisa azul vivo,
- * translúcido, con scanlines y base de proyección con cono de luz.
- * Piernas y brazos son `<g>` con `transform-box: fill-box` (origen en cadera y hombro) para caminar y señalar.
+ * translucent, with scanlines and projection base with light cone.
+ * Legs and arms are `<g>` with `transform-box: fill-box` (origin at hip and shoulder) for walking and pointing.
  * Estados (solo CSS, con `<html data-motion="full">`): flicker siempre · `walking` (ciclo de 4 frames, en pausa)
  * · `stepping` (el ciclo avanza) · `pointing` (brazo derecho a −100°) · `breathing` (±3 px) · `paused` (todo quieto).
  * Sin JS o con movimiento reducido: estable, opacidad 0,85 y sin animar.
@@ -204,7 +204,7 @@ defineProps<{ walking?: boolean; stepping?: boolean; pointing?: boolean; breathi
   transform: rotate(var(--holo-point-angle));
 }
 
-/* Caminar: el ciclo está en pausa y solo avanza mientras hay scroll (`stepping`). */
+/* Walking: the cycle is paused and only moves forward while there is scrolling (`stepping`). */
 :root[data-motion='full'] .holo--walking .holo__leg--left {
   animation: holo-leg-left var(--walk-cycle-duration, 800ms) linear infinite paused;
 }
@@ -237,7 +237,7 @@ defineProps<{ walking?: boolean; stepping?: boolean; pointing?: boolean; breathi
   animation: holo-breathe var(--breathe-duration, 4s) ease-in-out infinite;
 }
 
-/* Fuera de pantalla o con la pestaña oculta: todo quieto. */
+/* Off-screen or with the tab hidden: all still. */
 :root[data-motion='full'] .holo--paused,
 :root[data-motion='full'] .holo--paused * {
   animation-play-state: paused;
@@ -320,7 +320,7 @@ defineProps<{ walking?: boolean; stepping?: boolean; pointing?: boolean; breathi
   }
 }
 
-/* Flicker: 160 ms de parpadeo dentro de un ciclo de 5 s (92 %→100 %). */
+/* Flicker: 160ms blink within a 5s cycle (92% → 100%). */
 @keyframes holo-flicker {
   0%,
   92%,

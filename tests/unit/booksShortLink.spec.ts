@@ -10,41 +10,41 @@ import {
   prerenderFileName
 } from '../../lib/booksShortLink'
 
-describe('enlaces cortos de Libros', () => {
-  it('son /en/books y /es/libros', () => {
+describe('Books short links', () => {
+  it('are /en/books and /es/libros', () => {
     expect(BOOKS_SHORT_LINK_ROUTES).toEqual(['/en/books', '/es/libros'])
   })
 
-  it('llevan a la sección del Perfil de su idioma, con o sin barra final en la ruta del Perfil', () => {
+  it('point to the Profile books section per locale, with or without trailing slash on Profile', () => {
     expect(booksSectionUrl('/en')).toBe('/en/#books')
     expect(booksSectionUrl('/es/')).toBe('/es/#books')
   })
 
-  it('el ancla de destino existe en el Perfil', () => {
+  it('destination anchor exists on Profile', () => {
     const section = readFileSync(new URL('../../app/components/BooksSection.vue', import.meta.url), 'utf8')
     expect(section).toContain(`id="${BOOKS_SECTION_ID}"`)
   })
 
-  it('el respaldo sin JS es un meta refresh inmediato', () => {
+  it('no-JS fallback is an immediate meta refresh', () => {
     expect(metaRefreshContent('/en/#books')).toBe('0;url=/en/#books')
   })
 
-  it('el script reemplaza la entrada del historial y escapa el destino como literal JS', () => {
+  it('script replaces history entry and escapes destination as JS literal', () => {
     expect(clientRedirectScript('/es/#books')).toBe('location.replace("/es/#books")')
     expect(clientRedirectScript('/x"y')).toBe('location.replace("/x\\"y")')
   })
 
-  it('se prerenderizan como `.html` plano (Netlify: 200 en /en/books, sin 301 a la barra final)', () => {
+  it('prerender as flat `.html` (Netlify: 200 on /en/books, no 301 to trailing slash)', () => {
     expect(prerenderFileName('/en/books', '/en/books/index.html')).toBe('/en/books.html')
     expect(prerenderFileName('/es/libros', '/es/libros/index.html')).toBe('/es/libros.html')
   })
 
-  it('el resto de rutas conserva su fichero', () => {
+  it('other routes keep their file', () => {
     expect(prerenderFileName('/en/privacy', '/en/privacy/index.html')).toBe('/en/privacy/index.html')
     expect(prerenderFileName('/en/books-extra', '/en/books-extra/index.html')).toBe('/en/books-extra/index.html')
   })
 
-  it('solo descarta el payload de los enlaces cortos', () => {
+  it('only drops payload for short-link routes', () => {
     expect(isUnusedPayload('/en/books/_payload.json')).toBe(true)
     expect(isUnusedPayload('/es/libros/_payload.json?_b=123')).toBe(true)
     expect(isUnusedPayload('/en/_payload.json')).toBe(false)

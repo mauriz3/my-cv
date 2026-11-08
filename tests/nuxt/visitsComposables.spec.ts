@@ -8,19 +8,19 @@ import type { VisitsFilter } from '~~/lib/visitsFilter'
 import { withSetup } from './helpers'
 
 const realReport = (range: '1d' | '7d' | '30d') => ({ ...buildMockReport(range), sample: false })
-/** El informe real tarda un poco: deja ver qué pasa si otra respuesta llega antes. */
+/** Real report is delayed so a stale response can be observed. */
 const REAL_REPORT_DELAY_MS = 40
 registerEndpoint('/api/visits/7d', async () => {
   await new Promise((resolve) => setTimeout(resolve, REAL_REPORT_DELAY_MS))
   return realReport('7d')
 })
-registerEndpoint('/api/visits/30d', () => ({ range: 'otro' }))
+registerEndpoint('/api/visits/30d', () => ({ range: 'other' }))
 registerEndpoint('/api/visits/1d', () => {
-  throw createError({ statusCode: 503, statusMessage: 'Caída' })
+  throw createError({ statusCode: 503, statusMessage: 'Unavailable' })
 })
 
 describe('useVisitsFormat', () => {
-  it('formatea números, porcentajes y nombres en el idioma activo', async () => {
+  it('formats numbers, percents, and names in the active locale', async () => {
     const { result } = await withSetup(() => ({ format: useVisitsFormat(), i18n: useI18n() }))
     const { format } = result
     expect(format.language.value).toBe('en-GB')
@@ -40,7 +40,7 @@ describe('useVisitsFormat', () => {
 })
 
 describe('useVisitsTables', () => {
-  it('sin informe no hay tablas; con informe, una por gráfica con los mismos datos', async () => {
+  it('without report, no tables; with report, one per chart with matching data', async () => {
     const report = ref<ReturnType<typeof buildMockReport>>()
     const { result: tables } = await withSetup(() => useVisitsTables(report))
     expect(tables.value).toBeUndefined()
@@ -58,7 +58,7 @@ describe('useVisitsTables', () => {
 })
 
 describe('useVisitsNote', () => {
-  it('con datos reales dice cuándo se actualizaron; con datos de ejemplo, de qué tipo son', async () => {
+  it('with real data, shows when updated; with sample data, shows sample kind', async () => {
     const report = ref<ReturnType<typeof buildMockReport>>()
     const realDataAvailable = ref(false)
     const { result: note } = await withSetup(() => useVisitsNote(report, realDataAvailable))
@@ -76,7 +76,7 @@ describe('useVisitsNote', () => {
 })
 
 describe('useVisits', () => {
-  it('pide el informe del filtro al montar y al cambiarlo, y dice de dónde sale', async () => {
+  it('fetches filter report on mount and on change, and exposes data source', async () => {
     const filter = ref<VisitsFilter>('7d')
     const { result } = await withSetup(() => useVisits(filter))
     await waitUntil(() => result.status.value === 'ready')
@@ -89,7 +89,7 @@ describe('useVisits', () => {
     expect(result.report.value).toEqual(buildMockReport('30d'))
   })
 
-  it('una respuesta que no es un informe del rango, o un error, deja estado de error y conserva el anterior', async () => {
+  it('invalid range response or error sets error state and keeps previous report', async () => {
     const filter = ref<VisitsFilter>('7d')
     const { result } = await withSetup(() => useVisits(filter))
     await waitUntil(() => result.status.value === 'ready')
@@ -107,14 +107,14 @@ describe('useVisits', () => {
     expect(result.dataState.value).toBe('real')
   })
 
-  it('si la API falla, estado de error y sin informe', async () => {
+  it('when API fails, error state and no report', async () => {
     const { result } = await withSetup(() => useVisits(ref<VisitsFilter>('1d')))
     await waitUntil(() => result.status.value === 'error')
     expect(result.dataState.value).toBe('failed')
     expect(result.report.value).toBeUndefined()
   })
 
-  it('si llega tarde la respuesta de un filtro anterior, se descarta', async () => {
+  it('discards a late response for a previous filter', async () => {
     const filter = ref<VisitsFilter>('7d')
     const { result } = await withSetup(() => useVisits(filter))
     filter.value = 'sample'
@@ -125,7 +125,7 @@ describe('useVisits', () => {
   })
 })
 
-/** Espera a que se cumpla una condición (imports diferidos del mock). */
+/** Waits until a condition holds (deferred mock imports). */
 async function waitUntil(condition: () => boolean, attempts = 50) {
   for (let attempt = 0; attempt < attempts && !condition(); attempt++) await new Promise((resolve) => setTimeout(resolve, 10))
   expect(condition()).toBe(true)

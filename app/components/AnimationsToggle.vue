@@ -12,24 +12,24 @@ import {
 import { registerPulseStop, useAnimations } from '~/composables/useAnimations'
 
 /**
- * Botón global de animaciones, en la cabecera de todas las páginas, entre los enlaces y ES/EN.
- * OFF (estático): ámbar y play, «Activar animaciones». ON: neutro y pausa, «Desactivar animaciones».
- * Sin aria-pressed: el nombre accesible es el copy de la acción. Escritorio muestra el texto;
+ * Global animations button, in the header of all pages, between the links and ES/EN.
+ * Off (static): amber and play, “Activate animations”. ON: neutral and pause, “Disable animations”.
+ * No aria-pressed: the accessible name is the copy of the action. Desktop displays text;
  * por debajo de 1024 px solo el icono de 44×44 y un tooltip con el mismo texto.
- * Las dos etiquetas están en el DOM y el CSS enseña la que corresponde a data-motion, sin parpadeo.
- * La primera visita sin elección pulsa el botón con un anillo; para al pulsarlo, enfocarlo, ocultar la pestaña o acabar.
+ * The two tags are in the DOM and the CSS shows the one that corresponds to data-motion, without blinking.
+ * The first visit without choice presses the button with a ring; it stops when pressed, focus it, hide the tab or finish.
  */
 const { t } = useI18n({ useScope: 'local' })
 const { motion, stored, prefersReducedMotion, toggle } = useAnimations()
 
 /**
- * En el servidor y antes de hidratar vale el copy de OFF: el HTML arranca estático.
- * Tras montar se alinea con el estado efectivo (también en EN).
+ * On the server and before hydrating, the copy of off is valid: the HTML starts static.
+ * After mounting, it is aligned with the effective state (also in EN).
  */
 const label = ref(t('enable'))
-/** Vacío hasta la primera pulsación: así no se anuncia nada al cargar. */
+/** Empty until the first press: this way nothing is announced when loading. */
 const announcement = ref('')
-/** Escape oculta el tooltip hasta salir del botón (WCAG 1.4.13). */
+/** Escape hides the tooltip until you exit the button (WCAG 1.4.13). */
 const isTooltipDismissed = ref(false)
 const hint = ref(false)
 
@@ -78,7 +78,7 @@ function rememberHint() {
   }
 }
 
-/** Pulsar, enfocar o terminar la animación. El scroll y los toques fuera no llegan aquí. */
+/** Tap, focus, or finish the animation. The scroll and the knocks out don't come here. */
 function onHintSignal(event: Event) {
   const animationName = event instanceof AnimationEvent ? event.animationName : undefined
   if (shouldStopPulse({ type: event.type, onToggle: true, animationName })) stopHint()
@@ -142,7 +142,7 @@ onBeforeUnmount(stopHint)
 </template>
 
 <style>
-/* Medidas del botón de animaciones (Figma 140:7553). El color lo decide data-motion, no una clase de Vue. */
+/* Animation button measurements (Figma 140:7553). Color is decided by data-motion, not a Vue class. */
 .animations-toggle {
   position: relative;
   display: inline-flex;
@@ -172,7 +172,7 @@ onBeforeUnmount(stopHint)
   height: 1rem;
 }
 
-/* Las dos copias ocupan el mismo sitio: el botón reserva el ancho de la más larga. */
+/* The two copies occupy the same place: the button reserves the width of the longest one. */
 .animations-toggle__stack {
   display: inline-grid;
 }
@@ -190,7 +190,7 @@ onBeforeUnmount(stopHint)
   visibility: hidden;
 }
 
-/* OFF: ámbar. El borde de 2 px ya está reservado; en reposo es del mismo color que el relleno. */
+/* Off: Amber. The 2px border is already reserved; at rest it is the same color as the fill. */
 :root:not([data-motion='full']) .animations-toggle,
 :root:not([data-motion='full']) .animations-toggle:hover {
   background: var(--ui-secondary);
@@ -234,8 +234,8 @@ onBeforeUnmount(stopHint)
 }
 
 /*
- * Anillo del mismo ámbar que el botón OFF (`--ui-secondary`): ese token ya contrasta en claro y oscuro.
- * z-index por encima del botón: el centro es transparente y no tapa el icono.
+ * Ring of the same amber as the off button (`--ui-secondary`): that token already contrasts in light and dark.
+ * z-index above the button: the center is transparent and does not cover the icon.
  */
 .animations-toggle.cta-halo::after {
   z-index: 1;
@@ -267,7 +267,7 @@ onBeforeUnmount(stopHint)
   }
 }
 
-/* Tablet y móvil (< 1024 px): solo icono 44 × 44; tooltip en hover / foco. */
+/* Tablet and mobile (< 1024 px): 44 × 44 icon only; tooltip in hover / focus. */
 @media (max-width: 1023.98px) {
   .animations-toggle {
     width: 44px;
@@ -292,7 +292,7 @@ onBeforeUnmount(stopHint)
   }
 }
 
-/* Hover solo con puntero real: en táctil el «hover pegado» tras tocar no deja el tooltip abierto. */
+/* Hover only with real pointer: in touch the "pasted hover" after touching does not leave the tooltip open. */
 @media (max-width: 1023.98px) and (hover: hover) {
   .animations-toggle:hover:not(.animations-toggle--tooltip-off) .animations-toggle__tooltip {
     display: block;

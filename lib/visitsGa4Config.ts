@@ -3,8 +3,8 @@ import type { VisitsRange } from './visits'
 import { fetchGa4Report } from './visitsGa4'
 
 /**
- * Configuración de GA4 desde variables de entorno (solo en el servidor: Netlify o local).
- * `GA_PROPERTY_ID`: ID numérico de la propiedad. `GA_SERVICE_ACCOUNT_JSON`: JSON de la clave de la cuenta de servicio.
+ * GA4 configuration from environment variables (server only: Netlify or local).
+ * `GA_PROPERTY_ID`: numeric property ID. `GA_SERVICE_ACCOUNT_JSON`: service account key JSON.
  */
 export const GA_PROPERTY_ID_ENV = 'GA_PROPERTY_ID'
 export const GA_SERVICE_ACCOUNT_ENV = 'GA_SERVICE_ACCOUNT_JSON'
@@ -15,16 +15,16 @@ export interface Ga4Config {
   serviceAccount: ServiceAccount
 }
 
-/** `undefined` si falta alguna variable (entonces se sigue con la instantánea anterior o el mock). Lanza si están mal formadas. */
+/** `undefined` if any variable is missing (then keep the previous snapshot or mock). Throws if malformed. */
 export function readGa4Config(env: Record<string, string | undefined>): Ga4Config | undefined {
   const propertyId = env[GA_PROPERTY_ID_ENV]?.trim()
   const serviceAccountJson = env[GA_SERVICE_ACCOUNT_ENV]
   if (!propertyId || !serviceAccountJson) return undefined
-  if (!PROPERTY_ID.test(propertyId)) throw new Error(`${GA_PROPERTY_ID_ENV} debe ser el ID numérico de la propiedad`)
+  if (!PROPERTY_ID.test(propertyId)) throw new Error(`${GA_PROPERTY_ID_ENV} must be the numeric property ID`)
   return { propertyId, serviceAccount: parseServiceAccount(serviceAccountJson) }
 }
 
-/** `(rango) → informe GA4` con un solo token OAuth por ejecución. */
+/** `(range) → GA4 report` with a single OAuth token per run. */
 export function createGa4ReportFetcher(config: Ga4Config, fetchFn: typeof fetch, now: Date) {
   let token: Promise<string> | undefined
   const getAccessToken = () => (token ??= fetchAccessToken(config.serviceAccount, fetchFn, now))

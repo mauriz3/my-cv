@@ -13,10 +13,10 @@ import {
 const PERCENT = 100
 const PDF_EXTENSION = '.pdf'
 
-/** Textos de la página Visitas en el idioma activo (gráficas, tablas y resúmenes comparten los mismos). */
+/** Texts of the Visits page in the active language (graphs, tables and summaries share the same). */
 export function useVisitsFormat() {
   const { t, localeProperties } = useI18n()
-  /** Etiqueta BCP 47 (`en-GB`, `es-ES`) para Intl. */
+  /** BCP 47 tag (`en-GB`, `es-ES`) for Intl formatters. */
   const language = computed(() => localeProperties.value.language ?? 'en-GB')
 
   const integer = (value: number) => formatInteger(value, language.value)
@@ -30,7 +30,7 @@ export function useVisitsFormat() {
   const countryName = (iso: string) =>
     iso === OTHER_COUNTRIES_ISO ? t('visits.countries.other') : formatCountry(iso, language.value)
 
-  /** Rutas del sitio con el nombre de su sección («/experience» → «Experiencia»); el PDF, «CV (PDF)». */
+  /** Site paths with the name of their section (“/experience→”); the PDF, “CV (PDF)”. */
   function pageName(path: string) {
     if (path.endsWith(PDF_EXTENSION)) return t('visits.pages.resume')
     const navItem = NAV_ITEMS.find((item) => item.path === path)

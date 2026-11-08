@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/** Filtro de una sola opción activa (botones con `aria-pressed`). */
+/** Single-option filter active (buttons with `aria-pressed'). */
 export interface FilterOption {
   id: string
   label: string

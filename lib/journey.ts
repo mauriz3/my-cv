@@ -1,13 +1,13 @@
 /**
- * Recorrido del Inicio (Holograma C): el holograma camina por un timeline de 6 puntos y se detiene en cada uno.
- * Lógica pura, sin Vue ni DOM: reparto en tramos, fases, posición, marcadores y pausa del ciclo de caminar.
+ * Home journey (Hologram C): the hologram walks a 6-point timeline and stops at each one.
+ * Pure logic, no Vue or DOM: span split, phases, position, markers, and walk-cycle pause.
  */
 import { clamp01, easeInOutSine, lerp } from './easing'
 
-/** Lado de la tarjeta respecto al holograma (en escritorio); el holograma mira hacia ella. */
+/** Card side relative to the hologram (desktop); the hologram faces it. */
 export type CardSide = 'end' | 'start'
 
-/** Los 6 puntos, en orden de recorrido, con la ruta de su sección. El último (Visitas) no tiene salida. */
+/** Six points, journey order, with section path. The last (Visits) has no exit. */
 export const JOURNEY_POINTS = [
   { id: 'profile', path: '/', cardSide: 'end' },
   { id: 'skills', path: '/skills', cardSide: 'end' },
@@ -25,16 +25,16 @@ export type JourneyPointId = (typeof JOURNEY_POINTS)[number]['id']
 
 export const LAST_POINT_INDEX = JOURNEY_POINTS.length - 1
 
-/** Alto de la sección con pin (vh): el mismo scroll por punto que con 5 (120vh en escritorio, 80vh en tablet). */
+/** Pinned section height (vh): same scroll per point as with 5 (120vh desktop, 80vh tablet). */
 export const JOURNEY_HEIGHT_VH = { desktop: 720, tablet: 480 } as const
-/** En móvil, en svh (alto con la barra del navegador visible): no cambia al mostrarse u ocultarse. */
+/** Mobile, in svh (height with browser bar visible): stable when bar shows/hides. */
 export const MOBILE_JOURNEY_HEIGHT_SVH = 420
 
 export type JourneyPhase = 'walk' | 'stop' | 'point' | 'reveal' | 'read' | 'leave'
 
 /**
- * Fin de cada fase como fracción de su tramo. En la spec, sobre el 20 % de cada tramo:
- * caminar 0–8 %, parada 8–10 %, señalar 10–12 %, línea + tarjeta 12–14 %, lectura 14–18 %, continuar 18–20 %.
+ * End of each phase as a fraction of its span. Per spec, ~20% of each span:
+ * walk 0–8%, stop 8–10%, point 10–12%, line + card 12–14%, read 14–18%, leave 18–20%.
  */
 export const PHASE_ENDS: readonly (readonly [JourneyPhase, number])[] = [
   ['walk', 0.4],
@@ -45,10 +45,10 @@ export const PHASE_ENDS: readonly (readonly [JourneyPhase, number])[] = [
   ['leave', 1],
 ]
 
-/** El ciclo de caminar se pausa este tiempo después del último evento de scroll. */
+/** Walk cycle pauses this long after the last scroll event. */
 export const WALK_IDLE_MS = 120
 
-/** Tiempos del handoff. El CSS los lee como variables (ver `journeyTimingCssVars`). */
+/** Handoff timings. CSS reads them as variables (see `journeyTimingCssVars`). */
 export const JOURNEY_TIMING = {
   walkCycleMs: 800,
   stopMs: 240,
@@ -82,22 +82,22 @@ export function journeyTimingCssVars(): Record<string, string> {
   }
 }
 
-/** Cómo se reparte el scroll: entrada opcional, luego un tramo igual por punto dividido en fases. */
+/** How scroll is split: optional entry, then equal span per point divided into phases. */
 export interface JourneyTimeline {
-  /** Fracción inicial del scroll antes del primer punto (entrada del holograma). */
+  /** Initial scroll fraction before the first point (hologram entrance). */
   entryShare: number
-  /** Fin de cada fase como fracción del tramo de un punto. */
+  /** End of each phase as a fraction of one point’s span. */
   phaseEnds: readonly (readonly [JourneyPhase, number])[]
-  /** Empieza parado y leyendo en el punto 1 (su tarjeta lleva el h1, visible desde la carga). */
+  /** Starts stopped and reading at point 1 (its card has h1, visible on load). */
   startsReading: boolean
 }
 
-/** Tablet y escritorio: un tramo igual por punto, sin entrada. */
+/** Tablet and desktop: equal span per point, no entry. */
 export const PINNED_TIMELINE: JourneyTimeline = { entryShare: 0, phaseEnds: PHASE_ENDS, startsReading: true }
 
 /**
- * Móvil (spec «Holograma móvil fijo con scroll»): entrada 0–0,14 (el holograma se materializa) y 6 tramos de 0,1433.
- * Fases por tramo: caminar 0–0,30, parada –0,38, señalar y zoom –0,48, línea y tarjeta –0,62, lectura –0,88, salida.
+ * Mobile (spec «fixed hologram with scroll»): entry 0–0.14 (hologram materializes) and 6 spans of 0.1433.
+ * Phases per span: walk 0–0.30, stop –0.38, point and zoom –0.48, line and card –0.62, read –0.88, exit.
  */
 export const MOBILE_TIMELINE: JourneyTimeline = {
   entryShare: 0.14,
@@ -115,23 +115,23 @@ export const MOBILE_TIMELINE: JourneyTimeline = {
 export interface JourneyState {
   pointIndex: number
   phase: JourneyPhase
-  /** Posición del holograma a lo largo del timeline (0 = primer punto, 1 = último). */
+  /** Hologram position along the timeline (0 = first point, 1 = last). */
   position: number
-  /** Avance (0–1) dentro del tramo del punto actual. */
+  /** Progress (0–1) within the current point’s span. */
   segmentProgress: number
 }
 
-/** Posición (0–1) de un punto en el timeline. */
+/** Position (0–1) of a point on the timeline. */
 export function pointPosition(index: number): number {
   return index / LAST_POINT_INDEX
 }
 
-/** Fracción del scroll de cada punto (tramos iguales tras la entrada). */
+/** Scroll fraction per point (equal spans after entry). */
 export function segmentShareOf(timeline: JourneyTimeline): number {
   return (1 - timeline.entryShare) / JOURNEY_POINTS.length
 }
 
-/** Inicio y fin (fracción del tramo) de una fase. */
+/** Phase start and end (fraction of span). */
 function phaseRange(timeline: JourneyTimeline, phase: JourneyPhase): [number, number] {
   const index = timeline.phaseEnds.findIndex(([name]) => name === phase)
   return [timeline.phaseEnds[index - 1]?.[1] ?? 0, timeline.phaseEnds[index]![1]]
@@ -142,8 +142,8 @@ function phaseWithin(timeline: JourneyTimeline, segmentProgress: number): Journe
 }
 
 /**
- * Estado del recorrido para un progreso de scroll (0–1). Durante la entrada está en el inicio del punto 1;
- * se queda leyendo en el último. Con `startsReading` empieza ya parado y leyendo en el punto 1.
+ * Journey state for scroll progress (0–1). During entry, at start of point 1;
+ * stays reading at the last. With `startsReading`, starts stopped and reading at point 1.
  */
 export function journeyStateAt(progress: number, timeline: JourneyTimeline = PINNED_TIMELINE): JourneyState {
   const journeyProgress = clamp01((clamp01(progress) - timeline.entryShare) / (1 - timeline.entryShare))
@@ -164,7 +164,7 @@ export function journeyStateAt(progress: number, timeline: JourneyTimeline = PIN
 
 export type MarkerState = 'done' | 'current' | 'pending'
 
-/** Hecho: puntos ya pasados · actual: donde está parado · pendiente: el resto (también el destino mientras camina). */
+/** Done: passed points · current: where it stops · pending: the rest (also destination while walking). */
 export function markerStateAt(markerIndex: number, state: JourneyState): MarkerState {
   if (state.phase === 'walk') return markerIndex < state.pointIndex ? 'done' : 'pending'
   if (markerIndex < state.pointIndex) return 'done'
@@ -172,9 +172,9 @@ export function markerStateAt(markerIndex: number, state: JourneyState): MarkerS
 }
 
 const POINTING_PHASES: readonly JourneyPhase[] = ['point', 'reveal', 'read']
-/** Tarjeta visible al pararse y señalar, no solo en reveal (evita pantallas vacías al caminar). */
+/** Card visible when standing and pointing, not only in reveal (avoid empty screens when walking). */
 const CARD_PHASES: readonly JourneyPhase[] = ['stop', 'point', 'reveal', 'read']
-/** Durante el pase, la tarjeta entra antes de terminar de caminar. */
+/** During the pass, the card enters before you finish walking. */
 const WALK_CARD_REVEAL_SHARE = 0.28
 
 export function isPointing(phase: JourneyPhase): boolean {
@@ -187,7 +187,7 @@ export function isCardShown(phase: JourneyPhase): boolean {
 
 export type CardState = 'past' | 'current' | 'upcoming'
 
-/** Tarjeta visible (`current`), ya leída (`past`, sale hacia arriba) o por llegar (`upcoming`, entra desde abajo). */
+/** Card visible (`current`), already read (`past`, exits upward), or upcoming (`upcoming`, enters from below). */
 export function cardStateAt(cardIndex: number, state: JourneyState): CardState {
   if (cardIndex < state.pointIndex) return 'past'
   if (cardIndex > state.pointIndex) return 'upcoming'
@@ -196,14 +196,14 @@ export function cardStateAt(cardIndex: number, state: JourneyState): CardState {
   return state.phase === 'leave' ? 'past' : 'upcoming'
 }
 
-/** La zancada solo avanza mientras hay scroll y se está caminando. */
+/** Step animation only advances while scrolling and in walk phase. */
 export function isStepping(phase: JourneyPhase, msSinceLastScroll: number): boolean {
   return phase === 'walk' && msSinceLastScroll < WALK_IDLE_MS
 }
 
 /**
- * Progreso en el que se lee la tarjeta de un punto (mitad de su fase de lectura):
- * para reanudar ahí sin repetir los anteriores.
+ * Progress where a point’s card is being read (mid read phase):
+ * to resume there without replaying earlier points.
  */
 export function readingProgressOf(pointIndex: number, timeline: JourneyTimeline = PINNED_TIMELINE): number {
   if (timeline.startsReading && pointIndex <= 0) return 0
@@ -212,7 +212,7 @@ export function readingProgressOf(pointIndex: number, timeline: JourneyTimeline 
   return timeline.entryShare + (index + (readStart + readEnd) / 2) * segmentShareOf(timeline)
 }
 
-/** Progreso (0–1) del scroll dentro de una sección más alta que la ventana (top relativo a la ventana). */
+/** Scroll progress (0–1) within a section taller than the viewport (top relative to viewport). */
 export function scrollProgress(sectionTop: number, sectionHeight: number, viewportHeight: number): number {
   const scrollableDistance = sectionHeight - viewportHeight
   if (scrollableDistance <= 0) return 0

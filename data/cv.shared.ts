@@ -1,11 +1,11 @@
 import type { CvFacts } from './schema'
 
 /**
- * Datos del CV que no cambian con el idioma (fechas, enlaces, imágenes, niveles).
- * Fuente: repo `my-cv` (commit d23cb9e), PDF actual y LinkedIn según lo indicado por Maurizio.
- * Orden: lo más reciente primero.
+ * CV data that does not change with the language (dates, links, images, levels).
+ * Source: repo `my-cv` (commit d23cb9e), current PDF and LinkedIn as indicated by Maurizio.
+ * Order: Latest first.
  *
- * Contacto: solo LinkedIn, CodePen y GitHub. Nada de teléfono, correo ni dirección.
+ * Contact: LinkedIn, CodePen and GitHub only. No phone, mail, or address.
  */
 export const cvFacts: CvFacts = {
   fullName: 'Maurizio Rendon',
@@ -15,7 +15,7 @@ export const cvFacts: CvFacts = {
     es: '/Resume-Maurizio-Rendon-es.pdf',
   },
 
-  /** Orden de la spec del botón global (cabecera y tabulación): LinkedIn → CodePen → GitHub. */
+  /** Global button spec order (header and tab): LinkedIn → CodePen → GitHub. */
   contactLinks: [
     { label: 'LinkedIn', url: 'https://www.linkedin.com/in/rendon7/' },
     { label: 'CodePen', url: 'https://codepen.io/maurirz3' },
@@ -98,7 +98,7 @@ export const cvFacts: CvFacts = {
     },
   ],
 
-  /** Fuente: LinkedIn (2026). Allí no constan emisor ni fecha, así que no se ponen. */
+  /** Source: LinkedIn (2026). There is no issuer or date there, so they are not listed. */
   certifications: [{ id: 'accelerated-es6', name: 'Accelerated ES6 JavaScript Training' }],
 
   projects: [
@@ -125,7 +125,7 @@ export const cvFacts: CvFacts = {
     { id: 'search-mock', url: 'https://codepen.io/maurirz3/full/JjyYRXq', image: 'sm.webp', category: 'codepen' },
   ],
 
-  /** Portadas de la edición en español (Tanda D), optimizadas en `public/books/`. */
+  /** Spanish edition covers (Tanda D), optimised for `public/books/`. */
   books: [
     {
       id: 'enigma-room-622',
@@ -146,11 +146,11 @@ export const cvFacts: CvFacts = {
   ],
 
   /**
-   * Áreas para las gráficas de «años por área». Maurizio quiere destacar full stack
+   * Areas for the “years by area” graphs. Maurizio wants to highlight full stack
    * (backend y frontend) y dar menos peso a DevOps/SysAdmin.
    * Fechas confirmadas por Maurizio: en System73 fue DevOps de feb 2016 a ene 2018 y Frontend
-   * de feb 2018 a feb 2022; el Frontend continúa en Octane11. El backend es solo de Octane11 (feb 2022).
-   * `end` es el mes límite: el periodo termina justo antes de ese mes.
+   * feb 2018 to Feb 2022; Frontend continues at Octane11. The backend is Octane11 only (Feb 2022).
+   * `end` is the cutoff month: the period ends just before that month.
    */
   skillAreas: [
     {
@@ -171,9 +171,9 @@ export const cvFacts: CvFacts = {
   ],
 
   /**
-   * Radar «Skill profile» (6 ejes: el primero arriba y luego en sentido horario, como en el Figma).
-   * Valores relativos 0–1 medidos del Figma (/workspace/my-cv-plan/radar-valores.md).
-   * Nunca se muestran como números: el radar no lleva cifras, ticks, tooltip ni leyenda.
+   * Skill profile radar (6 axes: first at the top, then clockwise, as in Figma).
+   * Relative 0–1 values measured from Figma (/workspace/my-cv-plan/radar-valores.md).
+   * They are never displayed as numbers: the radar does not carry figures, ticks, tooltip or legend.
    */
   skillProfile: [
     { id: 'frontend', level: 0.95 },

@@ -15,14 +15,14 @@ import type { VisitsReport } from '~~/lib/visits'
 
 ChartJS.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip, finishAnimationsWhenDisabled)
 
-/** Páginas más vistas: barras horizontales con la cifra escrita al final de cada barra. */
+/** Most viewed pages: horizontal bars with the figure written at the end of each bar. */
 const props = defineProps<{ pages: VisitsReport['pages'] }>()
 
 const DRAW_DURATION_MS = 700
 const BAR_RADIUS_PX = 4
 const MAX_BAR_THICKNESS_PX = 18
 const VALUE_LABEL_GAP_PX = 6
-/** Hueco a la derecha para que quepa la cifra de la barra más larga. */
+/** Hollow on the right to fit the figure of the longest bar. */
 const VALUE_AXIS_GRACE = '18%'
 
 interface ValueLabelOptions {

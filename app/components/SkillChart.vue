@@ -19,7 +19,7 @@ import { MAX_SKILL_LEVEL } from '~~/data/schema'
 import type { ChartData, ChartOptions } from 'chart.js'
 import { Radar } from 'vue-chartjs'
 
-/** Radar «Skill profile» sin números: solo los nombres de los ejes y la nota gris «Relative profile». */
+/** Radar "Skill profile" without numbers: only the names of the axes and the grey note "Relative profile". */
 const props = defineProps<{ axes: SkillAxis[] }>()
 
 const { t } = useI18n({ useScope: 'local' })
@@ -56,7 +56,7 @@ const themeColors = ref<ThemeColors>()
 
 onMounted(() => {
   themeColors.value = readThemeColors()
-  // La clase `.dark` cambia tras el render: esperamos al siguiente tick para leer los tokens nuevos.
+  // `.dark` toggles after render: wait one tick before reading updated tokens.
   watch(
     () => colorMode.value,
     async () => {
@@ -85,7 +85,7 @@ const chartOptions = computed<ChartOptions<'radar'>>(() => ({
   responsive: true,
   maintainAspectRatio: false,
   animation: chartAnimation(isReduced.value, CHART_DRAW_DURATION_MS),
-  events: [], // sin hover ni tooltip: no hay cifras que enseñar
+  events: [], // no hover or tooltip: there are no figures to show
   scales: {
     r: {
       min: 0,

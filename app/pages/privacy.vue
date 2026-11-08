@@ -4,7 +4,7 @@ import { ANIMATIONS_STORAGE_KEY } from '~~/lib/animations'
 import { THEME_STORAGE_KEY } from '~~/lib/theme'
 import { analyticsCookieNames, GA_COOKIE_MAX_AGE_MONTHS, GA_DATA_RETENTION_MONTHS } from '~~/lib/privacy'
 
-/** Privacidad: texto corto enlazado desde el aviso de analítica y el pie (no está en el menú). */
+/** Privacy: Short text linked from the analytics prompt and footer (not on the menu). */
 const { t } = useI18n()
 const cv = useCv()
 const { analyticsId } = useRuntimeConfig().public

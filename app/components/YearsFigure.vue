@@ -3,8 +3,8 @@ import type { Period } from '~~/lib/period'
 import { yearsInPeriods } from '~~/lib/years'
 
 /**
- * Años de experiencia calculados desde las fechas (`lib/years.ts`), nunca escritos a mano.
- * Si algún periodo sigue abierto se muestra «8+» (y contando); si ya terminó, «~2» (aproximado).
+ * Years of experience calculated from dates (`lib/years.ts`), never handwritten.
+ * If any period is still open, "8+" is displayed (and counting); if it is already over, "~2" (approximate).
  * `progress`: cuenta ligada al scroll (ver AnimatedNumber).
  */
 const props = withDefaults(defineProps<{ periods: Period[]; countUp?: boolean; progress?: number }>(), {

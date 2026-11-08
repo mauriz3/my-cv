@@ -1,11 +1,11 @@
 <script setup lang="ts">
 /**
- * Cabecera de cada página (spec boton-global.md). Orden fijo, igual en el DOM y en pantalla:
- * título (se estira) → [enlaces] → [animaciones] → [ES/EN] → [sol/luna].
- * Móvil (< 600 px): una sola línea con el título y los tres controles; sin subtítulo, y `shortTitle` si lo hay.
- * Por debajo de 375 px el título baja a 20 px; la elipsis es solo una red de seguridad.
- * `titleTag="p"` cuando la página ya tiene su propio h1 (el Perfil: el nombre del hero).
- * `titleId`: ancla del título; recibe el foco por programa (`tabindex="-1"`) al llegar desde un enlace.
+ * Header of each page (spec boton-global.md). Fixed order, same in the DOM and on the screen:
+ * title (stretches) → [links] → [animations] → [ES/EN] → [sun/moon].
+ * Mobile (< 600px): Single line with title and all three controls; no subtitle, and `shortTitle` if any.
+ * Below 375 px the title drops to 20 px; the ellipsis is just a safety net.
+ * `titleTag="p"` when the page already has its own h1 (the Profile: the hero's name).
+ * `titleId`: anchor of the title; receives the focus by program (`tabindex="-1"`) when arriving from a link.
  */
 withDefaults(
   defineProps<{ title: string; shortTitle?: string; subtitle?: string; titleTag?: 'h1' | 'p'; titleId?: string }>(),
@@ -32,7 +32,7 @@ withDefaults(
       <p v-if="subtitle" class="text-sm text-muted max-[599.98px]:hidden">{{ subtitle }}</p>
     </div>
     <div class="flex shrink-0 items-center gap-2" data-testid="page-header-controls">
-      <!-- En móvil los enlaces van en la tarjeta de perfil (ver ProfileJourney). -->
+      <!-- On mobile the links go on the profile card (see ProfileJourney). -->
       <ContactLinks labels="wide-only" class="hidden md:flex" />
       <AnimationsToggle />
       <LanguageSwitch />

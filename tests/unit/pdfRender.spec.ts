@@ -10,12 +10,12 @@ import { EXPECTED_PAGES, PDF_KEYWORDS, cleanMetadata, pdfFileName, writeCvPdfs, 
 async function pdfWithPages(pageCount: number): Promise<Uint8Array> {
   const pdf = await PDFDocument.create()
   pdf.setProducer('Skia/PDF m156')
-  pdf.setCreator('Chromium /home/usuario/proyecto')
+  pdf.setCreator('Chromium /home/user/project')
   for (let index = 0; index < pageCount; index++) pdf.addPage()
   return pdf.save()
 }
 
-/** Navegador falso: devuelve un PDF del número de páginas pedido y anota lo que se imprimió. */
+/** Fake browser: returns a PDF with requested page count and records what was printed. */
 function fakeBrowser(pageCount: number) {
   const printed: { url: string; options: unknown }[] = []
   const browser = {
@@ -36,11 +36,11 @@ function fakeBrowser(pageCount: number) {
 }
 
 describe('scripts/pdf/render.ts', () => {
-  it('nombra cada PDF por idioma', () => {
+  it('names each PDF by locale', () => {
     expect(pdfFileName('es')).toBe('Resume-Maurizio-Rendon-es.pdf')
   })
 
-  it('deja metadatos limpios del CV, sin rutas ni herramientas del equipo', async () => {
+  it('leaves clean CV metadata, without paths or team tooling', async () => {
     const content = buildPdfContent('en')
     const now = new Date('2026-11-07T12:00:00Z')
     const { bytes, pageCount } = await cleanMetadata(await pdfWithPages(EXPECTED_PAGES), content, now)
@@ -55,7 +55,7 @@ describe('scripts/pdf/render.ts', () => {
     expect(pdf.getCreationDate()).toEqual(now)
   })
 
-  it('imprime el HTML de cada idioma en A4 y escribe un PDF por idioma', async () => {
+  it('prints each locale HTML on A4 and writes one PDF per locale', async () => {
     const workDir = mkdtempSync(join(tmpdir(), 'cv-pdf-work-'))
     const outputDir = mkdtempSync(join(tmpdir(), 'cv-pdf-out-'))
     const { browser, printed } = fakeBrowser(EXPECTED_PAGES)
@@ -66,13 +66,13 @@ describe('scripts/pdf/render.ts', () => {
     expect(printed.map(({ url }) => url.split('/').pop())).toEqual(LOCALES.map((locale) => `cv-${locale}.html`))
     expect(printed[0]!.options).toMatchObject({ format: 'A4', tagged: true })
     expect(readFileSync(join(workDir, 'cv-en.html'), 'utf8')).toContain(buildPdfContent('en').fullName)
-    expect(log).toHaveBeenCalledWith(`${pdfFileName('en')}: ${EXPECTED_PAGES} páginas`)
+    expect(log).toHaveBeenCalledWith(`${pdfFileName('en')}: ${EXPECTED_PAGES} pages`)
   })
 
-  it('falla si el PDF no tiene las páginas del diseño', async () => {
+  it('fails if PDF does not have design page count', async () => {
     const outputDir = mkdtempSync(join(tmpdir(), 'cv-pdf-out-'))
     const { browser } = fakeBrowser(EXPECTED_PAGES + 1)
-    await expect(writeCvPdfs(browser, { workDir: tmpdir(), outputDir })).rejects.toThrow(`3 páginas (el diseño pide ${EXPECTED_PAGES})`)
+    await expect(writeCvPdfs(browser, { workDir: tmpdir(), outputDir })).rejects.toThrow(`3 pages (design requires ${EXPECTED_PAGES})`)
     expect(readdirSync(outputDir)).toEqual([])
   })
 })

@@ -2,8 +2,8 @@ import { getStore } from '@netlify/blobs'
 import { VISITS_BLOB_STORE, VISITS_SNAPSHOT_KEY, type SnapshotStore } from './visitsSnapshot'
 
 /**
- * Instantánea en Netlify Blobs (store de sitio `visits`, clave `snapshot`). Solo dentro de las
- * funciones de Netlify, que dan el contexto de Blobs; `getStore` se llama al usarlo, no al importar.
+ * Snapshot in Netlify Blobs (site store `visits`, key `snapshot`). Only inside Netlify
+ * functions, which provide the Blobs context; `getStore` is called on use, not on import.
  */
 export function blobSnapshotStore(): SnapshotStore {
   const store = () => getStore(VISITS_BLOB_STORE)

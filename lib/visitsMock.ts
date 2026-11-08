@@ -12,12 +12,12 @@ import {
 } from './visits'
 
 /**
- * Datos de ejemplo (mock) de la página «Visitas», deterministas: mismo rango → mismo informe.
- * Series de 7 y 30 días tomadas de la especificación (tanda B); la de 1 día, por horas.
- * Es el respaldo cuando no hay instantánea de Google Analytics (lib/visitsSource.ts), con el mismo contrato.
+ * Sample Visits page data (mock), deterministic: same range → same report.
+ * 7- and 30-day series from the spec (batch B); 1-day by hour.
+ * Fallback when there is no Google Analytics snapshot (lib/visitsSource.ts), same contract.
  */
 
-/** Fin fijo del periodo de ejemplo: así el JSON generado no cambia entre builds. */
+/** Fixed sample period end: generated JSON stays stable across builds. */
 export const MOCK_GENERATED_AT = '2026-10-31T00:00:00Z'
 const MOCK_LAST_DAY_UTC = Date.UTC(2026, 9, 30)
 const MS_PER_DAY = 86_400_000
@@ -29,7 +29,7 @@ interface RangeMock {
   visitors: { value: number; prev: number }
   avgDurationSec: { value: number; prev: number }
   bounceRate: { value: number; prev: number }
-  /** Escala de los desgloses (países, páginas, horas) respecto a los 30 días. */
+  /** Breakdown scale (countries, pages, hours) relative to 30 days. */
   breakdownScale: number
 }
 
@@ -66,7 +66,7 @@ const RANGE_MOCKS: Record<VisitsRange, RangeMock> = {
   },
 }
 
-/* Desgloses de 30 días (especificación). Dispositivos y fuentes van en %: no se escalan. */
+/* 30-day breakdowns (spec). Devices and sources are %: not scaled. */
 const DEVICE_SHARES: Record<(typeof DEVICE_KEYS)[number], number> = { mobile: 58, desktop: 36, tablet: 6 }
 const SOURCE_SHARES: Record<(typeof SOURCE_KEYS)[number], number> = {
   organic: 41,
@@ -76,7 +76,7 @@ const SOURCE_SHARES: Record<(typeof SOURCE_KEYS)[number], number> = {
   other: 4,
 }
 const COUNTRY_VISITS_30D = { ES: 412, US: 236, MX: 118, GB: 97, DE: 84, AR: 61, IN: 52, IT: 49 }
-/** Rutas reales del sitio (sin prefijo de idioma). */
+/** Real site paths (no locale prefix). */
 const PAGE_VIEWS_30D = {
   '/': 1120,
   '/experience': 684,
@@ -85,7 +85,7 @@ const PAGE_VIEWS_30D = {
   '/Resume-Maurizio-Rendon-en.pdf': 268,
   '/education': 190,
 }
-/** `[día][franja de 3 h]`, lunes a domingo. */
+/** `[day][3 h slot]`, Monday through Sunday. */
 const HOUR_SLOT_VISITS_30D = [
   [6, 6, 5, 27, 34, 24, 40, 19],
   [8, 2, 8, 23, 37, 26, 36, 22],
@@ -100,7 +100,7 @@ function isoDay(msUtc: number): string {
   return new Date(msUtc).toISOString().slice(0, 10)
 }
 
-/** Etiquetas ISO del periodo actual: horas del último día («1d») o días que acaban en el último día. */
+/** ISO labels for the current period: last day’s hours («1d») or days ending on the last day. */
 export function mockTimeLabels(range: VisitsRange): string[] {
   if (range === '1d') {
     const day = isoDay(MOCK_LAST_DAY_UTC)

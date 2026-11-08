@@ -1,25 +1,25 @@
 import { DEFAULT_VISITS_RANGE, VISITS_RANGES, type VisitsRange, type VisitsReport } from './visits'
 
 /**
- * Filtro de la página «Visitas»: los 3 rangos reales más «Datos de ejemplo» (el mock, para ver la página con
- * muchos datos). Lógica pura: qué filtro se elige por defecto, qué estado tienen los datos y qué nota se enseña.
+ * Visits page filter: the three real ranges plus «Sample data» (the mock, to view the page with
+ * rich data). Pure logic: default filter, data state, and which note to show.
  */
 
 export const SAMPLE_FILTER = 'sample'
 export const VISITS_FILTERS = [...VISITS_RANGES, SAMPLE_FILTER] as const
 export type VisitsFilter = (typeof VISITS_FILTERS)[number]
 
-/** El ejemplo enseña el mes: es el rango con más datos. */
+/** Sample shows the month: the range with the most data. */
 export const SAMPLE_RANGE: VisitsRange = '30d'
 
-/** Rango del informe que pide un filtro. */
+/** Report range requested by a filter. */
 export function rangeOfFilter(filter: VisitsFilter): VisitsRange {
   return filter === SAMPLE_FILTER ? SAMPLE_RANGE : filter
 }
 
 /**
- * Comprobación mínima del contrato en el cliente (sin zod: el servidor ya valida con `visitsSchema.ts`).
- * Basta para no pintar una respuesta rota (HTML de error, JSON de otro rango, sin KPI…).
+ * Minimal client-side contract check (no zod: the server already validates with `visitsSchema.ts`).
+ * Enough to avoid rendering a broken response (error HTML, wrong range JSON, missing KPIs…).
  */
 export function isUsableReport(value: unknown, range: VisitsRange): value is VisitsReport {
   if (typeof value !== 'object' || value === null) return false
@@ -33,7 +33,7 @@ export function isUsableReport(value: unknown, range: VisitsRange): value is Vis
   )
 }
 
-/** De dónde vienen los datos de una respuesta: GA4 (`real`), el mock del servidor (`sample`) o nada útil (`failed`). */
+/** Where response data comes from: GA4 (`real`), server mock (`sample`), or nothing useful (`failed`). */
 export type VisitsDataState = 'real' | 'sample' | 'failed'
 
 export function dataStateOf(response: unknown, range: VisitsRange): VisitsDataState {
@@ -41,17 +41,17 @@ export function dataStateOf(response: unknown, range: VisitsRange): VisitsDataSt
   return response.sample ? 'sample' : 'real'
 }
 
-/** Con datos reales, 1 mes; si la API falla o solo tiene el mock, «Datos de ejemplo». */
+/** With real data, 1 month; if the API fails or only has mock, «Sample data». */
 export function defaultVisitsFilter(state: VisitsDataState): VisitsFilter {
   return state === 'real' ? DEFAULT_VISITS_RANGE : SAMPLE_FILTER
 }
 
 /**
- * Nota bajo los filtros:
- * - `updated`: datos reales → «Datos actualizados hace X» (con `generatedAt`).
- * - `sampleChosen`: hay datos reales, pero se ha elegido «Datos de ejemplo».
- * - `sampleFallback`: no hay datos reales (API caída o solo el mock): se ven datos de ejemplo.
- * - `none`: aún no hay informe.
+ * Note under the filters:
+ * - `updated`: real data → «Data updated X ago» (with `generatedAt`).
+ * - `sampleChosen`: real data exists but «Sample data» was chosen.
+ * - `sampleFallback`: no real data (API down or mock only): sample data is shown.
+ * - `none`: no report yet.
  */
 export type VisitsNote =
   | { kind: 'none' }

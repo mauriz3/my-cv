@@ -9,8 +9,8 @@ permissions:
   contents: read
 
 env:
-  # Solo un push a master se genera como producción; con cualquier otro valor scripts/build-headers.mjs añade
-  # `X-Robots-Tag: noindex`. El artefacto que se verifica es el mismo que se despliega.
+  # Only one push to master is generated as a production; with any other value scripts/build-headers.mjs adds
+  # `X-Robots-Tag: noindex`. The artifact that is verified is the same one that is deployed.
   CONTEXT: ${{ github.event_name == 'push' && github.ref_name == 'master' && 'production' || 'ci' }}
 
 jobs:
@@ -24,9 +24,9 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run typecheck
-      # Tests (unitarios y de composables) con cobertura en una sola pasada; falla por debajo del 80 % (vitest.config.ts).
+      # Tests (unit and composables) with single pass coverage; fails below 80% (vitest.config.ts).
       - run: npm run coverage
-      - name: Resumen de cobertura
+      - name: Coverage summary
         if: ${{ !cancelled() }}
         run: node scripts/coverage-summary.mjs >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -46,8 +46,8 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-  # Accesibilidad (axe, @axe-core/playwright) sobre el sitio generado en verify, servido en local.
-  # Falla con violaciones serious/critical. Usa el Google Chrome del runner (sin descargar navegadores).
+  # Accessibility (axe, @axe-core/playwright) on the site built in verify, served locally.
+  # Fails on serious/critical violations. Uses the runner's Google Chrome (no browser download).
   a11y:
     needs: verify
     runs-on: ubuntu-latest
@@ -58,7 +58,7 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
-      # Sin scripts: `nuxt prepare` no hace falta para servir y auditar el artefacto.
+      # No scripts: `nuxt prepare` is not needed to serve and audit the artifact.
       - run: npm ci --ignore-scripts
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
@@ -72,7 +72,7 @@ jobs:
           path: playwright-report
           retention-days: 7
 
-  # Lighthouse (@lhci/cli, lighthouserc.cjs) sobre el mismo artefacto; informes HTML/JSON como artefacto, sin servicio externo.
+  # Lighthouse (@lhci/cli, lighthouserc.cjs) on the same artifact; HTML/JSON reports as artifact, no external service.
   lighthouse:
     needs: verify
     runs-on: ubuntu-latest
@@ -86,10 +86,10 @@ jobs:
         with:
           name: site
           path: .output/public
-      # @lhci/cli va con versión fija vía npx (como netlify-cli): no entra en package-lock ni en npm ci.
-      # Visita de fuera de la zona con aviso: todos los umbrales bloquean.
+      # @lhci/cli goes with fixed version via npx (such as netlify-cli): it does not enter package-lock or npm ci.
+      # Visit from outside the region with notice: all thresholds are blocking.
       - run: npm run lighthouse
-      # Solo el build de producción lleva el aviso de analítica: primera visita desde la UE (ES), rendimiento informativo.
+      # Only the production build carries the notice of analytics: first visit from the EU (ES), informative performance.
       - run: npm run lighthouse:consent
         if: ${{ !cancelled() && env.CONTEXT == 'production' }}
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -112,8 +112,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   deploy-production:
-    # Solo en push a master y si pasan verify, secrets, a11y y lighthouse. Nunca desde pull_request.
-    # El environment «production» permite exigir aprobación manual (Settings → Environments), sin tocar este archivo.
+    # Only on push to master after verify, secrets, a11y, and lighthouse pass. Never from pull_request.
+    # The production environment allows you to require manual approval (Settings → Environments), without touching this file.
     needs: [verify, secrets, a11y, lighthouse]
     if: github.event_name == 'push' && github.ref_name == 'master'
     runs-on: ubuntu-latest
@@ -127,53 +127,53 @@ jobs:
       group: deploy-production
       cancel-in-progress: false
     steps:
-      # El código del repo hace falta para que Netlify CLI empaquete la Edge Function `/geo` (netlify/edge-functions)
-      # y las funciones de Visitas (netlify/functions); estas importan lib/ y paquetes npm (zod, @netlify/blobs).
+      # Repo code required for Netlify CLI to package Edge Function `/geo` (netlify/edge-functions)
+      # and Visits functions (netlify/functions); these import lib/ and npm packages (zod, @netlify/blobs).
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc
           cache: npm
-      # Sin scripts (`nuxt prepare` no hace falta aquí): solo las dependencias que esbuild mete en las funciones.
+      # No scripts (`nuxt prepare` is not needed here): only the dependencies that esbuild puts in the functions.
       - run: npm ci --ignore-scripts
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: site
           path: site
-      - name: El artefacto de producción no lleva noindex
+      - name: The production artifact does not carry noindex
         run: "! grep -qi 'X-Robots-Tag' site/_headers"
-      - name: Netlify deploy (producción)
-        # Los secretos solo existen en este paso.
+      - name: Netlify deploy (production)
+        # Secrets exist only in this step.
         run: npx --yes netlify-cli@27.14.2 deploy --dir=site --no-build --prod --message "${{ github.sha }}"
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-      - name: Comprobar cabeceras de producción, la Edge Function /geo, las rutas de Visitas y los enlaces de Libros
+      - name: Check Production Headers, Edge Function /Geo, Visitor Routes and Book Links
         run: |
           headers=$(curl -sSI --retry 3 --retry-delay 5 https://www.mauriziorendon.com/en/)
           echo "$headers"
           fail=0
-          echo "$headers" | grep -qiE '^x-robots-tag:.*noindex' && { echo "::error::Producción lleva noindex"; fail=1; }
-          echo "$headers" | grep -qiE "^content-security-policy:.*script-src 'self'" || { echo "::error::Falta la CSP"; fail=1; }
-          echo "$headers" | grep -qiE '^cross-origin-opener-policy: *same-origin' || { echo "::error::Falta COOP same-origin"; fail=1; }
+          echo "$headers" | grep -qiE '^x-robots-tag:.*noindex' && { echo "::error::Production leads noindex"; fail=1; }
+          echo "$headers" | grep -qiE "^content-security-policy:.*script-src 'self'" || { echo "::error::Missing CSP"; fail=1; }
+          echo "$headers" | grep -qiE '^cross-origin-opener-policy: *same-origin' || { echo "::error::Missing COOP same-origin"; fail=1; }
           geo=$(curl -sS -D - --retry 3 --retry-delay 5 https://www.mauriziorendon.com/geo)
           echo "$geo"
-          echo "$geo" | grep -qiE '^cache-control:.*no-store' || { echo "::error::/geo sin Cache-Control no-store"; fail=1; }
-          echo "$geo" | grep -qE '"country":' || { echo "::error::/geo no devuelve {country}"; fail=1; }
+          echo "$geo" | grep -qiE '^cache-control:.*no-store' || { echo "::error::/geo missing Cache-Control no-store"; fail=1; }
+          echo "$geo" | grep -qE '"country":' || { echo "::error::/geo does not return {country}"; fail=1; }
           post=$(curl -sS -o /dev/null -w '%{http_code}' -X POST https://www.mauriziorendon.com/geo)
-          [ "$post" = 405 ] || { echo "::error::/geo acepta POST ($post)"; fail=1; }
-          # Visitas: la función responde (cabecera x-visits-source: snapshot | mock) con el informe del rango pedido.
+          [ "$post" = 405 ] || { echo "::error::/geo accepts POST ($post)"; fail=1; }
+          # Visits: the function responds (x-visits-source header: snapshot | mock) with the requested range report.
           for range in 1d 7d 30d; do
             visits=$(curl -sS -D - --retry 3 --retry-delay 5 "https://www.mauriziorendon.com/api/visits/$range")
             echo "$visits" | grep -iE '^(HTTP|x-visits-source|content-type)'
-            echo "$visits" | grep -qiE '^x-visits-source: *(snapshot|mock)' || { echo "::error::/api/visits/$range no la sirve la función"; fail=1; }
-            echo "$visits" | grep -qE "\"range\":\"$range\"" || { echo "::error::/api/visits/$range no devuelve su informe"; fail=1; }
+            echo "$visits" | grep -qiE '^x-visits-source: *(snapshot|mock)' || { echo "::error::/api/visits/$range is not served by the "; fail=1; }
+            echo "$visits" | grep -qE "\"range\":\"$range\"" || { echo "::error::/api/visits/$range does not return its report"; fail=1; }
           done
-          # Enlaces cortos de Libros: 200 sin redirección y con vista previa para LinkedIn.
+          # Short Book Links: 200 without redirection and previewed for LinkedIn.
           for path in /en/books /es/libros; do
             short=$(curl -sS -A LinkedInBot -D - --retry 3 --retry-delay 5 "https://www.mauriziorendon.com$path")
             echo "$short" | grep -iE '^HTTP'
-            echo "$short" | head -1 | grep -qE ' 200' || { echo "::error::$path no responde 200"; fail=1; }
-            echo "$short" | grep -qE 'property="og:image"' || { echo "::error::$path sin og:image"; fail=1; }
+            echo "$short" | head -1 | grep -qE ' 200' || { echo "::error::$path does not return 200"; fail=1; }
+            echo "$short" | grep -qE 'property="og:image"' || { echo "::error::$path missing og:image"; fail=1; }
           done
           exit $fail

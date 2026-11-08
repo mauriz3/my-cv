@@ -11,15 +11,15 @@ import { mobileCardStateAt, pointingArmOf } from '~~/lib/mobileJourney'
 import { yearsInPeriods } from '~~/lib/years'
 
 /**
- * Inicio como recorrido (Holograma C): el holograma camina por un timeline de 6 puntos (Profile, Skills,
- * Experience, Education, Projects, Visits) y en cada uno se para, señala y muestra su tarjeta. Lógica: `lib/journey.ts`.
- * Con pin: 720vh en escritorio (timeline horizontal) y 480vh en tablet (vertical). En móvil, 420svh con el
- * holograma arriba y una sola tarjeta debajo que cambia en el sitio, todo ligado al scroll (`lib/mobileJourney.ts`):
+ * Start as tour (Hologram C): the hologram walks along a 6-point timeline (Profile, Skills,
+ * Experience, Education, Projects, Visits) and in each one stops, points and shows his card. Logic: `lib/journey.ts`.
+ * With pin: 720vh on desktop (horizontal timeline) and 480vh on tablet (vertical). On mobile, 420svh with the
+ * hologram above and a single card below that changes on the site, all linked to the scroll (`lib/mobileJourney.ts`):
  * las 6 tarjetas siguen en el DOM (las ocultas, solo con opacidad: los lectores de pantalla las leen todas)
  * y la que recibe el foco del teclado se muestra en lugar de la actual.
- * La 6.ª (Visitas) es la única con acción: mini-gráficas, KPI que cuentan y botón «Ver visitas»; no sale.
- * Sin JS, con movimiento reducido o si fallan las guardas del móvil: holograma fijo y las 6 tarjetas visibles.
- * El nombre es el h1 real, en la tarjeta 1, visible desde la carga y sin animar (LCP).
+ * The 6th (Visits) is the only one with action: mini-graphics, KPIs that count and "View visits" button; it does not go out.
+ * Without JS, with reduced movement or if the guards of the mobile fail: fixed hologram and the 6 visible cards.
+ * The name is the real h1, on card 1, visible from the load and not animated (LCP).
  * Tanda F: las tarjetas 1–5 llevan microanimaciones ligadas al scroll (`useCardMotion`, `lib/cardMotion.ts`):
  * Profile anima su contenido (escalonado y KPI que cuentan) y Skills–Projects un icono en la esquina.
  */
@@ -27,9 +27,9 @@ const { t } = useI18n({ useScope: 'local' })
 const { t: tGlobal } = useI18n()
 const cv = useCv()
 
-/** Tecnologías que caben en la tarjeta de Skills (el resto está en su sección). */
+/** Technologies that fit on the Skills card (the rest is in your section). */
 const SKILL_CHIP_LIMIT = 9
-/** Titulación que resume la formación. */
+/** Degree that summarizes the training. */
 const DEGREE_ID = 'ull-degree'
 const TIMING_CSS_VARS = journeyTimingCssVars()
 
@@ -44,7 +44,7 @@ const { isReduced } = useMotion()
 watch(isReduced, (reduced) => {
   if (reduced) cardMotion.reset(section.value)
 })
-/** Avance del elemento `name` de una tarjeta (variables de `useCardMotion`; sin ellas, estado final). */
+/** Advance of the `name` element of a card (`useCardMotion` variables; without them, end state). */
 const fx = (name: string) => ({ '--fx': `var(--fx-${name}, 1)` })
 
 const currentPoint = computed(() => JOURNEY_POINTS[state.value.pointIndex]!)
@@ -248,11 +248,11 @@ const courses = computed(() =>
 
 <style>
 /*
- * Geometría del recorrido. La mano del holograma (brazo a −100°) queda a `--hand-reach` × alto del centro
- * y a `--hand-rise` × alto del suelo: ahí nacen la línea de proyección y la tarjeta.
+ * Geometry of the path. The hand of the hologram (arm at −100°) is at `--hand-reach` × high from the center
+ * and a `--hand-rise' × high off the ground: this is where the projection line and the card are born.
  */
 .journey {
-  /* El recorrido empieza y acaba a medio holograma (ancho = alto / 2) del borde: nunca se corta. */
+  /* The tour begins and ends half a hologram (width = height / 2) from the edge: it is never cut. */
   --journey-inset: calc(var(--holo-height) / 4 + 1rem);
   --journey-floor: 5.5rem;
   --holo-height: 42cqh;
@@ -268,7 +268,7 @@ const courses = computed(() =>
   --facing: -1;
 }
 
-/* Versión estática (móvil, sin JS o movimiento reducido): holograma fijo y las 6 tarjetas en orden. */
+/* Static version (mobile, no JS or reduced movement): fixed hologram and all 6 cards in order. */
 .journey__stage {
   position: relative;
   display: grid;
@@ -369,7 +369,7 @@ const courses = computed(() =>
   box-shadow: 0 0 0 5px var(--brand-soft);
 }
 
-/* Con movimiento: timeline compacto de puntos también en móvil. */
+/* With movement: compact dotted timeline also on mobile. */
 @media (max-width: 767.98px) {
   :root[data-motion='full'] .journey__timeline {
     display: block;
@@ -405,16 +405,16 @@ const courses = computed(() =>
 }
 
 /*
- * Móvil con pin (spec «movil-scroll.md»): escenario sticky con el holograma arriba y UNA tarjeta debajo que cambia
- * en el sitio. Guardas: ancho de móvil, alto de ventana 520–950 px (mismos valores que MOBILE_PIN_QUERY),
+ * Mobile with pin (spec "movil-scroll.md"): sticky scenario with the hologram above and A card below that changes
+ * on site. Guards: mobile width, window height 520-950 px (same values as MOBILE_pin_QUERY),
  * movimiento activo y que las tarjetas quepan (`data-cards-fit`, lo pone useMobilePin).
  * El JS escribe las variables del fotograma (lib/mobileJourney.ts); sus valores por defecto son los de p = 0:
- * holograma por materializar y tarjeta 1 visible (lleva el h1). El escenario descuenta la barra de navegación inferior.
+ * hologram to materialize and card 1 visible (carries the h1). The scenario discounts the bottom navigation bar.
  */
 @media (max-width: 767.98px) and (min-height: 520px) and (max-height: 950px) {
   :root[data-motion='full'] .journey:not([data-cards-fit='false']) {
     --holo-height: 26cqh;
-    /* Hueco para el zoom de 1,12 (crece hacia arriba desde los pies). */
+    /* Room for 1.12 scale (grows upward from the feet). */
     --holo-top: 1.75rem;
     --timeline-top: calc(var(--holo-top) + var(--holo-height) + 0.5rem);
     --cards-top: calc(var(--timeline-top) + 3.25rem);
@@ -506,7 +506,7 @@ const courses = computed(() =>
     rotate: var(--arm-left, 0deg);
   }
 
-  /* Línea de proyección: baja de la mano a la tarjeta. */
+  /* Projection line: low from hand to card. */
   :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__line {
     display: block;
     position: absolute;
@@ -521,7 +521,7 @@ const courses = computed(() =>
   :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__timeline {
     position: absolute;
     top: var(--timeline-top);
-    /* Margen para que la etiqueta centrada del primer y del último punto no se corte. */
+    /* Margin so that the centered label of the first and last point is not cut. */
     right: 3rem;
     left: 3rem;
     margin: 0;
@@ -571,7 +571,7 @@ const courses = computed(() =>
     pointer-events: auto;
   }
 
-  /* Con el teclado: se ve la tarjeta que tiene el foco, en lugar de la actual. */
+  /* With the keyboard: you can see the card that has the focus, instead of the current one. */
   :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__cards:focus-within .journey__card {
     opacity: 0;
     pointer-events: none;
@@ -596,7 +596,7 @@ const courses = computed(() =>
 
 /*
  * Tanda F: con pin, Profile carga en su estado inicial (p = 0), ya visible, y se asienta con el primer scroll.
- * Se fija en el CSS para que no salte al hidratar; `useCardMotion` lo sobrescribe en línea.
+ * It is fixed in the CSS so that it does not jump when hydrating; `useCardMotion` overwrites it online.
  */
 @media (min-width: 768px) {
   :root[data-motion='full'] .journey__card[data-point-index='0'] {
@@ -626,7 +626,7 @@ const courses = computed(() =>
   }
 }
 
-/* Con pin (tablet y escritorio, con movimiento): escenario sticky de una pantalla. */
+/* With pin (tablet and desk, with movement): sticky scenario of a screen. */
 @media (min-width: 768px) {
   :root[data-motion='full'] .journey {
     height: var(--journey-height-tablet);
@@ -715,7 +715,7 @@ const courses = computed(() =>
     transform: translateY(-8px);
   }
 
-  /* La tarjeta del punto actual, o cualquiera que reciba el foco del teclado. */
+  /* The current point card, or whichever receives the keyboard focus. */
   :root[data-motion='full'] .journey__card:is([data-state='current'], :focus-within) {
     opacity: 1;
     transform: none;
@@ -725,7 +725,7 @@ const courses = computed(() =>
       transform var(--card-duration) var(--ease-out) var(--card-delay);
   }
 
-  /* Tablet: timeline vertical a la izquierda; el holograma baja por él y la tarjeta sale a su derecha. */
+  /* Tablet: vertical timeline on the left; the hologram goes down it and the card comes out on the right. */
   :root[data-motion='full'] .journey {
     --track-top: 7rem;
     --track-bottom: 2.5rem;
@@ -782,7 +782,7 @@ const courses = computed(() =>
   }
 }
 
-/* Escritorio: timeline horizontal abajo; el holograma camina por él y la tarjeta sale al lado de la mano. */
+/* Desktop: Horizontal timeline down; the hologram walks down it and the card comes out next to your hand. */
 @media (min-width: 1280px) {
   :root[data-motion='full'] .journey {
     height: var(--journey-height-desktop);
@@ -852,18 +852,18 @@ const courses = computed(() =>
     translate: -100% -50%;
   }
 
-  /* La tarjeta de Profile lleva más contenido y empieza junto al primer punto: más ancha. */
+  /* The Profile card has more content and starts next to the first point: wider. */
   :root[data-motion='full'] .journey__card[data-point-index='0'] {
     width: min(560px, 50cqw);
   }
 }
 
-/* ---------- Punto 6 «Visitas»: la única tarjeta con acción (borde brand-vivid) ---------- */
+/* ---------- Point 6 "Visits": the only card with action (brand-vivid edge) ---------- */
 .journey__card[data-point-index='5'] > article {
   border-color: var(--brand-vivid);
 }
 
-/* Skills: resalta las tecnologías del eje que pulsa el flash de la escena. */
+/* Skills: emphasize technologies on the axis that matches the scene flash. */
 :root[data-motion='full'] .journey__card[data-point-index='1']:not(:focus-within) .journey-skill-chip[data-flash-area] {
   --chip-emphasis: var(--fx-flash-opacity, 0);
 }
@@ -875,8 +875,8 @@ const courses = computed(() =>
 }
 
 /*
- * Perfil: cabecera fija al cargar (--fx-* copy en 1); al scroll entran KPI, bloque de cifras y CTA.
- * Cifras legibles desde el inicio (PROFILE_COUNT_KEY).
+ * Profile: header fixed on load (--fx-* copy at 1); scroll drives KPIs, stats band, and CTA.
+ * Counters readable from first paint (PROFILE_COUNT_KEY).
  */
 :root[data-motion='full'] .journey__card[data-point-index='0']:not(:focus-within) .journey-card__header .card-fx,
 :root[data-motion='full'] .journey__card[data-point-index='0']:not(:focus-within) .profile-card__headline,
@@ -966,7 +966,7 @@ const courses = computed(() =>
     0 1px 2px 0 rgb(0 0 0 / 0.05);
 }
 
-/* Experience: anillo en el marcador al pararse en el punto (como Visitas). */
+/* Experience: ring on the marker when standing at the point (such as Visits). */
 .journey__marker[data-point-id='experience'] .journey__dot {
   position: relative;
 }
@@ -990,7 +990,7 @@ const courses = computed(() =>
   }
 }
 
-/* Anillo del marcador 6: se expande una vez al pararse en él. */
+/* Marker ring on point 6: expands once when it becomes current. */
 .journey__marker:last-child .journey__dot {
   position: relative;
 }
@@ -1010,12 +1010,12 @@ const courses = computed(() =>
     animation: journey-ring 500ms cubic-bezier(0.16, 1, 0.3, 1) 1;
   }
 
-  /* La tarjeta entra con scale 0,96 (las demás, 0,98). */
+  /* The card enters with a scale of 0.96 (the others, 0.98). */
   :root[data-motion='full'] .journey__card[data-point-index='5']:not([data-state='current'], :focus-within) {
     transform: translateY(16px) scale(0.96);
   }
 
-  /* «Tap» del brazo al terminar de señalar: 100° → 92° → 100°. */
+  /* "Tap" of the arm when finished pointing: 100° → 92° → 100°. */
   :root[data-motion='full']
     .journey[data-point='visits']:is([data-phase='reveal'], [data-phase='read'])
     .holo__arm--right
@@ -1024,7 +1024,7 @@ const courses = computed(() =>
   }
 }
 
-/* Móvil con pin: el anillo sigue al scroll (variables del fotograma). */
+/* Mobile with pin: the ring follows the scroll (frame variables). */
 @media (max-width: 767.98px) and (min-height: 520px) and (max-height: 950px) {
   :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__marker:last-child .journey__dot::after {
     opacity: var(--ring-opacity, 0);

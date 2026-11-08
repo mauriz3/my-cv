@@ -1,26 +1,26 @@
 import { z } from '../lib/zod'
 
-/** Fecha con precisión de año (`2014`) o de mes (`2014-03`). */
+/** Date with year (`2014`) or month (`2014-03`) accuracy. */
 const PARTIAL_DATE_PATTERN = /^\d{4}(-(0[1-9]|1[0-2]))?$/
 
 export const LOCALES = ['en', 'es'] as const
 export type Locale = (typeof LOCALES)[number]
 
-const PartialDate = z.string().regex(PARTIAL_DATE_PATTERN, 'Formato esperado: YYYY o YYYY-MM')
-const HttpsUrl = z.url().refine((url) => url.startsWith('https://'), 'La URL debe ser https')
+const PartialDate = z.string().regex(PARTIAL_DATE_PATTERN, 'Expected format: YYYY or YYYY-MM')
+const HttpsUrl = z.url().refine((url) => url.startsWith('https://'), 'URL must be https')
 const NonEmptyText = z.string().trim().min(1)
 const Id = z.string().regex(/^[a-z0-9-]+$/)
 
-/** `end: null` significa «actualidad». */
+/** `end: null` means present day. */
 const Period = z.object({ start: PartialDate, end: PartialDate.nullable() })
 
-/* ---------- Datos que no dependen del idioma ---------- */
+/* ---------- Locale-independent data ---------- */
 
 export const ContactLinkSchema = z.object({ label: NonEmptyText, url: HttpsUrl }).strict()
 
 /**
- * Tecnologías de un puesto (no se traducen). `areaId` (id de `skillAreas`) solo hace falta
- * cuando el puesto tuvo varias etapas, como System73 (DevOps y luego Front End).
+ * Technologies of a position (not translated). `areaId` (id of `skillAreas`) is only needed
+ * when the role had several phases, such as System73 (DevOps then Front End).
  */
 const TechnologyGroupSchema = z.object({
   areaId: Id.optional(),
@@ -42,11 +42,11 @@ const EducationFactsSchema = z.object({
   period: Period,
 })
 
-/** Categorías del filtro de Proyectos (Figma): Nuxt.js · CodePen · Website. */
+/** Project filter categories (Figma): Nuxt.js · CodePen · Website. */
 export const PROJECT_CATEGORIES = ['nuxt', 'codepen', 'website'] as const
 export type ProjectCategory = (typeof PROJECT_CATEGORIES)[number]
 
-/** Escala del radar «Skill profile» (0–1, valores relativos del Figma). Los niveles nunca se muestran. */
+/** Skill profile radar scale (0–1, relative Figma values). Levels are never shown. */
 export const MAX_SKILL_LEVEL = 1
 
 const SkillAxisFactsSchema = z.object({
@@ -54,7 +54,7 @@ const SkillAxisFactsSchema = z.object({
   level: z.number().min(0).max(MAX_SKILL_LEVEL),
 })
 
-/** Certificación: el nombre es propio y no se traduce. */
+/** Certification: the name is your own and is not translated. */
 const CertificationSchema = z.object({ id: Id, name: NonEmptyText })
 
 const ProjectFactsSchema = z.object({
@@ -66,18 +66,18 @@ const ProjectFactsSchema = z.object({
 
 const LanguageFactsSchema = z.object({
   id: Id,
-  /** Nivel MCER, el mismo que en el PDF. */
+  /** CEFR level, same as in the PDF. */
   level: z.enum(['A1', 'A2', 'B1', 'B2', 'C1', 'C2']),
 })
 
-/** Portada en `public/` con sus medidas reales (width/height en el `<img>`: sin saltos de maqueta). */
+/** Cover in `public/` with real dimensions (width/height on `<img>`: no layout shift). */
 const CoverSchema = z.object({
   src: z.string().startsWith('/'),
   width: z.number().int().positive(),
   height: z.number().int().positive(),
 })
 
-/** Libro recomendado (sección «Libros que recomiendo» del Perfil). El autor no se traduce. */
+/** Recommended book (“Books I Recommend” section of the Profile). The author is not translated. */
 const BookFactsSchema = z.object({ id: Id, author: NonEmptyText, cover: CoverSchema })
 
 const SkillAreaFactsSchema = z.object({
@@ -100,7 +100,7 @@ export const CvFactsSchema = z.object({
   skillProfile: z.array(SkillAxisFactsSchema).min(3),
 })
 
-/* ---------- Textos por idioma ---------- */
+/* ---------- Locale-specific copy ---------- */
 
 const ExperienceTextSchema = z.object({
   role: NonEmptyText,
@@ -117,7 +117,7 @@ const ProjectTextSchema = z.object({
   imageAlt: NonEmptyText,
 })
 
-/** `reason`: por qué lo recomienda Maurizio (cita de la tarjeta). */
+/** `reason`: why Maurizio recommends it (card quote). */
 const BookTextSchema = z.object({
   title: NonEmptyText,
   genre: NonEmptyText,
@@ -130,13 +130,13 @@ const textsByIdSchema = <T extends z.ZodType>(item: T) => z.record(Id, item)
 export const CvTextsSchema = z.object({
   headline: NonEmptyText,
   summary: NonEmptyText,
-  /** Frase del hero, aprobada por Maurizio. */
+  /** Hero tagline, approved by Maurizio. */
   tagline: NonEmptyText,
-  /** Tarjeta «In my words» del hero, aprobada por Maurizio. */
+  /** Hero's “In my words” card, approved by Maurizio. */
   designerEye: NonEmptyText,
-  /** «Qué me mueve»: frase corta, también para la meta descripción. */
+  /** “What moves me”: short phrase, also for meta description. */
   motivation: NonEmptyText,
-  /** Tarjeta «End to end» («In my words»): lleva las palabras clave del stack. */
+  /** “End to end” (“In my words”) card: carries the stack keywords. */
   endToEnd: NonEmptyText,
   experience: textsByIdSchema(ExperienceTextSchema),
   education: textsByIdSchema(EducationTextSchema),
@@ -144,11 +144,11 @@ export const CvTextsSchema = z.object({
   languages: textsByIdSchema(NonEmptyText),
   books: textsByIdSchema(BookTextSchema),
   skillAreas: textsByIdSchema(NonEmptyText),
-  /** Nombre de cada eje del radar. */
+  /** Label for each radar axis. */
   skillProfile: textsByIdSchema(NonEmptyText),
 })
 
-/* ---------- CV final (datos + textos de un idioma) ---------- */
+/* ---------- Final CV (facts + copy for one locale) ---------- */
 
 export const CvSchema = z.object({
   locale: z.enum(LOCALES),

@@ -1,4 +1,4 @@
-/** Destinos de la navegación: única fuente para sidebar, raíl y barra inferior. */
+/** Navigation destinations: single source for sidebar, rail and bottom bar. */
 export const NAV_ITEMS = [
   { id: 'profile', path: '/', icon: 'i-lucide-user' },
   { id: 'skills', path: '/skills', icon: 'i-lucide-bar-chart-3' },

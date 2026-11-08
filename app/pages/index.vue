@@ -7,7 +7,7 @@ usePageSeo(useProfileTitle())
 
 <template>
   <div class="space-y-6">
-    <!-- El h1 de esta página es el nombre, en la primera tarjeta del recorrido. -->
+    <!-- The h1 on this page is the name, on the first card of the tour. -->
     <PageHeader
       :title="t('profile.greeting')"
       :short-title="t('nav.profile')"
@@ -17,7 +17,7 @@ usePageSeo(useProfileTitle())
 
     <ProfileJourney />
 
-    <!-- Tras el recorrido (que acaba en Proyectos y Visitas), en el flujo normal de la página. -->
+    <!-- After the tour (ending in Projects and Visits), in the normal flow of the page. -->
     <BooksSection />
 
     <Panel :title="t('profile.summary')">

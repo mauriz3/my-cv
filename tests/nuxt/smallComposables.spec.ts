@@ -3,7 +3,7 @@ import { getCv } from '~~/data/cv'
 import { withSetup } from './helpers'
 
 describe('useConsentBanner', () => {
-  it('reopen muestra el aviso y pide el foco; el estado se comparte entre llamadas', () => {
+  it('reopen shows banner and requests focus; state is shared across calls', () => {
     const banner = useConsentBanner()
     banner.isOpen.value = false
     banner.wantsFocus.value = false
@@ -14,7 +14,7 @@ describe('useConsentBanner', () => {
 })
 
 describe('useLegendToggle', () => {
-  it('oculta y vuelve a mostrar una serie por su clave, sin tocar las demás', () => {
+  it('hides and shows a series by key without affecting others', () => {
     const { isHidden, toggle } = useLegendToggle()
     toggle('current')
     toggle('previous')
@@ -26,8 +26,8 @@ describe('useLegendToggle', () => {
   })
 })
 
-describe('useCv y useProfileTitle', () => {
-  it('dan el CV y el título del Perfil en el idioma activo', async () => {
+describe('useCv and useProfileTitle', () => {
+  it('return CV and Profile title in the active locale', async () => {
     const { result } = await withSetup(() => ({ cv: useCv(), title: useProfileTitle(), i18n: useI18n() }))
     expect(result.cv.value).toEqual(getCv('en'))
     expect(result.title()).toBe(`${getCv('en').fullName} · Profile`)

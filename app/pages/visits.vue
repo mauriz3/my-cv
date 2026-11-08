@@ -10,11 +10,11 @@ import {
 } from '~~/lib/visits'
 import { VISITS_FILTERS, defaultVisitsFilter, type VisitsFilter } from '~~/lib/visitsFilter'
 
-/** Ancla del título: el botón «Ver visitas» del Inicio enlaza aquí y el foco llega al h1. */
+/** Title anchor: the "View visits" button on the Home page links here and the focus reaches the h1. */
 const TITLE_ID = 'visits-title'
 const KPI_KEYS: readonly KpiKey[] = ['visits', 'visitors', 'avgDurationSec', 'bounceRate']
 const PERCENT = 100
-/** Entrada escalonada de las tarjetas (4 KPI + 6 gráficas, `--stagger` 0–9). */
+/** Staggered input of cards (4 KPI + 6 graphics, `--stagger` 0–9). */
 const CARD_ENTER_MS = 400
 const CARD_STAGGER_MS = 60
 const LAST_CARD_STAGGER = 9
@@ -28,10 +28,10 @@ usePageSeo(() => t('nav.visits'))
 
 const filter = ref<VisitsFilter>(DEFAULT_VISITS_RANGE)
 const { report, status, dataState, retry } = useVisits(filter)
-/** Rango del informe a la vista (con «Datos de ejemplo», el del mock): textos de comparación y de la gráfica. */
+/** Range of the report in view (with "Sample data", that of the mock): comparison and graph texts. */
 const range = computed(() => report.value?.range ?? DEFAULT_VISITS_RANGE)
 
-/** Filtro por defecto según la primera respuesta (salvo que ya se haya elegido otro): 1 mes con datos reales; si no, el ejemplo. */
+/** Default filter according to the first answer (unless another one has already been chosen): 1 month with real data; if not, the example. */
 watch(
   dataState,
   (state) => {
@@ -44,7 +44,7 @@ watch(dataState, (state) => {
   if (state === 'real') realDataAvailable.value = true
 })
 
-/** Nota bajo los filtros: antigüedad de los datos reales o aviso de ejemplo (elegido o porque no hay reales). */
+/** Note below filters: age of real data or sample notice (chosen or because no real data exists). */
 const visitsNoteState = useVisitsNote(report, realDataAvailable)
 const note = computed(() => {
   const { kind, updatedAgo } = visitsNoteState.value
@@ -58,7 +58,7 @@ const isLoading = computed(() => !report.value)
 const { isEntering } = useEntranceOnce(CARD_ENTER_MS + LAST_CARD_STAGGER * CARD_STAGGER_MS)
 const filterOptions = computed(() => VISITS_FILTERS.map((value) => ({ value, label: t(`visits.range.${value}`) })))
 
-/** Valor de cada KPI como número entero para el contador (el rebote, en puntos: 0,41 → 41). */
+/** Value of each KPI as an integer for the counter (the bounce, in points: 0.41 → 41). */
 const KPI_FORMATS: Record<KpiKey, { toCount: (value: number) => number; format: (count: number) => string }> = {
   visits: { toCount: (value) => value, format: (count) => integer(count) },
   visitors: { toCount: (value) => value, format: (count) => integer(count) },
@@ -103,8 +103,8 @@ onMounted(() => {
         data-testid="visits-range"
       />
       <!--
-        Bajo los filtros: antigüedad de la instantánea de GA4 o aviso de datos de ejemplo (icono + texto, no solo color).
-        Alto reservado: sin saltos al cargar.
+        Below filters: GA4 snapshot age or sample-data notice (icon + text, not color alone).
+        Reserved height: no layout shift on load.
       -->
       <p
         class="flex min-h-4 basis-full items-center gap-1.5 text-xs sm:justify-end"

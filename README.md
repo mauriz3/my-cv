@@ -1,14 +1,14 @@
 # my-cv
 
-CV de Maurizio Rendon como app tipo dashboard: [www.mauriziorendon.com](https://www.mauriziorendon.com). Sitio estático en inglés y español con perfil, habilidades, experiencia, formación, proyectos y visitas (Google Analytics 4).
+Maurizio Rendon's CV as a dashboard-style app: [www.mauriziorendon.com](https://www.mauriziorendon.com). Static site in English and Spanish with profile, skills, experience, education, projects, and visits (Google Analytics 4).
 
 ## Stack
 
-Nuxt 4 (`nuxt generate`) · Nuxt UI v4 · Tailwind 4 · TypeScript estricto · `@nuxtjs/i18n` (EN/ES) · zod · Chart.js · Vitest, Playwright + axe y Lighthouse CI · Netlify (estáticos, funciones, Blobs y una Edge Function).
+Nuxt 4 (`nuxt generate`) · Nuxt UI v4 · Tailwind 4 · strict TypeScript · `@nuxtjs/i18n` (EN/ES) · zod · Chart.js · Vitest, Playwright + axe and Lighthouse CI · Netlify (static assets, functions, Blobs, and one Edge Function).
 
-## Arrancar
+## Getting started
 
-Requiere Node 24 (`.nvmrc`).
+Requires Node 24 (`.nvmrc`).
 
 ```bash
 npm install
@@ -17,47 +17,47 @@ npm run dev
 
 ## Scripts
 
-| Script | Qué hace |
+| Script | Purpose |
 | --- | --- |
-| `npm run dev` | Desarrollo |
-| `npm run typecheck` | Tipos |
-| `npm run test` | Tests de Vitest (`tests/unit/` y `tests/nuxt/`), incluida la validación zod de los datos |
-| `npm run coverage` | Tests con cobertura (mínimo 80 %; informe en `coverage/index.html`) |
-| `npm run generate` | Sitio estático en `.output/public` + cabeceras y hashes CSP |
-| `npm run test:a11y` | axe sobre el sitio generado (requiere `generate` y Google Chrome) |
-| `npm run lighthouse` | Lighthouse sobre el sitio generado (requiere `generate` y Google Chrome) |
-| `npm run lighthouse:consent` | Lo mismo con el aviso de analítica (visita desde la UE; build de producción) |
-| `npm run audit:check` | `npm audit` con excepciones justificadas |
-| `npm run pdf` | Regenera los PDF del CV desde `data/` ([scripts/pdf/README.md](scripts/pdf/README.md)) |
-| `npm run visits:snapshot` | Instantánea local de GA4 ([docs/ga4.md](docs/ga4.md)) |
+| `npm run dev` | Development |
+| `npm run typecheck` | Types |
+| `npm run test` | Vitest tests (`tests/unit/` and `tests/nuxt/`), including zod validation of data |
+| `npm run coverage` | Tests with coverage (minimum 80%; report in `coverage/index.html`) |
+| `npm run generate` | Static site in `.output/public` + headers and CSP hashes |
+| `npm run test:a11y` | axe on the generated site (requires `generate` and Google Chrome) |
+| `npm run lighthouse` | Lighthouse on the generated site (requires `generate` and Google Chrome) |
+| `npm run lighthouse:consent` | Same with the analytics notice (visit from the EU; production build) |
+| `npm run audit:check` | `npm audit` with justified exceptions |
+| `npm run pdf` | Regenerate CV PDFs from `data/` ([scripts/pdf/README.md](scripts/pdf/README.md)) |
+| `npm run visits:snapshot` | Local GA4 snapshot ([docs/ga4.md](docs/ga4.md)) |
 
-## Estructura
+## Structure
 
-- `app/` páginas, layouts, componentes, composables y utilidades.
-- `data/` contenido del CV (`cv.shared.ts` + textos en `cv.en.ts` / `cv.es.ts`); lo comparten la web y el PDF.
-- `lib/` lógica pura con tests.
-- `i18n/locales/` textos de la interfaz.
-- `server/`, `netlify/functions/` y `netlify/edge-functions/`: API de Visitas y `/geo`.
-- `public/` estáticos, `_headers` (CSP) y `_redirects`.
-- `scripts/` generación de cabeceras, PDF, imagen Open Graph, auditorías y servidor local para la CI.
-- `tests/` Vitest (`unit/`, `nuxt/`) y axe (`a11y/`).
+- `app/` pages, layouts, components, composables, and utilities.
+- `data/` CV content (`cv.shared.ts` + copy in `cv.en.ts` / `cv.es.ts`); shared by the web and PDF.
+- `lib/` pure logic with tests.
+- `i18n/locales/` UI strings.
+- `server/`, `netlify/functions/`, and `netlify/edge-functions/`: Visits API and `/geo`.
+- `public/` static files, `_headers` (CSP), and `_redirects`.
+- `scripts/` header generation, PDF, Open Graph image, audits, and local server for CI.
+- `tests/` Vitest (`unit/`, `nuxt/`) and axe (`a11y/`).
 
-## Imágenes
+## Images
 
-Ráster en WebP (sin pérdida para capturas, calidad 85 para portadas); siguen en PNG/ICO/JPG solo `og-cv.png` (LinkedIn), `favicon.ico` y `webtele.jpg` (su WebP pesa más). `tests/unit/images.spec.ts` impide imágenes sin usar o ráster nuevos fuera de esas excepciones. Detalle: [docs/imagenes.md](docs/imagenes.md).
+Raster assets in WebP (lossless for screenshots, quality 85 for covers); only `og-cv.png` (LinkedIn), `favicon.ico`, and `webtele.jpg` remain PNG/ICO/JPG (its WebP is larger). `tests/unit/images.spec.ts` blocks unused images and new raster files outside those exceptions. Details: [docs/images.md](docs/images.md).
 
-## CI y calidad
+## CI and quality
 
-Cada PR y cada push a master pasan por `.github/workflows/ci.yml`: typecheck, tests con cobertura (bloquea por debajo del 80 %), generate, `audit:check`, gitleaks, axe (falla con violaciones serious/critical) y Lighthouse (umbrales por categoría). Los informes quedan como artefactos de la ejecución en Actions. Detalle: [docs/calidad.md](docs/calidad.md). Seguridad (CSP, cabeceras, dependencias): [docs/seguridad.md](docs/seguridad.md).
+Every PR and every push to master runs `.github/workflows/ci.yml`: typecheck, tests with coverage (fails below 80%), generate, `audit:check`, gitleaks, axe (fails on serious/critical violations), and Lighthouse (per-category thresholds). Reports are stored as workflow artifacts in Actions. Details: [docs/quality.md](docs/quality.md). Security (CSP, headers, dependencies): [docs/security.md](docs/security.md).
 
-## Despliegue
+## Deployment
 
-Solo un push a master despliega en Netlify (job `deploy-production`, tras pasar toda la CI) y después comprueba producción. Detalle: [docs/despliegue.md](docs/despliegue.md).
+Only a push to master deploys to Netlify (job `deploy-production`, after full CI passes) and then verifies production. Details: [docs/deployment.md](docs/deployment.md).
 
-## Documentación
+## Documentation
 
-- [Funcionalidades](docs/funcionalidades.md): Visitas, analítica y consentimiento, animaciones opt-in, microanimaciones, tema, libros y vista previa al compartir.
-- [Visitas con datos de GA4](docs/ga4.md): instantánea, puesta en marcha y pruebas en local.
-- [Imágenes](docs/imagenes.md): formatos, excepciones y cómo añadir una imagen.
-- [Calidad](docs/calidad.md) · [Seguridad](docs/seguridad.md) · [Despliegue](docs/despliegue.md).
-- [Diagramas de arquitectura, tipos y flujos](docs/README.md) · [Decisiones (ADR)](docs/adr.md) · [Normas para agentes](AGENTS.md).
+- [Features](docs/features.md): Visits, analytics and consent, opt-in animations, micro-animations, theme, books, and share preview.
+- [Visits with GA4 data](docs/ga4.md): snapshot, setup, and local testing.
+- [Images](docs/images.md): formats, exceptions, and how to add an image.
+- [Quality](docs/quality.md) · [Security](docs/security.md) · [Deployment](docs/deployment.md).
+- [Architecture, types, and flow diagrams](docs/README.md) · [Decisions (ADR)](docs/adr.md) · [AI agent guidelines](AGENTS.md).

@@ -7,14 +7,14 @@ const TEXTS_BY_LOCALE: Record<Locale, CvTexts> = { en: textsEn, es: textsEs }
 
 function textFor<T>(texts: Record<string, T>, id: string, locale: Locale, block: string): T {
   const text = texts[id]
-  if (text === undefined) throw new Error(`Falta el texto «${locale}» de ${block}/${id}`)
+  if (text === undefined) throw new Error(`Missing ${locale} text for ${block}/${id}`)
   return text
 }
 
 /**
- * Une los datos comunes con los textos del idioma.
- * No valida con zod para que el navegador no descargue la librería: la validación
- * corre en los tests (`tests/unit/cv.spec.ts`) y, si se quiere, en el build.
+ * Merges shared facts with locale-specific copy.
+ * Does not validate with zod so the browser does not download the library; validation runs in
+ * `tests/unit/cv.spec.ts` and optionally at build time.
  */
 export function getCv(locale: Locale): Cv {
   const texts = TEXTS_BY_LOCALE[locale]

@@ -1,18 +1,18 @@
 /**
- * Holograma móvil fijo con scroll (spec «movil-scroll.md», estilo Apple): todo es función del progreso p (0–1),
- * sin temporizadores, así que se puede ir hacia atrás. Lógica pura: valores de cada fotograma y su paso a CSS.
- * Solo se animan transform (scale, translate, rotate) y opacity.
+ * Fixed mobile hologram with scroll (spec «movil-scroll.md», Apple-style): everything is a function of progress p (0–1),
+ * no timers, so scrubbing backward works. Pure logic: each frame’s values and mapping to CSS.
+ * Only transform (scale, translate, rotate) and opacity are animated.
  */
 import { clamp01, cubicBezier, easeInOutCubic, lerp, progressBetween } from './easing'
 import { LAST_POINT_INDEX, MOBILE_TIMELINE, journeyStateAt, type CardState, type JourneyState } from './journey'
 
 /**
- * Pin móvil: ancho de móvil y alto de ventana entre 520 y 950 px (como Apple). Mismos valores en el CSS
- * de ProfileJourney (las media queries no admiten variables).
+ * Mobile pin: mobile width and viewport height between 520 and 950 px (Apple-style). Same values in
+ * ProfileJourney CSS (media queries cannot use variables).
  */
 export const MOBILE_PIN_QUERY = '(max-width: 767.98px) and (min-height: 520px) and (max-height: 950px)'
 
-/** Entrada «materializa» (fracciones de la entrada ya suavizada). */
+/** «Materialize» entrance (fractions of eased entry). */
 const ENTRY = {
   holoScaleFrom: 1.2,
   opaqueAt: 0.6,
@@ -23,7 +23,7 @@ const ENTRY = {
   timelineFrom: 0.6,
 } as const
 
-/** Gesto de cada punto (fracciones de su tramo) y cómo entra su tarjeta. */
+/** Per-point gesture (fractions of its span) and how its card enters. */
 const GESTURE = {
   armFrom: 0.38,
   armTo: 0.48,
@@ -35,8 +35,8 @@ const GESTURE = {
 } as const
 
 /**
- * Punto 6 «Visitas» (spec §4b): anillo del marcador en la parada, «tap» de 8° al final del gesto,
- * tarjeta con scale 0,96, mini-gráfica y KPI ligados al scroll y sin salida.
+ * Point 6 «Visits» (spec §4b): marker ring on stop, 8° «tap» at end of gesture,
+ * card at scale 0.96, mini-chart and KPIs scroll-linked, no exit.
  */
 const VISITS_GESTURE = {
   ...GESTURE,
@@ -51,7 +51,7 @@ const VISITS_GESTURE = {
   drawTo: 0.82,
 } as const
 
-/** Desde aquí (fracción del tramo del punto 6) el botón «Ver visitas» pulsa una vez. */
+/** From here (fraction of point 6’s span) the «View visits» button pulses once. */
 export const VISITS_PULSE_FROM = VISITS_GESTURE.drawTo
 
 const ARM_ANGLE_DEG = 55
@@ -69,7 +69,7 @@ const easeIn = cubicBezier(0.4, 0, 1, 1)
 
 export type PointingArm = 'right' | 'left'
 
-/** Puntos (índice) en los que señala con el brazo izquierdo: el 2 y el 4; en el resto, el derecho. */
+/** Points (index) that use the left arm: 2 and 4; right arm elsewhere. */
 const LEFT_ARM_POINTS: ReadonlySet<number> = new Set([1, 3])
 
 export function pointingArmOf(pointIndex: number): PointingArm {
@@ -77,8 +77,8 @@ export function pointingArmOf(pointIndex: number): PointingArm {
 }
 
 /**
- * Con una sola tarjeta en el sitio, la del punto actual es `current` en todo su tramo: su opacidad
- * y posición las da el fotograma (entra, se lee y sale con el scroll).
+ * With a single in-place card, the current point’s card is `current` for its whole span: opacity
+ * and position come from the frame (enters, reads, and exits with scroll).
  */
 export function mobileCardStateAt(cardIndex: number, state: JourneyState): CardState {
   if (cardIndex === state.pointIndex) return 'current'
@@ -90,32 +90,32 @@ export interface MobileFrame {
   holoOpacity: number
   holoScale: number
   holoShiftPx: number
-  /** Parte de la figura aún tapada por la cortina (1 = toda; se descubre de abajo arriba). */
+  /** Share of the figure still hidden by the curtain (1 = all; revealed bottom to top). */
   curtain: number
   rayOpacity: number
   scanlinesOpacity: number
   glowOpacity: number
   glowScale: number
   timelineOpacity: number
-  /** Giro del brazo que señala (negativo = derecho hacia fuera, positivo = izquierdo). */
+  /** Pointing arm rotation (negative = right outward, positive = left). */
   armAngleDeg: number
   lineScale: number
   cardOpacity: number
   cardShiftPx: number
   cardScale: number
-  /** Anillo del marcador 6 (se expande una vez en la parada). */
+  /** Marker 6 ring (expands once on stop). */
   ringScale: number
   ringOpacity: number
-  /** Dibujo de la mini-gráfica y cuenta de los KPI de la tarjeta Visitas (0–1). */
+  /** Visits card mini-chart draw and KPI count (0–1). */
   visitsDraw: number
 }
 
-/** Fotograma del recorrido móvil para un progreso de scroll. */
+/** Mobile journey frame for scroll progress. */
 export function mobileFrameAt(progress: number): MobileFrame {
   const state = journeyStateAt(progress, MOBILE_TIMELINE)
   const entry = easeOutExpo(clamp01(progress / MOBILE_TIMELINE.entryShare))
 
-  // El último punto (Visitas) no sale: se queda leyendo hasta que se libera el pin.
+  // Last point (Visits) does not exit: stays reading until pin releases.
   const isLastPoint = state.pointIndex === LAST_POINT_INDEX
   const gesture = isLastPoint ? VISITS_GESTURE : GESTURE
   const u = isLastPoint ? Math.min(state.segmentProgress, GESTURE.leaveFrom) : state.segmentProgress
@@ -124,11 +124,11 @@ export function mobileFrameAt(progress: number): MobileFrame {
   const armIn = progressBetween(u, gesture.armFrom, gesture.armTo)
   const zoom = easeOutExpo(armIn) * stay
   const cardIn = easeOutQuint(progressBetween(u, gesture.cardFrom, gesture.cardTo))
-  // La tarjeta del punto 1 lleva el h1: visible desde la carga (LCP sin animar) hasta su salida.
+  // Point 1 card has h1: visible on load (LCP not animated) until exit.
   const cardShown = state.pointIndex === 0 ? 1 : cardIn
   const armDirection = pointingArmOf(state.pointIndex) === 'right' ? -1 : 1
   const ring = isLastPoint ? easeOutExpo(progressBetween(u, VISITS_GESTURE.ringFrom, VISITS_GESTURE.ringTo)) : 0
-  // «Tap»: el brazo vuelve 8° hacia el cuerpo y regresa (medio seno).
+  // «Tap»: arm returns 8° toward body and back (half sine).
   const tap = isLastPoint ? Math.sin(Math.PI * progressBetween(u, VISITS_GESTURE.tapFrom, VISITS_GESTURE.tapTo)) : 0
 
   return {
@@ -155,7 +155,7 @@ export function mobileFrameAt(progress: number): MobileFrame {
 
 const round = (value: number) => Number(value.toFixed(3))
 
-/** Variables CSS del fotograma (las lee ProfileJourney en modo pin móvil). */
+/** Frame CSS variables (read by ProfileJourney in mobile pin mode). */
 export function mobileFrameCssVars(frame: MobileFrame): Record<string, string> {
   const isRightArm = frame.armAngleDeg <= 0
   return {

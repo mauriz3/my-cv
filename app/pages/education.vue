@@ -9,7 +9,7 @@ usePageSeo(() => t('nav.education'))
   <div class="space-y-6">
     <PageHeader :title="t('nav.education')" :subtitle="t('education.subtitle')" />
 
-    <!-- Gráfica «Education over time»: la hace Programador2 (va aquí, junto a la lista). -->
+    <!-- "Education over time" graphic: made by Programmer2 (goes here, next to the list). -->
 
     <section aria-labelledby="education-studies" class="space-y-3">
       <h2 id="education-studies" class="text-lg font-semibold text-highlighted">{{ t('education.studies') }}</h2>

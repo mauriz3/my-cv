@@ -1,9 +1,9 @@
 /**
- * Contenido del CV en PDF (EN / ES) en orden de lectura, construido desde `data/cv.*.ts` con `getCv`:
- * los textos del CV (summary, puestos, viñetas, formación, proyectos, skills) tienen una sola fuente.
- * Aquí solo vive la presentación propia del PDF: títulos de sección, pie, orden de bloques,
- * alias de skills para ATS, salto de hoja y una ubicación acortada.
- * Privacidad: solo enlaces públicos (LinkedIn, GitHub, CodePen). Nunca correo, teléfono ni dirección.
+ * PDF CV content (EN / ES) in reading order, built from `data/cv.*.ts` via `getCv`:
+ * CV copy (summary, roles, bullets, education, projects, skills) has a single source.
+ * Only PDF-specific presentation lives here: section titles, footer, block order,
+ * ATS skill aliases, page break, and a shortened location.
+ * Privacy: public links only (LinkedIn, GitHub, CodePen). Never email, phone, or address.
  */
 import { getCv } from '../../data/cv'
 import type { Cv, Locale } from '../../data/schema'
@@ -16,7 +16,7 @@ export interface PdfPeriod {
 export interface PdfLink {
   label: string
   url: string
-  /** Texto visible: la URL sin `https://`, `www.` ni barra final (Handoff – CV PDF). */
+  /** Visible text: URL without `https://`, `www.`, or trailing slash (Handoff – CV PDF). */
   text: string
 }
 
@@ -56,7 +56,7 @@ export interface PdfContent {
   projects: (PdfLink & { title: string; description: string })[]
 }
 
-const PERIOD_SEPARATOR = ' – ' // raya corta U+2013 con espacios
+const PERIOD_SEPARATOR = ' – ' // en dash U+2013 with spaces
 const YEAR_RANGE_SEPARATOR = '–'
 const MONTHS: Record<Locale, string[]> = {
   en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -64,7 +64,7 @@ const MONTHS: Record<Locale, string[]> = {
 }
 const PRESENT: Record<Locale, string> = { en: 'Present', es: 'actualidad' }
 
-/** Textos propios del PDF (no son contenido del CV). */
+/** PDF-only labels (not CV content). */
 const PDF_LABELS: Record<Locale, Pick<PdfContent, 'subject' | 'footer' | 'headings'>> = {
   en: {
     subject: 'Senior Software Engineer · Full stack',
@@ -84,15 +84,15 @@ const PDF_LABELS: Record<Locale, Pick<PdfContent, 'subject' | 'footer' | 'headin
   },
 }
 
-/** Orden de los enlaces en la cabecera del diseño del PDF. */
+/** Order of links in the PDF design header. */
 export const PDF_CONTACT_ORDER = ['LinkedIn', 'GitHub', 'CodePen']
-/** Orden de las filas de Skills en el PDF: Back End primero. */
+/** Order of Skills rows in the PDF: Back End first. */
 export const PDF_SKILL_AREA_ORDER = ['backend', 'frontend', 'devops']
-/** Nombres con alias para búsquedas exactas de ATS (la web muestra el nombre corto). */
+/** Names with aliases for exact ATS searches (the site shows the short name). */
 export const PDF_SKILL_ALIASES: Readonly<Record<string, string>> = { React: 'React (ReactJS)', 'Chart.js': 'Chart.js (ChartJS)' }
-/** El PDF acorta la ubicación para que la línea de System73 quepa en una línea. */
+/** The PDF shortens location so the System73 line fits on one row. */
 export const PDF_LOCATION_OVERRIDES: Readonly<Record<string, string>> = { system73: 'Tenerife' }
-/** Puesto que abre la hoja 2 (ninguna entrada se parte entre hojas). */
+/** Role that starts sheet 2 (no entry splits across pages). */
 export const PDF_PAGE_BREAK_BEFORE = 'open-canarias'
 
 export const visibleUrl = (url: string): string => url.replace(/^https:\/\/(www\.)?/, '').replace(/\/$/, '')
@@ -102,7 +102,7 @@ function formatPartialDate(partialDate: string, locale: Locale): string {
   return month ? `${MONTHS[locale][Number(month) - 1]} ${year}` : String(year)
 }
 
-/** «Feb 2022 – Present», «2014» (misma fecha) o «mar 2014 – jun 2014». */
+/** «Feb 2022 – Present», «2014» (same date), or «Mar 2014 – Jun 2014». */
 export function formatPdfPeriod({ start, end }: PdfPeriod, locale: Locale): string {
   const startText = formatPartialDate(start, locale)
   if (end === start) return startText
@@ -112,7 +112,7 @@ export function formatPdfPeriod({ start, end }: PdfPeriod, locale: Locale): stri
 
 const yearOf = (partialDate: string) => partialDate.slice(0, 4)
 
-/** «DevOps (2016–2018)» si el área ya terminó; «Back End» si sigue activa. */
+/** «DevOps (2016–2018)» if the area ended; «Back End» if still active. */
 function skillAreaLabel(area: Cv['skillAreas'][number]): string {
   const ended = area.periods.every((period) => period.end !== null)
   if (!ended) return area.name
@@ -129,7 +129,7 @@ function byOrder<T>(items: T[], keyOf: (item: T) => string, order: string[]): T[
   return [...items].sort((a, b) => rank(a) - rank(b))
 }
 
-/** Perfil del PDF = summary de la web + la frase de motivación (que en la web va aparte). */
+/** PDF profile = site summary + motivation sentence (separate on the site). */
 export function pdfSummary(cv: Pick<Cv, 'summary' | 'motivation'>): string {
   return `${cv.summary} ${cv.motivation}`
 }

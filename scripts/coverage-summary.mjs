@@ -1,19 +1,19 @@
 /**
- * Tabla Markdown de la cobertura (coverage/coverage-summary.json, de `npm run coverage`) para el
- * resumen del job de GitHub Actions: `node scripts/coverage-summary.mjs >> "$GITHUB_STEP_SUMMARY"`.
+ * Markdown table from coverage (coverage/coverage-summary.json, from `npm run coverage`) for the
+ * GitHub Actions job summary: `node scripts/coverage-summary.mjs >> "$GITHUB_STEP_SUMMARY"`.
  */
 import { readFileSync } from 'node:fs'
 import { isDirectRun } from './isDirectRun.mjs'
 
 const SUMMARY_FILE = 'coverage/coverage-summary.json'
-const METRICS = { lines: 'Líneas', statements: 'Sentencias', functions: 'Funciones', branches: 'Ramas' }
+const METRICS = { lines: 'Lines', statements: 'Statements', functions: 'Functions', branches: 'Branches' }
 
-/** `total` de coverage-summary.json → tabla Markdown (una fila por métrica). */
+/** `total` from coverage-summary.json → Markdown table (one row per metric). */
 export function coverageSummaryMarkdown(total) {
   const rows = Object.entries(METRICS).map(
     ([metric, label]) => `| ${label} | ${total[metric].pct} % | ${total[metric].covered} / ${total[metric].total} |`
   )
-  return ['## Cobertura de tests unitarios', '', '| Métrica | % | Cubierto |', '| --- | ---: | ---: |', ...rows].join('\n')
+  return ['## Unit test coverage', '', '| Metric | % | Covered |', '| --- | ---: | ---: |', ...rows].join('\n')
 }
 
 if (isDirectRun(import.meta.url)) {

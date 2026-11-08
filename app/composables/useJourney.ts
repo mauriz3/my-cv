@@ -11,20 +11,20 @@ import {
 } from '~~/lib/journey'
 import { mobileFrameAt, mobileFrameCssVars } from '~~/lib/mobileJourney'
 
-/** Umbrales del observador de la sección (handoff: 0 / 0,3 / 0,6). */
+/** Section observer thresholds (handoff: 0 / 0.3 / 0.6). */
 const VISIBILITY_THRESHOLDS = [0, 0.3, 0.6]
 const CARD_SELECTOR = '[data-point-index]'
-/** En móvil solo se repinta si el progreso cambia más que esto (spec). */
+/** On mobile it is only repainted if the progress changes more than this (spec). */
 const MIN_PROGRESS_CHANGE = 0.001
 
 /**
- * Sigue el scroll del recorrido: una vez por fotograma (rAF) y solo con la sección en pantalla,
- * escribe la posición del holograma como variable CSS (`--journey-position`, sin pasar por Vue)
- * y expone el estado (punto, fase), si la zancada avanza, si está en pantalla y si la pestaña está oculta.
- * Con el pin móvil usa su reparto (entrada + 6 tramos) y escribe además las variables del fotograma (scrub)
- * y expone el dibujo de la tarjeta Visitas (`visitsDraw`), que también va ligado al scroll.
+ * Follow the scroll of the tour: once per frame (rAF) and only with the section on screen,
+ * write the hologram position as CSS variable (`--journey-position`, bypassing Vue)
+ * and exposes the status (point, phase), if the stride advances, if it is on screen and if the tab is hidden.
+ * With the mobile pin, use its distribution (input + 6 sections) and also write the variables of the frame (scrub)
+ * and exposes the drawing of the Visits card (`visitsDraw'), which is also linked to the scroll.
  * Al pausar o reanudar el movimiento mantiene al usuario en el mismo punto, sin repetir los anteriores.
- * `onFrame`: trabajo extra en el mismo fotograma (microanimaciones de las tarjetas): un único rAF para todo.
+ * `onFrame`: extra work in the same frame (micro animations of the cards): a single rAF for everything.
  */
 export function useJourney(
   section: Readonly<Ref<HTMLElement | null>>,
@@ -78,7 +78,7 @@ export function useJourney(
     frame = requestAnimationFrame(update)
   }
 
-  /** Cada scroll reactiva la zancada; se pausa WALK_IDLE_MS después del último. */
+  /** Each scroll reactivates the stride; WALK_IDLE_MS is paused after the last one. */
   function onScroll() {
     lastScrollAt = performance.now()
     requestUpdate()
@@ -101,7 +101,7 @@ export function useJourney(
     return Boolean(box && box.bottom > 0 && box.top < window.innerHeight)
   }
 
-  /** Tarjeta más cercana al centro de la ventana (en la versión estática). */
+  /** Card closest to the center of the window (in the static version). */
   function cardNearestToCenter(element: HTMLElement): number {
     const middle = window.innerHeight / 2
     const cards = [...element.querySelectorAll<HTMLElement>(CARD_SELECTOR)]
@@ -112,7 +112,7 @@ export function useJourney(
     return distances.indexOf(Math.min(...distances))
   }
 
-  /** Al reanudar: el punto donde se pausó si su tarjeta sigue a la vista; si no, la tarjeta más centrada. */
+  /** When resuming: the point where it was paused if your card is still in view; if not, the most centered card. */
   function pointToResume(element: HTMLElement): number {
     return isInViewport(cardAt(element, pointWhenPaused)) ? pointWhenPaused : cardNearestToCenter(element)
   }
@@ -140,8 +140,8 @@ export function useJourney(
   }
 
   /**
-   * Lleva al final del recorrido (último punto, tarjeta Visitas visible): cuando su botón recibe el foco
-   * del teclado con el escenario fijado. En la versión estática el navegador ya lo deja a la vista.
+   * Leads to the end of the tour (last point, Visits card visible): when your button receives the focus
+   * of the keyboard with the stage set. In the static version, the browser already leaves it visible.
    */
   function revealLastPoint() {
     const element = section.value
@@ -152,7 +152,7 @@ export function useJourney(
   }
 
   // `sync`: se mide antes de que `<html data-motion>` cambie la maqueta. Si `<html>` ya tiene el valor nuevo
-  // (sincronización inicial tras hidratar), la maqueta no cambia y no hay nada que recolocar.
+  // (initial synchronization after hydrating), the model does not change and there is nothing to reposition.
   watch(
     motion,
     (next, previous) => {
@@ -161,7 +161,7 @@ export function useJourney(
     { flush: 'sync' },
   )
 
-  // Al entrar o salir del pin móvil cambia el reparto: repintar todo el fotograma.
+  // When entering or leaving the mobile pin, the distribution changes: repaint the entire frame.
   watch(isMobilePinned, () => {
     lastMobileProgress = Number.NEGATIVE_INFINITY
     requestUpdate()

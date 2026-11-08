@@ -4,13 +4,13 @@ import { DEFAULT_VISITS_RANGE, formatKpiChange, kpiTrend, type KpiKey } from '~~
 import { donutArcs, endTrend, sparklinePaths } from '~~/lib/sparkline'
 
 /**
- * Contenido de la tarjeta 6 «Visitas» del recorrido: 2 KPI, mini área de 30 días y mini donut de dispositivos
- * en SVG ligero (sin Chart.js en el Inicio), con los datos de la misma capa que la página Visitas (`useVisits`).
- * `draw` (0–1) dibuja la línea, el área y los arcos y hace contar los KPI; `pulse` resalta el botón.
+ * Card content 6 Tour “Visits”: 2 KPIs, 30-day mini area and mini device donut
+ * in lightweight SVG (without Chart.js at Home), with data from the same layer as the Visits page (`useVisits`).
+ * `draw` (0–1) draws the line, area and arcs and counts the KPIs; `press` highlights the button.
  */
 const props = defineProps<{ draw: number; pulse: boolean }>()
 
-/** Lienzo de la mini área: se escala sin deformarse (misma proporción en todos los tamaños). */
+/** Mini area canvas: scales without deforming (same proportion in all sizes). */
 const SPARK_WIDTH = 240
 const SPARK_HEIGHT = 48
 const DONUT_RADIUS = 16
@@ -25,7 +25,7 @@ const localePath = useLocalePath()
 const { language, integer, percent } = useVisitsFormat()
 const { report } = useVisits(ref(DEFAULT_VISITS_RANGE))
 const gradientId = useId()
-/** Datos reales: «Datos actualizados hace X · …»; de ejemplo: «Datos de ejemplo (mock) · …» (misma fuente que /visits). */
+/** Real data: “Data updated X ago · …”; sample: “Sample data (mock) · …” (same source as /visits). */
 const noteState = useVisitsNote(report)
 const note = computed(() => {
   const { kind, updatedAgo } = noteState.value
@@ -163,7 +163,7 @@ const summary = computed(() => {
   overflow: visible;
 }
 
-/* Cada arco empieza arriba (−90°) en su sitio y se dibuja escalonado según `--visits-draw`. */
+/* Each arc starts at the top (−90°) in place and is drawn staggered according to `--visits-draw`. */
 .journey-visits__donut circle {
   stroke-dasharray: var(--arc-length) 1;
   stroke-dashoffset: calc(

@@ -3,14 +3,14 @@ import { MOTION_ATTRIBUTE, MOTION_STORAGE_KEY, SYSTEM_REDUCED_MOTION_QUERY, type
 import { finishAnimations, replayAnimations } from './useReplayable'
 
 /**
- * Último ON/OFF aplicado. Sirve para no reiniciar en un re-render, un cambio de tema o de idioma.
- * Nace en null: la primera sincronización con `<html>` no cuenta como activación.
+ * Last ON/off applied. It serves not to restart in a re-start, a change of theme or language.
+ * Born in null: the first synchronization with `<html>` does not count as activation.
  */
 let wasOn: boolean | null = null
 let stopListening: (() => void) | undefined
 const pulseStops = new Set<() => void>()
 
-/** El botón registra aquí cómo cancelar su pulso; un clic o reduced-motion lo llama. */
+/** The button records here how to cancel your pulse; a click or reduced-motion calls it. */
 export function registerPulseStop(stop: () => void) {
   pulseStops.add(stop)
   onScopeDispose(() => pulseStops.delete(stop))
@@ -32,12 +32,12 @@ function writeStored(choice: AnimationChoice) {
   try {
     localStorage.setItem(ANIMATIONS_STORAGE_KEY, choice)
   } catch {
-    // Sin almacenamiento la elección vale solo en esta visita.
+    // Without storage the choice is valid only on this visit.
   }
   try {
     localStorage.removeItem(MOTION_STORAGE_KEY)
   } catch {
-    // La clave antigua se ignora igual; se borrará en la próxima elección que sí pueda escribir.
+    // The old key is still ignored; it will be deleted at the next choice you can enter.
   }
 }
 
@@ -50,8 +50,8 @@ function applyDocument(motion: MotionPreference) {
 }
 
 /**
- * Preferencia de animaciones compartida. En el servidor está apagada: el script inline es quien
- * fija `<html>` antes de pintar, y el cliente se alinea con él sin reproducir nada.
+ * Shared animation preference. On the server it is turned off: the inline script is who
+ * fixed `<html>` before painting, and the client aligns with it without reproducing anything.
  */
 export function useAnimations() {
   const stored = useState<AnimationChoice | null>('animations-choice', () => null)
@@ -62,7 +62,7 @@ export function useAnimations() {
   const effectiveOn = computed(() => isEffectiveOn(stored.value, prefersReducedMotion.value, override.value))
 
   /**
-   * Aplica ON/OFF. El ref cambia antes que el atributo: quien escucha (el recorrido) todavía ve
+   * Apply ON/off. The ref changes before the attribute: the listener (the tour) still sees
    * la maqueta anterior y puede mantener el punto en pantalla. Si no hay cambio, no reinicia nada.
    */
   function commit(on: boolean) {
@@ -75,7 +75,7 @@ export function useAnimations() {
     else finishAnimations()
   }
 
-  /** Para tests y para forzar un estado sin pasar por el botón. No escribe en localStorage. */
+  /** For tests and to force a state without going through the button. Does not write to localStorage. */
   function set(next: MotionPreference) {
     stored.value = next === 'full' ? 'on' : 'off'
     override.value = next === 'full' && prefersReducedMotion.value
@@ -92,7 +92,7 @@ export function useAnimations() {
   }
 
   /**
-   * Alinea el estado con lo que el script ya pintó. El atributo se escribe antes que el ref:
+   * Aligns the status with what the script already painted. Attribute is written before ref:
    * si alguien ya escucha, ve que la maqueta no cambia y no recoloca ni reinicia.
    */
   function hydrate() {
@@ -135,7 +135,7 @@ export function useAnimations() {
   }
 }
 
-/** Una vez por visita: estado desde localStorage y escucha del sistema y de otras pestañas. */
+/** Once per visit: status from localStorage and listen to the system and other tabs. */
 export function startAnimationsSync() {
   const animations = useAnimations()
   stopListening?.()

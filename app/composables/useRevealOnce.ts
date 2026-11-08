@@ -5,8 +5,8 @@ export type RevealState = 'static' | 'hidden' | 'revealed'
 
 /**
  * Entrada una sola vez al entrar en el viewport (IntersectionObserver).
- * En el servidor y sin JS: «static» (todo visible). Al montar, «hidden» hasta cruzar `threshold`; luego «revealed».
- * El CSS solo oculta y anima con `data-motion="full"`, así que con animaciones apagadas no hay desplazamiento.
+ * On the server and without JS: “static” (all visible). When riding, “hidden” until crossing `threshold`; then “revealed”.
+ * CSS only hides and animates with `data-motion ="full"`, so with animations off there is no scrolling.
  * Al activar, lo que ya se ve vuelve a entrar una vez; lo que no, espera a cruzar el umbral.
  */
 export function useRevealOnce(target: Ref<HTMLElement | null>, threshold: number) {

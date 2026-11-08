@@ -1,9 +1,9 @@
 /**
- * Microanimaciones de las tarjetas del recorrido (Tanda F y, para las escenas de Skills, Experience, Education y
- * Projects, Tanda G: lib/journeyScene). Lógica pura: el progreso p (0–1) de cada tarjeta según la maqueta y,
- * para cada p, el valor de cada elemento animado.
- * Sin bucles: todo es función de p, así que al volver atrás se deshace (scrub reversible).
- * El estado final (p = 1) es también la versión estática (movimiento reducido, sin JS).
+ * Journey card micro-animations (batch F and, for Skills, Experience, Education, and Projects scenes,
+ * batch G: lib/journeyScene). Pure logic: progress p (0–1) per card per spec and,
+ * for each p, each animated element’s value.
+ * No loops: everything is a function of p, so scrubbing backward undoes (reversible scrub).
+ * Final state (p = 1) is also the static version (reduced motion, no JS).
  */
 import { clamp01, easeInOutCubic, progressBetween } from './easing'
 import { flatSceneValues } from './journeyScene'
@@ -15,35 +15,35 @@ import {
   type JourneyTimeline,
 } from './journey'
 
-/** Tarjetas con microanimación. Visitas no se toca (tiene la suya). */
+/** Cards with micro-animation. Visits is separate (has its own). */
 export type CardMotionKind = Exclude<JourneyPointId, 'visits'>
 
 export function cardMotionKindOf(pointId: JourneyPointId): CardMotionKind | null {
   return pointId === 'visits' ? null : pointId
 }
 
-/* ---------- Progreso p de cada tarjeta ---------- */
+/* ---------- Per-card progress p ---------- */
 
-/** Con la tarjeta en el flujo de la página: p = 1 cuando su borde superior llega al 40 % de la ventana. */
+/** With card in page flow: p = 1 when its top edge reaches 40% of the viewport. */
 export const FLOW_REVEAL_SHARE = 0.6
 
-/** Sin pin (tarjetas una debajo de otra): p = (vh − top) / (vh × 0,6), con límites. */
+/** No pin (stacked cards): p = (vh − top) / (vh × 0.6), clamped. */
 export function flowCardProgress(cardTop: number, viewportHeight: number): number {
   if (viewportHeight <= 0) return 1
   return clamp01((viewportHeight - cardTop) / (viewportHeight * FLOW_REVEAL_SHARE))
 }
 
-/** Tramo (fracción del tramo de su punto) en el que una tarjeta fijada pasa de p = 0 a p = 1. */
+/** Segment (fraction of its point’s span) where a pinned card goes from p = 0 to p = 1. */
 export interface CardProgressRange {
   from: number
   to: number
 }
 
 /**
- * Con pin la tarjeta no se mueve por la pantalla: p sale del avance dentro del tramo de su punto.
- * · Escritorio y tablet: desde que se muestra (fase «reveal», 0,6) hasta mitad de la lectura (0,85).
- * · Profile en escritorio y tablet: ya se lee al cargar; el contenido entra repartido en casi todo el tramo del punto 1 (0–0,85).
- * · Móvil fijo (spec): la entrada de la tarjeta, 0,46–0,62 (Profile: ver `mobileFirstCardProgress`).
+ * With pin the card does not move on screen: p comes from progress within its point’s span.
+ * · Desktop and tablet: from reveal (0.6) through mid-reading (0.85).
+ * · Profile on desktop/tablet: readable on load; content enters over most of point 1 (0–0.85).
+ * · Fixed mobile (spec): card entrance 0.46–0.62 (Profile: see `mobileFirstCardProgress`).
  */
 export const PINNED_CARD_RANGE: CardProgressRange = { from: 0.6, to: 0.85 }
 export const PINNED_FIRST_CARD_RANGE: CardProgressRange = { from: 0, to: 0.85 }
@@ -55,14 +55,14 @@ export function pinnedCardRange(cardIndex: number, timeline: JourneyTimeline): C
 }
 
 /**
- * Profile en el móvil fijo: su tarjeta ya se ve durante la entrada del holograma (0–0,14 del scroll),
- * así que su contenido entra a la vez que el holograma se materializa, no en el tramo del punto 1.
+ * Profile on fixed mobile: card is visible during hologram entrance (0–0.14 of scroll),
+ * so its content enters as the hologram materializes, not in point 1’s span.
  */
 export function mobileFirstCardProgress(journeyProgress: number): number {
   return progressBetween(journeyProgress, 0, MOBILE_TIMELINE.entryShare)
 }
 
-/** Ya leída: estado final. Por llegar: estado inicial. La actual: según el scroll dentro de su tramo. */
+/** Already read: final state. Upcoming: initial. Current: from scroll within its span. */
 export function pinnedCardProgress(
   cardIndex: number,
   cardState: CardState,
@@ -75,12 +75,12 @@ export function pinnedCardProgress(
   return progressBetween(state.segmentProgress, from, to)
 }
 
-/** Solo se repinta si p cambia más que esto (spec). */
+/** Repaint only if p changes more than this (spec). */
 export const MIN_CARD_PROGRESS_CHANGE = 0.001
 
-/* ---------- Elementos de cada tarjeta para un p dado ---------- */
+/* ---------- Per-card elements for a given p ---------- */
 
-/** Tramos de p (spec §3). */
+/** p spans (spec §3). */
 export const PROFILE_TIMING = {
   eyebrow: { from: 0, to: 0.22 },
   headline: { from: 0.08, to: 0.38 },
@@ -96,20 +96,20 @@ export const PROFILE_KPI_COUNT = 3
 
 const eased = (p: number, { from, to }: CardProgressRange) => easeInOutCubic(progressBetween(p, from, to))
 
-/** Duración de cada KPI: el tramo total menos el escalonado de los demás. */
+/** Each KPI’s duration: total span minus other KPIs’ stagger. */
 const KPI_DURATION = PROFILE_TIMING.kpiTo - PROFILE_TIMING.kpiFrom - (PROFILE_KPI_COUNT - 1) * PROFILE_TIMING.kpiStagger
 
-/** Avance de los contadores de Profile (0 → valor final). */
+/** Profile counter progress (0 → final value). */
 export function profileCountProgress(p: number): number {
   return eased(p, PROFILE_TIMING.counters)
 }
 
-/** KPI al valor final mientras la tarjeta de Perfil es la que se lee (sin esperar al primer scroll). */
+/** KPIs at final value while the Profile card is current (no wait for first scroll). */
 export interface ProfileMotionOptions {
   profileKpisReady?: boolean
 }
 
-/** Con pin en el punto 1: textos en su sitio y cifras legibles; el scroll anima KPI, brillo y CTA. */
+/** Pin on point 1: copy and counters readable; scroll animates KPIs, glow, and CTA. */
 export function profileMotionOptions(
   cardIndex: number,
   kind: CardMotionKind,
@@ -123,7 +123,7 @@ export function profileMotionOptions(
   return { profileKpisReady: true }
 }
 
-/** Texto de cabecera y cuerpo: posición final mientras la tarjeta es la actual con pin. */
+/** Header and body copy at final position while the card is current with pin. */
 function profileCopyProgress(p: number, range: CardProgressRange, options?: ProfileMotionOptions): number {
   return options?.profileKpisReady ? 1 : eased(p, range)
 }
@@ -133,7 +133,7 @@ export function profileCounterProgress(p: number, options?: ProfileMotionOptions
   return profileCountProgress(p)
 }
 
-/** Valor de cada elemento animado de la tarjeta para p, por nombre de variable CSS (sin `--fx-`). */
+/** Each animated element’s value for p, by CSS variable name (without `--fx-`). */
 export function cardMotionValues(kind: CardMotionKind, p: number, options?: ProfileMotionOptions): Record<string, number> {
   switch (kind) {
     case 'profile': {
@@ -163,7 +163,7 @@ export function cardMotionValues(kind: CardMotionKind, p: number, options?: Prof
 
 const round = (value: number) => Number(value.toFixed(3))
 
-/** Variables CSS (`--fx-<elemento>`) que lee el CSS de las tarjetas (puede haber valores negativos). */
+/** CSS variables (`--fx-<element>`) read by card CSS (may be negative). */
 export function cardMotionCssVars(kind: CardMotionKind, p: number, options?: ProfileMotionOptions): Record<string, string> {
   return Object.fromEntries(
     Object.entries(cardMotionValues(kind, p, options)).map(([name, value]) => [`--fx-${name}`, String(round(value))]),

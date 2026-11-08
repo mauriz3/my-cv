@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { TechnologyGroup } from '~~/data/schema'
 
-/** Chips de tecnologías de un puesto. Si hay varias etapas (System73), un grupo por área. */
+/** Chips of technologies of a position. If there are multiple stages (System73), one group per area. */
 defineProps<{ groups: TechnologyGroup[] }>()
 
 const { t } = useI18n()

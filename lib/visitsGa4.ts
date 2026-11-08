@@ -15,19 +15,19 @@ import {
 } from './visits'
 
 /**
- * Informe de visitas a partir de la GA4 Data API (`runReport`), con el mismo contrato que el mock
- * (`VisitsReportSchema`). Aquí solo hay lógica pura: periodos, peticiones y mapeo de respuestas.
- * La llamada HTTP y el token se inyectan (`createGa4ReportFetcher`), así todo se prueba sin red.
+ * Visits report from the GA4 Data API (`runReport`), same contract as the mock
+ * (`VisitsReportSchema`). Pure logic only: periods, requests, and response mapping.
+ * HTTP and token are injected (`createGa4ReportFetcher`) so everything tests without network.
  */
 
 export const GA4_DATA_API_URL = 'https://analyticsdata.googleapis.com/v1beta'
 
-/* ---------- Periodos ---------- */
+/* ---------- Periods ---------- */
 
 const MS_PER_DAY = 86_400_000
 const HOURS_PER_DAY = 24
 const HOURS_PER_SLOT = 3
-/** Días del periodo actual por rango. «1d» es el último día completo (el de hoy aún no está procesado en GA4). */
+/** Days in the current period per range. «1d» is the last full day (today is not yet processed in GA4). */
 const RANGE_DAYS: Record<VisitsRange, number> = { '1d': 1, '7d': 7, '30d': 30 }
 
 export interface DateRange {
@@ -39,9 +39,9 @@ export interface DateRange {
 export interface VisitsPeriods {
   current: DateRange
   previous: DateRange
-  /** Etiquetas del eje (contrato): días `YYYY-MM-DD` o, en «1d», horas `YYYY-MM-DDTHH`. */
+  /** Axis labels (contract): days `YYYY-MM-DD` or, for «1d», hours `YYYY-MM-DDTHH`. */
   labels: string[]
-  /** Clave de GA4 de cada etiqueta del periodo actual y del anterior (`date` YYYYMMDD o `dateHour` YYYYMMDDHH). */
+  /** GA4 key per label for current and previous period (`date` YYYYMMDD or `dateHour` YYYYMMDDHH). */
   currentKeys: string[]
   previousKeys: string[]
 }
@@ -62,7 +62,7 @@ function hourList(day: string): string[] {
   return Array.from({ length: HOURS_PER_DAY }, (_, hour) => `${day}T${String(hour).padStart(2, '0')}`)
 }
 
-/** Periodo actual (acaba ayer, en días UTC) y el anterior de la misma longitud. */
+/** Current period (ends yesterday, UTC days) and the previous one of equal length. */
 export function visitsPeriods(range: VisitsRange, now: Date): VisitsPeriods {
   const days = RANGE_DAYS[range]
   const todayMs = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
@@ -86,7 +86,7 @@ export function visitsPeriods(range: VisitsRange, now: Date): VisitsPeriods {
   }
 }
 
-/* ---------- Peticiones (runReport) ---------- */
+/* ---------- Requests (runReport) ---------- */
 
 export const GA4_REPORT_NAMES = ['kpis', 'timeseries', 'devices', 'countries', 'sources', 'pages', 'hours'] as const
 export type Ga4ReportName = (typeof GA4_REPORT_NAMES)[number]
@@ -101,12 +101,12 @@ export interface RunReportRequest {
 
 const SESSIONS = { name: 'sessions' }
 const KPI_METRICS = ['sessions', 'totalUsers', 'averageSessionDuration', 'bounceRate'] as const
-/** Límites de filas por informe: de sobra para un CV (países del mundo, páginas, 7 × 24 horas). */
+/** Row limits per report: more than enough for a CV (world countries, pages, 7 × 24 hours). */
 const ROW_LIMITS = { countries: 250, sources: 500, pages: 100, hours: 7 * HOURS_PER_DAY, timeseries: 2 * 31 * HOURS_PER_DAY }
 
 const dimensions = (...names: string[]) => names.map((name) => ({ name }))
 
-/** Las 7 peticiones de un rango. Los desgloses usan solo el periodo actual. */
+/** The 7 requests for a range. Breakdowns use only the current period. */
 export function buildGa4Requests(periods: VisitsPeriods, range: VisitsRange): Record<Ga4ReportName, RunReportRequest> {
   const both = [periods.current, periods.previous]
   const current = [periods.current]
@@ -137,9 +137,9 @@ export function buildGa4Requests(periods: VisitsPeriods, range: VisitsRange): Re
   }
 }
 
-/* ---------- Respuestas ---------- */
+/* ---------- Responses ---------- */
 
-/** Lo que se usa de la respuesta de runReport. Sin filas = sin datos (GA4 omite `rows`). */
+/** Subset of runReport response used here. No rows = no data (GA4 omits `rows`). */
 export const RunReportResponseSchema = z.object({
   dimensionHeaders: z.array(z.object({ name: z.string() })).default([]),
   metricHeaders: z.array(z.object({ name: z.string() })).default([]),
@@ -154,7 +154,7 @@ export const RunReportResponseSchema = z.object({
 })
 export type RunReportResponse = z.infer<typeof RunReportResponseSchema>
 
-/** Filas como objetos `{ dimensión: valor }` y `{ métrica: número }` (por nombre de cabecera, no por posición). */
+/** Rows as `{ dimension: value }` and `{ metric: number }` (by header name, not position). */
 interface Row {
   dims: Record<string, string>
   metrics: Record<string, number>
@@ -169,11 +169,11 @@ function rowsOf(response: RunReportResponse): Row[] {
   }))
 }
 
-/** Con varios periodos GA4 añade la dimensión `dateRange` con el nombre de cada uno. */
+/** With multiple periods GA4 adds `dateRange` with each period’s name. */
 const DATE_RANGE_DIMENSION = 'dateRange'
 const inRange = (name: DateRange['name']) => (row: Row) => (row.dims[DATE_RANGE_DIMENSION] ?? name) === name
 
-/** Tasas (rebote) con 2 decimales, como en el contrato. */
+/** Rates (bounce) with 2 decimals, as in the contract. */
 const roundShare = (value: number) => Math.round(value * 100) / 100
 
 function mapKpis(response: RunReportResponse): VisitsReport['kpis'] {
@@ -208,7 +208,7 @@ function mapTimeseries(response: RunReportResponse, periods: VisitsPeriods): Vis
   }
 }
 
-/** Reparto en % enteros que suman 100 (resto mayor). Sin datos, todo a 0. */
+/** Integer % shares summing to 100 (largest remainder). No data → all 0. */
 export function toPercentShares(values: readonly number[]): number[] {
   const total = sum(values)
   if (total === 0) return values.map(() => 0)
@@ -231,7 +231,7 @@ function addTo<Key>(counts: Map<Key, number>, key: Key, value: number) {
 
 const isDeviceKey = (value: string): value is (typeof DEVICE_KEYS)[number] => (DEVICE_KEYS as readonly string[]).includes(value)
 
-/** Otras categorías de GA4 (p. ej. «smart tv») no están en el contrato: se descartan. */
+/** Other GA4 categories (e.g. «smart tv») are not in the contract: discarded. */
 function mapDevices(response: RunReportResponse): VisitsReport['devices'] {
   const counts = new Map<(typeof DEVICE_KEYS)[number], number>()
   for (const row of rowsOf(response)) {
@@ -248,7 +248,7 @@ const CHANNEL_TO_SOURCE: Record<string, (typeof SOURCE_KEYS)[number]> = {
   Referral: 'referral',
 }
 
-/** Canal de GA4 → fuente del contrato. LinkedIn va aparte por origen (sea social o referral). */
+/** GA4 channel → contract source. LinkedIn is separate by origin (social or referral). */
 export function sourceKey(channelGroup: string, source: string): (typeof SOURCE_KEYS)[number] {
   if (LINKEDIN_SOURCE.test(source)) return 'linkedin'
   return CHANNEL_TO_SOURCE[channelGroup] ?? 'other'
@@ -264,7 +264,7 @@ function mapSources(response: RunReportResponse): VisitsReport['sources'] {
 
 const ISO_ALPHA2 = /^[A-Z]{2}$/
 
-/** Países (ISO alfa-2) con el mismo agrupado de privacidad que el mock; «(not set)» suma en «Otros». */
+/** Countries (ISO alpha-2) with same privacy grouping as mock; «(not set)» rolls into «Other». */
 function mapCountries(response: RunReportResponse): CountryVisits[] {
   const known: CountryVisits[] = []
   let unknownVisits = 0
@@ -282,9 +282,9 @@ function mapCountries(response: RunReportResponse): CountryVisits[] {
   return grouped
 }
 
-/** Páginas que se muestran (como en el mock). */
+/** Pages shown (as in the mock). */
 export const TOP_PAGES = 6
-/** Prefijos de idioma de las rutas (estrategia `prefix` de i18n): `/es/projects` y `/en/projects` son la misma página. */
+/** Route locale prefixes (i18n `prefix` strategy): `/es/projects` and `/en/projects` are the same page. */
 const LOCALE_PREFIX = /^\/(?:en|es)(?=\/|$)/
 
 export function pageWithoutLocale(path: string): string {
@@ -302,7 +302,7 @@ function mapPages(response: RunReportResponse): VisitsReport['pages'] {
     .slice(0, TOP_PAGES)
 }
 
-/** GA4 `dayOfWeek`: 0 = domingo. El contrato empieza en lunes. */
+/** GA4 `dayOfWeek`: 0 = Sunday. Contract starts on Monday. */
 const DAYS_PER_WEEK = 7
 const SUNDAY_FIRST_OFFSET = 6
 
@@ -317,7 +317,7 @@ function mapHours(response: RunReportResponse): VisitsReport['hours'] {
   return { days: [...WEEK_DAYS], slots: [...HOUR_SLOTS], values }
 }
 
-/** Las 7 respuestas de un rango → informe del contrato (aún sin validar: lo valida quien lo guarda o sirve). */
+/** Seven responses for a range → contract report (not yet validated: saver or handler validates). */
 export function mapGa4Report(
   range: VisitsRange,
   periods: VisitsPeriods,
@@ -338,7 +338,7 @@ export function mapGa4Report(
   }
 }
 
-/* ---------- Cliente ---------- */
+/* ---------- Client ---------- */
 
 export class Ga4Error extends Error {
   override name = 'Ga4Error'
@@ -346,13 +346,13 @@ export class Ga4Error extends Error {
 
 export interface Ga4FetcherOptions {
   propertyId: string
-  /** Token OAuth (se pide una vez por ejecución). */
+  /** OAuth token (requested once per run). */
   getAccessToken: () => Promise<string>
   fetch: typeof fetch
   now: Date
 }
 
-/** Ejecuta un runReport. El error solo lleva el estado HTTP y el código de Google, nunca el token. */
+/** Runs runReport. Error carries only HTTP status and Google code, never the token. */
 export async function runReport(options: Ga4FetcherOptions, request: RunReportRequest): Promise<RunReportResponse> {
   const response = await options.fetch(`${GA4_DATA_API_URL}/properties/${options.propertyId}:runReport`, {
     method: 'POST',
@@ -364,12 +364,12 @@ export async function runReport(options: Ga4FetcherOptions, request: RunReportRe
       .json()
       .then((body: { error?: { status?: string } }) => body.error?.status ?? '')
       .catch(() => '')
-    throw new Ga4Error(`GA4 runReport respondió ${response.status} ${status}`.trim())
+    throw new Ga4Error(`GA4 runReport returned ${response.status} ${status}`.trim())
   }
   return RunReportResponseSchema.parse(await response.json())
 }
 
-/** Informe GA4 de un rango: 7 runReport en paralelo y mapeo al contrato. */
+/** GA4 report for a range: 7 parallel runReport calls and mapping to the contract. */
 export async function fetchGa4Report(range: VisitsRange, options: Ga4FetcherOptions): Promise<VisitsReport> {
   const periods = visitsPeriods(range, options.now)
   const requests = buildGa4Requests(periods, range)

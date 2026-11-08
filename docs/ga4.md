@@ -1,163 +1,163 @@
-# Visitas: datos reales de Google Analytics 4
+# Visits: real Google Analytics 4 data
 
-Instantánea cada 3 h que sirve `/api/visits/:range`. La página y su comportamiento: [funcionalidades.md](funcionalidades.md#visitas-visits). Tipos y esquemas: [tipos.md](tipos.md).
+Snapshot every 3 h serving `/api/visits/:range`. Page and behavior: [features.md](features.md#visits-visits). Types and schemas: [types.md](types.md).
 
 ```
-GA4 Data API ──(cada 3 h)── netlify/functions/visits-snapshot.ts ──► Netlify Blobs (store «visits», clave «snapshot»)
+GA4 Data API ──(every 3 h)── netlify/functions/visits-snapshot.ts ──► Netlify Blobs (store «visits», key «snapshot»)
                                                                             │
-navegador ── GET /api/visits/:range ── netlify/functions/visits.ts ◄────────┘  (si no hay o no es válida → mock)
+browser ── GET /api/visits/:range ── netlify/functions/visits.ts ◄────────┘  (if missing or invalid → mock)
 ```
 
-- `visits-snapshot` (programada, `0 */3 * * *` UTC): pide a GA4 (`runReport`, 7 informes por rango) 1d, 7d y 30d, valida cada informe con zod y guarda los tres juntos. Un rango que falla conserva el anterior; si fallan todos, no escribe.
-- `visits` sirve `/api/visits/:range` en Netlify: el informe de la instantánea o, si no hay o no es válido, `buildMockReport`. Responde con `x-visits-source: snapshot | mock`, caché de CDN de 10 min (`Netlify-CDN-Cache-Control`) y el navegador siempre revalida. El JSON del mock sigue prerrenderizado como respaldo estático.
-- Código (puro y con tests, sin red): `lib/googleServiceAccount.ts` (JWT RS256 firmado con `node:crypto` → token OAuth; sin `google-auth-library`), `lib/visitsGa4.ts` (periodos, peticiones y mapeo al contrato), `lib/visitsSnapshot.ts` (instantánea y almacén), `lib/visitsSource.ts` (fuentes `snapshot` → `mock`; para datos en vivo bastará añadir una fuente `live` delante) y `lib/visitsBlobStore.ts` / `lib/visitsFileStore.ts` (Netlify Blobs / fichero local).
-- Mapeo GA4 → contrato:
-  - Visitas = `sessions`; visitantes = `totalUsers`; duración media = `averageSessionDuration`; rebote = `bounceRate`. Cada KPI se compara con el periodo anterior de la misma longitud.
-  - Periodos en días completos hasta ayer: 1d = ayer por horas (`dateHour`), frente a anteayer; 7d y 30d = por día (`date`). Hoy no se incluye porque GA4 aún no lo ha procesado. Las fechas son las de la zona horaria de la propiedad.
-  - Dispositivos = `deviceCategory` en %; categorías que no están en el contrato (p. ej. «smart tv») se descartan.
-  - Países = `countryId`; con menos de 5 visitas o «(not set)» van a «Otros».
-  - Fuentes = `sessionDefaultChannelGroup`: Organic Search, Direct y Referral; LinkedIn se reconoce por `sessionSource` (linkedin, lnkd.in); el resto va a «Otros».
-  - Páginas = `screenPageViews` por `pagePath` sin prefijo de idioma (`/es/x` y `/en/x` suman juntas), las 6 primeras. **Desviación:** el PDF del CV del mock no sale, porque GA4 cuenta las descargas como evento, no como página vista.
-  - Horas = `dayOfWeek` × `hour` en franjas de 3 h, de lunes a domingo.
+- `visits-snapshot` (scheduled, `0 */3 * * *` UTC): queries GA4 (`runReport`, 7 reports per range) for 1d, 7d, and 30d, validates each report with zod, and stores all three together. A failing range keeps the previous one; if all fail, nothing is written.
+- `visits` serves `/api/visits/:range` on Netlify: snapshot report or, if missing or invalid, `buildMockReport`. Responds with `x-visits-source: snapshot | mock`, 10 min CDN cache (`Netlify-CDN-Cache-Control`), browser always revalidates. Mock JSON remains prerendered as static fallback.
+- Code (pure and tested, no network): `lib/googleServiceAccount.ts` (JWT RS256 signed with `node:crypto` → OAuth token; no `google-auth-library`), `lib/visitsGa4.ts` (periods, requests, mapping to contract), `lib/visitsSnapshot.ts` (snapshot and store), `lib/visitsSource.ts` (sources `snapshot` → `mock`; live data only needs a `live` source in front) and `lib/visitsBlobStore.ts` / `lib/visitsFileStore.ts` (Netlify Blobs / local file).
+- GA4 → contract mapping:
+  - Visits = `sessions`; visitors = `totalUsers`; average duration = `averageSessionDuration`; bounce = `bounceRate`. Each KPI compared to previous period of same length.
+  - Periods in full days through yesterday: 1d = yesterday by hour (`dateHour`), vs day before; 7d and 30d = by day (`date`). Today excluded because GA4 has not finished processing. Dates use property timezone.
+  - Devices = `deviceCategory` in %; categories not in contract (e.g. «smart tv») dropped.
+  - Countries = `countryId`; under 5 visits or «(not set)» go to «Otros».
+  - Sources = `sessionDefaultChannelGroup`: Organic Search, Direct, Referral; LinkedIn by `sessionSource` (linkedin, lnkd.in); rest to «Otros».
+  - Pages = `screenPageViews` by `pagePath` without locale prefix (`/es/x` and `/en/x` summed), top 6. **Deviation:** CV PDF from mock does not appear because GA4 counts downloads as events, not page views.
+  - Hours = `dayOfWeek` × `hour` in 3 h buckets, Monday to Sunday.
 
-## Puesta en marcha (una vez)
+## One-time setup
 
-1. Google Cloud: crear un proyecto (o usar uno), activar la **Google Analytics Data API**, crear una **cuenta de servicio** sin roles de proyecto y crearle una clave **JSON**.
-2. GA4 → Administrar → Gestión de acceso a la propiedad → añadir el email de la cuenta de servicio (`…@….iam.gserviceaccount.com`) con el rol **Lector**. No necesita más.
-3. Netlify → Site configuration → Environment variables, con ámbito **Functions** y marcadas como secretas:
-   - `GA_PROPERTY_ID`: ID **numérico** de la propiedad (Administrar → Detalles de la propiedad). No es el `G-…` de medición.
-   - `GA_SERVICE_ACCOUNT_JSON`: el contenido completo del JSON de la clave.
-4. Desplegar (push a master). La primera instantánea llega en la siguiente hora múltiplo de 3 (UTC). Para no esperar: Netlify → Functions → `visits-snapshot` → **Run now**, y revisar sus registros.
+1. Google Cloud: create a project (or use one), enable **Google Analytics Data API**, create a **service account** with no project roles, and create a **JSON** key.
+2. GA4 → Admin → Property access management → add service account email (`…@….iam.gserviceaccount.com`) with **Viewer** role. Nothing more needed.
+3. Netlify → Site configuration → Environment variables, scope **Functions**, marked secret:
+   - `GA_PROPERTY_ID`: property **numeric** ID (Admin → Property details). Not the `G-…` measurement ID.
+   - `GA_SERVICE_ACCOUNT_JSON`: full key JSON content.
+4. Deploy (push to master). First snapshot on the next hour divisible by 3 (UTC). To skip waiting: Netlify → Functions → `visits-snapshot` → **Run now**, and check its logs.
 
-Las credenciales solo viven en Netlify: nunca en el repo, el cliente ni los registros (los registros solo dicen qué rangos se actualizaron y qué estado HTTP dio Google).
+Credentials live only in Netlify: never in repo, client, or logs (logs only say which ranges updated and HTTP status from Google).
 
-## Probar en local
+## Test locally
 
-- Sin `GA_*`: `npm run dev` → mock (lo mismo que el sitio estático).
-- Con `GA_*` (clave en un fichero fuera del repo): `GA_PROPERTY_ID=123456789 GA_SERVICE_ACCOUNT_JSON="$(cat ~/ruta/clave.json)" npm run visits:snapshot`. Pide los 3 rangos a GA4 y escribe `.data/visits-snapshot.json` (ignorado por git). Después, `VISITS_SNAPSHOT_FILE=.data/visits-snapshot.json npm run dev` sirve ese fichero. No definas `VISITS_SNAPSHOT_FILE` al hacer `generate`: el JSON estático debe seguir siendo el mock.
-- Las funciones de Netlify con Blobs también se pueden probar con `netlify dev` + `netlify functions:invoke visits-snapshot` (Netlify CLI).
+- Without `GA_*`: `npm run dev` → mock (same as static site).
+- With `GA_*` (key in a file outside repo): `GA_PROPERTY_ID=123456789 GA_SERVICE_ACCOUNT_JSON="$(cat ~/path/key.json)" npm run visits:snapshot`. Fetches 3 ranges from GA4 and writes `.data/visits-snapshot.json` (gitignored). Then `VISITS_SNAPSHOT_FILE=.data/visits-snapshot.json npm run dev` serves that file. Do not set `VISITS_SNAPSHOT_FILE` when running `generate`: static JSON must stay mock.
+- Netlify functions with Blobs can also be tested with `netlify dev` + `netlify functions:invoke visits-snapshot` (Netlify CLI).
 
-## Límites y cuotas
+## Limits and quotas
 
-Cada ejecución hace 21 `runReport` (7 por rango, un rango cada vez porque GA4 admite 10 peticiones simultáneas por propiedad). Son 168 al día, muy por debajo de la cuota de una propiedad estándar (200.000 tokens/día y 40.000 por hora; un informe así gasta unos pocos tokens). Una función programada puede durar como máximo 30 s. Netlify Blobs y las funciones entran en el plan de Netlify; aquí solo se guarda un JSON de unos KB y la CDN absorbe casi todas las lecturas.
+Each run does 21 `runReport` (7 per range, one range at a time because GA4 allows 10 concurrent requests per property). 168 per day, well below standard property quota (200,000 tokens/day and 40,000 per hour; a report like this uses a few tokens). Scheduled function max 30 s. Netlify Blobs and functions are on the Netlify plan; only a few KB JSON is stored and CDN absorbs almost all reads.
 
-## Diagramas
+## Diagrams
 
-### Producción: actualización y lectura desacopladas
+### Production: decoupled refresh and read
 
 ```mermaid
 sequenceDiagram
   autonumber
-  participant Scheduler as Programador de Netlify
+  participant Scheduler as Netlify scheduler
   participant Job as visits-snapshot
   participant Refresh as refreshSnapshot
   participant OAuth as Google OAuth
   participant GA as GA4 Data API
   participant Store as Netlify Blobs
   participant API as visits /api/visits/:range
-  participant UI as useVisits y UI
-  Scheduler->>Job: Ejecución cada 3 h
-  Job->>Job: readGa4Config desde entorno servidor
-  alt Configuración ausente o inválida
-    Job-->>Scheduler: Registra estado y termina sin escribir
-  else Configuración disponible
-    Job->>Refresh: store y fetchReport inyectados
-    loop Rangos 1d, 7d y 30d en serie
-      opt Primera petición de esta ejecución
-        Refresh->>OAuth: JWT firmado RS256 y scope de lectura
-        OAuth-->>Refresh: Token reutilizado en la ejecución
+  participant UI as useVisits and UI
+  Scheduler->>Job: Run every 3 h
+  Job->>Job: readGa4Config from server env
+  alt Missing or invalid config
+    Job-->>Scheduler: Log status and exit without write
+  else Config available
+    Job->>Refresh: injected store and fetchReport
+    loop Ranges 1d, 7d, 30d in series
+      opt First request this run
+        Refresh->>OAuth: RS256 signed JWT and read scope
+        OAuth-->>Refresh: Token reused for run
       end
-      Refresh->>GA: 7 runReport en paralelo para el rango
-      GA-->>Refresh: Respuestas o error
-      Refresh->>Refresh: Mapear y validar VisitsReportSchema
+      Refresh->>GA: 7 parallel runReport for range
+      GA-->>Refresh: Responses or error
+      Refresh->>Refresh: Map and validate VisitsReportSchema
     end
-    alt Al menos un rango válido actualizado
-      Refresh->>Store: Leer informes anteriores válidos
-      Store-->>Refresh: Snapshot anterior o ausencia
-      Refresh->>Refresh: Conservar rangos previos que fallaron
-      Refresh->>Store: setJSON del snapshot combinado
-      Store-->>Refresh: Resultado de escritura
+    alt At least one valid range updated
+      Refresh->>Store: Read previous valid reports
+      Store-->>Refresh: Previous snapshot or absent
+      Refresh->>Refresh: Keep previous ranges that failed
+      Refresh->>Store: setJSON combined snapshot
+      Store-->>Refresh: Write result
       Refresh-->>Job: updated, failed, written
-    else Ningún rango renovado
-      Refresh-->>Job: written false, no lectura ni escritura
+    else No range renewed
+      Refresh-->>Job: written false, no read or write
     end
   end
-  Note over Store,API: Store de sitio visits, clave snapshot, persiste entre despliegues
-  UI->>API: GET del rango, inicialmente 30d
-  API->>API: Comprobar método y rango
-  alt Método distinto de GET o HEAD
-    API-->>UI: 405 y Allow
-  else Rango inválido
+  Note over Store,API: Site visits store, snapshot key, persists across deploys
+  UI->>API: GET range, initially 30d
+  API->>API: Check method and range
+  alt Method other than GET or HEAD
+    API-->>UI: 405 and Allow
+  else Invalid range
     API-->>UI: 404
-  else Método y rango admitidos
-    API->>Store: Leer snapshot
-    Store-->>API: JSON, ausencia o error
-    API->>API: selectVisitsReport y validación por rango
-    alt Snapshot válido para ese rango
-      API-->>UI: Informe real, x-visits-source snapshot
-    else Falta, lectura falla o informe inválido
-      API->>API: buildMockReport y validar
-      API-->>UI: Informe de ejemplo, x-visits-source mock
+  else Method and range allowed
+    API->>Store: Read snapshot
+    Store-->>API: JSON, absent or error
+    API->>API: selectVisitsReport and per-range validation
+    alt Valid snapshot for range
+      API-->>UI: Real report, x-visits-source snapshot
+    else Missing, read failed or invalid report
+      API->>API: buildMockReport and validate
+      API-->>UI: Sample report, x-visits-source mock
     end
-    UI->>UI: Comprobación mínima y dataStateOf
+    UI->>UI: Minimal check and dataStateOf
   end
 ```
 
-Fuentes: [tarea programada](../netlify/functions/visits-snapshot.ts),
-[refreshSnapshot](../lib/visitsSnapshot.ts), [configuración y token compartido](../lib/visitsGa4Config.ts),
+Sources: [scheduled job](../netlify/functions/visits-snapshot.ts),
+[refreshSnapshot](../lib/visitsSnapshot.ts), [config and shared token](../lib/visitsGa4Config.ts),
 [OAuth](../lib/googleServiceAccount.ts), [GA4](../lib/visitsGa4.ts),
 [Blobs](../lib/visitsBlobStore.ts), [endpoint](../netlify/functions/visits.ts),
-[selección de fuentes](../lib/visitsSource.ts).
+[source selection](../lib/visitsSource.ts).
 
-- El horario `0 */3 * * *` se evalúa en UTC; en Atlantic/Canary varía con el horario estacional.
-- El endpoint público **no** consulta GA4 en directo: `live` existe como literal de tipo, pero no está en su lista de fuentes.
-- La actualización parcial conserva informes anteriores **válidos** sin límite de antigüedad. Si falla la escritura en Blobs, el error se propaga: no hay segundo almacén automático.
-- Un informe real con cero visitas sigue siendo real: la página muestra su estado vacío, no el mock.
+- Schedule `0 */3 * * *` is evaluated in UTC; in Atlantic/Canary it varies with daylight saving.
+- Public endpoint **does not** query GA4 live: `live` exists as a type literal but is not in its source list.
+- Partial update keeps previous **valid** reports with no age limit. If Blob write fails, error propagates: no automatic second store.
+- A real report with zero visits is still real: page shows empty state, not mock.
 
-### Respaldo estático, filtro inicial y error de red
+### Static fallback, initial filter, and network error
 
 ```mermaid
 sequenceDiagram
   participant Build as Nuxt generate
   participant Nitro as server/api/visits
-  participant Static as JSON estático
+  participant Static as Static JSON
   participant Page as visits.vue
   participant Client as useVisits
   participant Endpoint as /api/visits/:range
-  participant Mock as visitsMock en chunk diferido
-  Build->>Nitro: Prerrenderizar 1d, 7d y 30d
-  Nitro->>Nitro: Sin VISITS_SNAPSHOT_FILE, seleccionar mock
-  Nitro-->>Static: Informes sample true
-  Note over Static,Endpoint: En Netlify la función sirve la ruta, el JSON es respaldo sin función
-  Page->>Client: Filtro inicial 30d
+  participant Mock as visitsMock in deferred chunk
+  Build->>Nitro: Prerender 1d, 7d, 30d
+  Nitro->>Nitro: Without VISITS_SNAPSHOT_FILE, select mock
+  Nitro-->>Static: Reports sample true
+  Note over Static,Endpoint: On Netlify function serves route, JSON is fallback without function
+  Page->>Client: Initial filter 30d
   Client->>Endpoint: GET /api/visits/30d
-  Endpoint-->>Client: Real, mock o error de red
-  Client-->>Page: real, sample o failed
-  alt Primera respuesta real
-    Page->>Page: Mantener 30d y mostrar antigüedad
-  else Primera respuesta sample o failed
-    Page->>Client: Cambiar filtro a sample
-    Client->>Mock: import dinámico y buildMockReport de 30d
-    Mock-->>Client: Informe de ejemplo sin petición HTTP
-    Client-->>Page: ready y aviso de ejemplo
+  Endpoint-->>Client: Real, mock or network error
+  Client-->>Page: real, sample or failed
+  alt First response real
+    Page->>Page: Keep 30d and show age
+  else First response sample or failed
+    Page->>Client: Switch filter to sample
+    Client->>Mock: dynamic import and buildMockReport 30d
+    Mock-->>Client: Sample report without HTTP
+    Client-->>Page: ready and sample notice
   end
-  opt Selección posterior de 1d, 7d o 30d
-    Page->>Client: Cambiar filtro
-    Client->>Endpoint: GET del rango
-    alt Respuesta utilizable
-      Endpoint-->>Client: Informe con sample true o false
-      Client-->>Page: Actualizar informe y nota de origen
-    else Red caída o respuesta mínima inválida
-      Endpoint-->>Client: Error o contenido inválido
-      Client-->>Page: status error y Reintentar, conservar informe anterior si existe
+  opt Later choice of 1d, 7d or 30d
+    Page->>Client: Change filter
+    Client->>Endpoint: GET range
+    alt Usable response
+      Endpoint-->>Client: Report with sample true or false
+      Client-->>Page: Update report and origin note
+    else Network down or minimally invalid response
+      Endpoint-->>Client: Error or invalid content
+      Client-->>Page: status error and Retry, keep previous report if any
     end
   end
 ```
 
-Fuentes: [Nitro](../server/api/visits/%5Brange%5D.get.ts), [Nuxt](../nuxt.config.ts),
-[useVisits](../app/composables/useVisits.ts), [filtro](../lib/visitsFilter.ts),
-[página](../app/pages/visits.vue), [almacén local](../lib/visitsFileStore.ts),
-[script local](../scripts/visits-snapshot.ts).
+Sources: [Nitro](../server/api/visits/%5Brange%5D.get.ts), [Nuxt](../nuxt.config.ts),
+[useVisits](../app/composables/useVisits.ts), [filter](../lib/visitsFilter.ts),
+[page](../app/pages/visits.vue), [local store](../lib/visitsFileStore.ts),
+[local script](../scripts/visits-snapshot.ts).
 
-- La primera decisión de filtro se toma una sola vez en la página; un fallo posterior no cambia solo a «Datos de ejemplo».
-- **Límite temporal:** `visitsPeriods` calcula los días hasta ayer en UTC, mientras GA4 interpreta las fechas en la zona de la propiedad, que el código no consulta.
+- Initial filter decision happens once on the page; a later failure does not switch to «Sample data» alone.
+- **Time limit:** `visitsPeriods` computes days through yesterday in UTC, while GA4 interprets dates in property timezone, which code does not read.

@@ -27,35 +27,35 @@ const stateAt = (pointIndex: number, segmentProgress: number): JourneyState => (
   segmentProgress,
 })
 
-describe('progreso p de cada tarjeta', () => {
-  it('en el flujo: 0 con la tarjeta bajo la ventana, 1 cuando su borde superior llega al 40 %', () => {
+describe('per-card progress p', () => {
+  it('in flow: 0 with card below viewport, 1 when its top edge reaches 40%', () => {
     expect(flowCardProgress(VIEWPORT, VIEWPORT)).toBe(0)
     expect(flowCardProgress(VIEWPORT * 0.7, VIEWPORT)).toBeCloseTo(0.5)
     expect(flowCardProgress(VIEWPORT * 0.4, VIEWPORT)).toBe(1)
     expect(flowCardProgress(-200, VIEWPORT)).toBe(1)
   })
 
-  it('con pin: las leídas en estado final, las que faltan en el inicial y la actual según su tramo', () => {
+  it('pinned: read cards at final state, upcoming at initial, current follows its segment', () => {
     expect(pinnedCardProgress(2, 'past', stateAt(3, 0), PINNED_TIMELINE)).toBe(1)
     expect(pinnedCardProgress(4, 'upcoming', stateAt(3, 0), PINNED_TIMELINE)).toBe(0)
     expect(pinnedCardProgress(3, 'current', stateAt(3, PINNED_CARD_RANGE.from), PINNED_TIMELINE)).toBe(0)
     expect(pinnedCardProgress(3, 'current', stateAt(3, PINNED_CARD_RANGE.to), PINNED_TIMELINE)).toBe(1)
   })
 
-  it('tramos: Profile con el primer scroll en escritorio; en móvil, la entrada de la tarjeta (0,46–0,62)', () => {
+  it('ranges: Profile on first desktop scroll; on mobile, card entry (0.46–0.62)', () => {
     expect(pinnedCardRange(0, PINNED_TIMELINE)).toBe(PINNED_FIRST_CARD_RANGE)
     expect(pinnedCardRange(2, PINNED_TIMELINE)).toBe(PINNED_CARD_RANGE)
     expect(pinnedCardRange(0, MOBILE_TIMELINE)).toEqual({ from: 0.46, to: 0.62 })
     expect(pinnedCardRange(4, MOBILE_TIMELINE)).toBe(MOBILE_CARD_RANGE)
   })
 
-  it('Profile en móvil: su contenido entra con la entrada del holograma (0–0,14 del scroll)', () => {
+  it('Profile on mobile: content enters with hologram entry (0–0.14 of scroll)', () => {
     expect(mobileFirstCardProgress(0)).toBe(0)
     expect(mobileFirstCardProgress(0.07)).toBeCloseTo(0.5)
     expect(mobileFirstCardProgress(MOBILE_TIMELINE.entryShare)).toBe(1)
   })
 
-  it('es reversible: ir y volver da el mismo p (sin bucle ni memoria)', () => {
+  it('is reversible: forward and back yield the same p (no loop or memory)', () => {
     const forward = journeyStateAt(0.42)
     const back = journeyStateAt(0.42)
     expect(pinnedCardProgress(2, 'current', forward, PINNED_TIMELINE)).toBe(
@@ -64,8 +64,8 @@ describe('progreso p de cada tarjeta', () => {
   })
 })
 
-describe('elementos de cada tarjeta', () => {
-  it('Profile: escena, copy y KPI en estado inicial y final', () => {
+describe('per-card elements', () => {
+  it('Profile: scene, copy, and KPI at initial and final state', () => {
     const start = cardMotionValues('profile', 0)
     expect(start.headline).toBe(0)
     expect(start['kpi-0']).toBe(0)
@@ -77,7 +77,7 @@ describe('elementos de cada tarjeta', () => {
     expect(end['check-offset']).toBe(0)
   })
 
-  it('Profile: eyebrow, subtítulo y descripción escalonados; los 3 KPI con stagger', () => {
+  it('Profile: eyebrow, subtitle, and description staggered; all 3 KPIs with stagger', () => {
     const middle = cardMotionValues('profile', 0.3)
     expect(middle.eyebrow).toBe(1)
     expect(middle.headline!).toBeGreaterThan(middle.tagline!)
@@ -87,13 +87,13 @@ describe('elementos de cada tarjeta', () => {
     expect(cardMotionValues('profile', 1)['kpi-2']).toBe(1)
   })
 
-  it('contadores de Profile: 0 → valor entre p 0,5 y 0,95', () => {
+  it('Profile counters: 0 → value between p 0.5 and 0.95', () => {
     expect(profileCountProgress(0.5)).toBe(0)
     expect(profileCountProgress(0.95)).toBe(1)
     expect(profileCountProgress(0.725)).toBeCloseTo(0.5, 1)
   })
 
-  it('Perfil legible al cargar: KPI y contadores en el valor final con p = 0', () => {
+  it('Profile readable on load: KPI and counters at final values with p = 0', () => {
     const state = journeyStateAt(0)
     const options = profileMotionOptions(0, 'profile', cardStateAt(0, state), state, 0, PINNED_TIMELINE, true)
     expect(options?.profileKpisReady).toBe(true)
@@ -103,7 +103,7 @@ describe('elementos de cada tarjeta', () => {
     expect(cardMotionValues('profile', 0.4, options).headline).toBe(1)
   })
 
-  it('Profile: escena Tanda G (ficha) y copy/KPI en la misma tarjeta', () => {
+  it('Profile: batch G scene (card frame) and copy/KPI on the same card', () => {
     const names = Object.keys(cardMotionValues('profile', 0.5))
     expect(names).toContain('window-scale')
     expect(names).toContain('field-0-0-offset')
@@ -112,7 +112,7 @@ describe('elementos de cada tarjeta', () => {
     expect(names).toContain('headline')
   })
 
-  it.each(KINDS.filter((kind) => kind !== 'profile'))('%s: variables «parte-canal» de su escena (Tanda G)', (kind) => {
+  it.each(KINDS.filter((kind) => kind !== 'profile'))('%s: scene part-channel variables (batch G)', (kind) => {
     const names = Object.keys(cardMotionValues(kind, 0.5))
     const scenePattern = /^[a-z0-9-]+-(x|y|scale|scaleY|rotate|opacity|offset)$/
     expect(names.length).toBeGreaterThan(0)
@@ -122,7 +122,7 @@ describe('elementos de cada tarjeta', () => {
     }
   })
 
-  it('Education: certificaciones y cursos escalonados en el cuerpo de la tarjeta', () => {
+  it('Education: certifications and courses staggered in the card body', () => {
     const start = cardMotionValues('education', 0.55)
     const end = cardMotionValues('education', 0.85)
     expect(start.cert!).toBeGreaterThan(0)
@@ -131,26 +131,26 @@ describe('elementos de cada tarjeta', () => {
     expect(cardMotionValues('education', 1).courses).toBe(1)
   })
 
-  it('variables CSS con prefijo --fx- y 3 decimales (también negativas)', () => {
+  it('CSS variables with --fx- prefix and 3 decimals (including negatives)', () => {
     expect(cardMotionCssVars('skills', 1)['--fx-radar-scale']).toBe('1')
     expect(Object.values(cardMotionCssVars('experience', 0.37)).every((value) => /^-?\d+(\.\d{1,3})?$/.test(value))).toBe(true)
   })
 })
 
-describe('tarjetas con animación', () => {
-  it('Visitas no tiene microanimación', () => {
+describe('animated cards', () => {
+  it('Visits has no micro-animation', () => {
     expect(cardMotionKindOf('visits')).toBeNull()
     expect(cardMotionKindOf('skills')).toBe('skills')
   })
 })
 
-describe('Profile visible desde la carga (decisión de Maurizio)', () => {
+describe('Profile visible from load (Maurizio decision)', () => {
   const source = (file: string) => readFileSync(new URL(`../../app/components/${file}`, import.meta.url), 'utf8')
-  /** Reglas CSS (selector + cuerpo) cuyo selector incluye la clase dada. */
+  /** CSS rules (selector + body) whose selector includes the given class. */
   const rulesWith = (css: string, className: string) =>
     [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].filter(([, selector]) => selector!.includes(className)).map(([rule]) => rule!)
 
-  it('el contenido animado de Profile no se oculta con p = 0: --fx solo mueve o escala, nunca la opacidad', () => {
+  it('animated Profile content is not hidden at p = 0: --fx only moves or scales, never opacity', () => {
     const rules = ['card-fx', 'card-fx--scale'].flatMap((className) => rulesWith(source('JourneyCard.vue'), `.${className}`))
     expect(rules.length).toBeGreaterThanOrEqual(2)
     for (const rule of rules) {
@@ -159,13 +159,13 @@ describe('Profile visible desde la carga (decisión de Maurizio)', () => {
     }
   })
 
-  it('ningún componente de Profile liga su opacidad a --fx', () => {
+  it('no Profile component ties opacity to --fx', () => {
     for (const file of ['JourneyCard.vue', 'ProfileJourney.vue', 'ProfileCounters.vue']) {
       expect(source(file)).not.toMatch(/opacity:\s*var\(--fx/)
     }
   })
 
-  it('con p = 0 el copy HTML arranca en su sitio con pin (headline en 1) y la escena en estado inicial', () => {
+  it('at p = 0 HTML copy starts in place when pinned (headline at 1) and scene at initial state', () => {
     const state = journeyStateAt(0)
     const options = profileMotionOptions(0, 'profile', cardStateAt(0, state), state, 0, PINNED_TIMELINE, true)
     expect(cardMotionValues('profile', 0, options).headline).toBe(1)

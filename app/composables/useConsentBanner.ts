@@ -1,6 +1,6 @@
 /**
- * Visibilidad del aviso de analítica, compartida entre el aviso y el enlace del pie «Preferencias de analítica».
- * `reopen()` lo vuelve a mostrar y pide llevar el foco a él (la persona lo ha abierto a propósito).
+ * Visibility of the analytics prompt, shared between the prompt and the “Analytics Preferences” footer link.
+ * `reopen()` shows it again and asks to bring the spotlight to it (the person has opened it on purpose).
  */
 export function useConsentBanner() {
   const isOpen = useState('consent-banner-open', () => false)

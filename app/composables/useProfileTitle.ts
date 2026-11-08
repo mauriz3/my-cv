@@ -1,4 +1,4 @@
-/** Título del Perfil («Nombre · Perfil»): lo comparten el Inicio y sus enlaces cortos (misma vista previa). */
+/** Profile Title (“Name · Profile”): shared by Home and its short links (same preview). */
 export function useProfileTitle(): () => string {
   const { t } = useI18n()
   const cv = useCv()

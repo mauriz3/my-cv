@@ -1,4 +1,4 @@
-/** Series ocultas desde una leyenda HTML (por clave estable, no por posición). */
+/** Series hidden from an HTML legend (by stable key, not by position). */
 export function useLegendToggle() {
   const hiddenKeys = ref<string[]>([])
 

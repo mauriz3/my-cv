@@ -8,7 +8,7 @@ const { analyticsId } = useRuntimeConfig().public
 // Antes del primer pintado: un sidebar colapsado no debe parpadear abierto.
 useHead({ script: [{ innerHTML: SIDEBAR_NO_FLASH_SCRIPT, tagPosition: 'head' }] })
 
-// Google Analytics (solo en producción): primero el consentimiento «denied», luego gtag.js.
+// Google Analytics (in production only): first consent “denied”, then gtag.js.
 if (analyticsId) {
   useHead({
     script: [

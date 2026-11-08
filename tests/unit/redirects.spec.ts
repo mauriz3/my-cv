@@ -12,7 +12,7 @@ interface RedirectRule {
 const REDIRECTS_FILE = new URL('../../public/_redirects', import.meta.url)
 const TRAILING_SLASH = /\/$/
 
-/** Formato de Netlify: `origen destino estado [condiciones]`, con `#` para comentarios de línea. */
+/** Netlify format: `from to status [conditions]`, with `#` for line comments. */
 function parseRedirects(text: string): RedirectRule[] {
   return text
     .split('\n')
@@ -25,11 +25,11 @@ function parseRedirects(text: string): RedirectRule[] {
 }
 
 const rules = parseRedirects(readFileSync(REDIRECTS_FILE, 'utf8'))
-/** Netlify empareja las reglas con o sin barra final: se comparan sin ella. */
+/** Netlify matches rules with or without trailing slash: compare without it. */
 const withoutTrailingSlash = (path: string) => (path === '/' ? path : path.replace(TRAILING_SLASH, ''))
 
 describe('public/_redirects', () => {
-  it('cada regla tiene origen, destino y estado HTTP válidos', () => {
+  it('each rule has valid from, to, and HTTP status', () => {
     for (const rule of rules) {
       expect(rule.from).toMatch(/^\//)
       expect(rule.to).toMatch(/^\//)
@@ -37,21 +37,21 @@ describe('public/_redirects', () => {
     }
   })
 
-  it('ningún destino lleva fragmento (`#`): el Post Inspector de LinkedIn falla con ellos', () => {
+  it('no destination has a fragment (`#`): LinkedIn Post Inspector fails with them', () => {
     for (const rule of rules) expect(rule.to).not.toContain('#')
   })
 
-  it('los enlaces cortos de Libros no tienen reglas (son páginas que responden 200)', () => {
+  it('Books short links have no rules (they are pages that return 200)', () => {
     const origins = rules.map((rule) => withoutTrailingSlash(rule.from))
     for (const route of BOOKS_SHORT_LINK_ROUTES) expect(origins).not.toContain(route)
   })
 
-  it('no hay orígenes duplicados con las mismas condiciones', () => {
+  it('no duplicate origins with the same conditions', () => {
     const keys = rules.map((rule) => `${rule.from} ${rule.conditions.join(' ')}`)
     expect(new Set(keys).size).toBe(keys.length)
   })
 
-  it('no hay bucles: ningún destino vuelve a ser origen de otra regla', () => {
+  it('no loops: no destination is another rule’s origin', () => {
     const origins = new Set(rules.map((rule) => withoutTrailingSlash(rule.from)))
     for (const rule of rules) expect(origins.has(withoutTrailingSlash(rule.to))).toBe(false)
   })

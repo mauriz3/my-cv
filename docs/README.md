@@ -1,28 +1,28 @@
-# Documentación técnica
+# Technical documentation
 
-Un tema, un fichero. Los diagramas describen el código de `master` en `8974b35`;
-no garantizan la configuración externa ni el estado de producción.
+One topic per file. Diagrams describe the code on `master` at `8974b35`;
+they do not guarantee external configuration or production state.
 
-- [Normas para agentes de IA](../AGENTS.md)
-- [Decisiones de arquitectura (ADR)](adr.md)
-- [Arquitectura y estado de la interfaz](arquitectura.md) (diagramas de componentes y módulos)
-- [Tipos TypeScript y contratos](tipos.md) (diagramas de clases)
-- [Funcionalidades](funcionalidades.md): Visitas, analítica y consentimiento (diagrama del aviso y `/geo`), animaciones opt-in, tema, libros y Open Graph
-- [Visitas con GA4](ga4.md): instantánea, puesta en marcha, pruebas en local y diagramas de secuencia
-- [Calidad](calidad.md): tests, cobertura, axe y Lighthouse
-- [Seguridad](seguridad.md): CSP, cabeceras (diagrama de generación), dependencias y secretos
-- [Despliegue](despliegue.md): CI y publicación (diagrama del workflow)
+- [Guidelines for AI agents](../AGENTS.md)
+- [Architecture decisions (ADR)](adr.md)
+- [Architecture and UI state](architecture.md) (component and module diagrams)
+- [TypeScript types and contracts](types.md) (class diagrams)
+- [Features](features.md): Visits, analytics and consent (notice and `/geo` diagram), opt-in animations, theme, books, and Open Graph
+- [Visits with GA4](ga4.md): snapshot, setup, local testing, and sequence diagrams
+- [Quality](quality.md): tests, coverage, axe, and Lighthouse
+- [Security](security.md): CSP, headers (generation diagram), dependencies, and secrets
+- [Deployment](deployment.md): CI and publishing (workflow diagram)
 
-Las flechas de dependencia significan «usa»; en los diagramas de clases, la composición
-representa campos contenidos, no clases instanciadas. Los tipos estructurales de TypeScript
-se muestran como clases UML por legibilidad. Las notas identifican límites o diferencias
-entre comentarios, documentación previa y código. No se incluyen credenciales ni valores de variables de entorno.
+Dependency arrows mean «uses»; in class diagrams, composition
+represents contained fields, not instantiated classes. TypeScript structural types
+are shown as UML classes for readability. Notes identify boundaries or differences
+between comments, prior documentation, and code. Credentials and environment variable values are not included.
 
-## Validación de los diagramas
+## Validating diagrams
 
-Cada bloque Mermaid se renderiza por separado con `@mermaid-js/mermaid-cli` (`mmdc`),
-instalado fuera del repositorio. No se añade ninguna dependencia a la aplicación.
-GitHub renderiza los bloques directamente; los SVG de comprobación no forman parte del repo.
-Al cambiar un contrato o flujo, actualizar el diagrama correspondiente y volver a renderizarlo.
+Each Mermaid block is rendered separately with `@mermaid-js/mermaid-cli` (`mmdc`),
+installed outside the repository. No dependency is added to the application.
+GitHub renders blocks directly; validation SVGs are not part of the repo.
+When a contract or flow changes, update the corresponding diagram and render it again.
 
-Validación de esta entrega: 10 bloques renderizados sin errores con `mmdc` 12.2.0.
+Validation for this delivery: 10 blocks rendered without errors using `mmdc` 12.2.0.

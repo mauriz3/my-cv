@@ -2,8 +2,8 @@
 import type { NuxtError } from '#app'
 
 /**
- * Página de error (404 y demás) con la marca, la navegación y el idioma de la ruta (`/es/...` → español).
- * En Netlify las rutas inexistentes sirven `404.html` y el cliente pinta esta página con la URL real.
+ * Error page (404 and others) with the brand, navigation and language of the route (`/es/...` → Spanish).
+ * In Netlify nonexistent paths serve `404.html' and the client paints this page with the actual URL.
  */
 const props = defineProps<{ error: NuxtError }>()
 const NOT_FOUND = 404

@@ -28,7 +28,7 @@ describe('useChartPlayback', () => {
 
   afterEach(() => vi.unstubAllGlobals())
 
-  it('la gráfica visible se marca para reiniciarse en la misma actualización', async () => {
+  it('visible chart is marked to restart on the same update', async () => {
     const chart = mockChart(0)
     const { result } = await withSetup(() => useChartPlayback(DURATION_MS))
     result.chartRef.value = { chart } as ChartPlaybackRef
@@ -40,7 +40,7 @@ describe('useChartPlayback', () => {
     expect(result.updateMode.value).toBe('default')
   })
 
-  it('la gráfica fuera de pantalla espera a entrar y anima una sola vez', async () => {
+  it('off-screen chart waits to enter viewport and animates once', async () => {
     const chart = mockChart(2000)
     const { result } = await withSetup(() => useChartPlayback(DURATION_MS))
     result.chartRef.value = { chart } as ChartPlaybackRef
@@ -58,7 +58,7 @@ describe('useChartPlayback', () => {
     expect(chart.options.animation).toBe(false)
   })
 
-  it('si la gráfica aún no existe al activar, se observa cuando aparece', async () => {
+  it('when chart is missing on enable, observes once it appears', async () => {
     const { result } = await withSetup(() => useChartPlayback(DURATION_MS))
     useMotion().set('full')
     expect(result.updateMode.value).toBe('none')
@@ -70,7 +70,7 @@ describe('useChartPlayback', () => {
     expect(chart.update).toHaveBeenCalledOnce()
   })
 
-  it('tema, idioma y un modo externo dejan la siguiente actualización en none', async () => {
+  it('theme, locale, and an external mode set the next update to none', async () => {
     const extra = ref<'none' | 'default'>('default')
     const chart = mockChart(0)
     const { result } = await withSetup(() => ({

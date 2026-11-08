@@ -1,14 +1,14 @@
 import type { Ref } from 'vue'
 import { MOBILE_PIN_QUERY } from '~~/lib/mobileJourney'
 
-/** Lo pone esta guarda si alguna tarjeta no cabe en su zona: el CSS vuelve a la versión estática. */
+/** This saves it if any card does not fit in your area: the CSS returns to the static version. */
 const CARDS_FIT_ATTRIBUTE = 'data-cards-fit'
 const CARDS_SELECTOR = '.journey__cards'
 
 /**
- * ¿Recorrido móvil con pin? El CSS ya lo activa con la media query (ancho y alto de móvil) y
- * `data-motion="full"`, sin esperar al JS (sin saltos al cargar). Aquí se añade la última guarda de la spec:
- * que la tarjeta más alta quepa en su zona; si no, `data-cards-fit="false"` y versión estática.
+ * Mobile tour with pin? The CSS already activates it with the media query (width and height of mobile) and
+ * `data-motion="full"`, without waiting for the JS (no jumps when loading). Here the last save of the spec is added:
+ * that the highest card fits in your area; if not, `data-cards-fit="false"` and static version.
  */
 export function useMobilePin(section: Readonly<Ref<HTMLElement | null>>) {
   const { motion } = useMotion()

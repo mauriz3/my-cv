@@ -1,4 +1,4 @@
-/** Una sola vez por visita, antes de montar la app: animaciones desde `<html>` y escucha del sistema. */
+/** Once per visit, before assembling the app: animations from `<html>` and listening to the system. */
 export default defineNuxtPlugin(() => {
   startAnimationsSync()
 })

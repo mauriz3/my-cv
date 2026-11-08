@@ -1,12 +1,12 @@
 /**
- * Servidor estático mínimo para las auditorías de CI (axe y Lighthouse) sobre `.output/public`.
- * Imita lo que importa de Netlify: `/ruta` → `ruta.html` o `ruta/index.html`, 404 con `404.html`
- * y las cabeceras de `_headers` (CSP incluida), así una CSP rota también se nota aquí.
- * Comprime texto con Brotli como Netlify (sin ello Lighthouse mide varias veces más bytes que en producción)
- * y responde `/geo` con la Edge Function real y un país simulado (GEO_COUNTRY, por defecto ES).
- * `X-Robots-Tag` no se envía: fuera de producción el build lo añade a propósito y Lighthouse lo
- * puntuaría como fallo de SEO; el artefacto de producción no lo lleva (lo comprueba deploy-production).
- * Uso: node scripts/serve-static.mjs [carpeta]   (puerto: PORT, por defecto 4173; país de /geo: GEO_COUNTRY)
+ * Minimal static server for CI audits (axe and Lighthouse) on `.output/public`.
+ * Mimics what matters from Netlify: `/path` → `path.html` or `path/index.html`, 404 with `404.html`,
+ * and `_headers` (including CSP), so a broken CSP shows up here too.
+ * Compresses text with Brotli like Netlify (without it Lighthouse measures several times more bytes than production)
+ * and serves `/geo` with the real Edge Function and a simulated country (GEO_COUNTRY, default ES).
+ * Does not send `X-Robots-Tag`: non-production builds add it on purpose and Lighthouse would
+ * score it as an SEO failure; the production artifact does not include it (checked by deploy-production).
+ * Usage: node scripts/serve-static.mjs [folder]   (port: PORT, default 4173; `/geo` country: GEO_COUNTRY)
  */
 import { createServer } from 'node:http'
 import { readFile, stat } from 'node:fs/promises'
@@ -18,8 +18,8 @@ import { isDirectRun } from './isDirectRun.mjs'
 const DEFAULT_ROOT = '.output/public'
 const DEFAULT_PORT = 4173
 /**
- * País que devuelve `/geo` en local (la Edge Function real, con el país simulado). Por defecto España: el aviso
- * de analítica aparece, como para las visitas de la UE/EEE en producción (el caso más exigente).
+ * Country returned by `/geo` locally (real Edge Function, simulated country). Default ES: analytics notice
+ * appears, as for EU/EEA visits in production (the strictest case).
  */
 const DEFAULT_GEO_COUNTRY = 'ES'
 const OMITTED_HEADERS = new Set(['x-robots-tag'])
@@ -38,10 +38,10 @@ const CONTENT_TYPES = {
   '.txt': 'text/plain; charset=utf-8'
 }
 
-/** Tipos que Netlify sirve comprimidos (texto); imágenes, fuentes y PDF ya van comprimidos. */
+/** MIME types Netlify serves compressed (text); images, fonts, and PDF are already compressed. */
 const COMPRESSIBLE_EXTENSIONS = new Set(['.html', '.js', '.css', '.json', '.svg', '.txt'])
 
-/** ¿Acepta el cliente Brotli? (`Accept-Encoding: gzip, deflate, br`, sin `br;q=0`). */
+/** Does the client accept Brotli? (`Accept-Encoding: gzip, deflate, br`, without `br;q=0`). */
 export function acceptsBrotli(acceptEncoding = '') {
   return acceptEncoding.split(',').some((part) => {
     const [coding = '', ...params] = part.split(';').map((token) => token.trim())
@@ -49,7 +49,7 @@ export function acceptsBrotli(acceptEncoding = '') {
   })
 }
 
-/** `_headers` de Netlify: una línea de ruta y debajo, indentadas, sus cabeceras. */
+/** Netlify `_headers`: one route line and indented headers below it. */
 export function parseHeadersFile(text) {
   const rules = []
   for (const line of text.split('\n')) {
@@ -65,7 +65,7 @@ export function parseHeadersFile(text) {
   return rules
 }
 
-/** `*` = cualquier resto de la ruta; `:param` = un solo segmento. */
+/** `*` = any rest of the path; `:param` = a single segment. */
 function toRegExp(pathPattern) {
   const source = pathPattern
     .split('/')
@@ -86,17 +86,17 @@ async function resolveFile(root, urlPath) {
   return null
 }
 
-/** `/geo` con la Edge Function de producción y el país simulado (sin borde de Netlify en local). */
+/** `/geo` with the production Edge Function and simulated country (no Netlify edge locally). */
 async function serveGeo(request, response, country) {
   const geoResponse = geo(new Request('http://localhost/geo', { method: request.method }), { geo: { country: { code: country } } })
   response.writeHead(geoResponse.status, Object.fromEntries(geoResponse.headers))
   response.end(request.method === 'HEAD' ? undefined : await geoResponse.text())
 }
 
-/** Servidor del sitio generado en `root` (sin escuchar todavía). `geoCountry`: país que responde `/geo`. */
+/** Server for generated site in `root` (not listening yet). `geoCountry`: country for `/geo`. */
 export async function createStaticServer(root, { geoCountry = DEFAULT_GEO_COUNTRY } = {}) {
   const headerRules = parseHeadersFile(await readFile(join(root, '_headers'), 'utf8').catch(() => ''))
-  /** Brotli por fichero, una sola vez (el sitio generado no cambia mientras sirve). */
+  /** Brotli per file, once (generated site does not change while serving). */
   const compressed = new Map()
   return createServer(async (request, response) => {
     const urlPath = new URL(request.url ?? '/', 'http://localhost').pathname
@@ -125,5 +125,5 @@ if (isDirectRun(import.meta.url)) {
   const root = process.argv[2] ?? DEFAULT_ROOT
   const port = Number(process.env.PORT ?? DEFAULT_PORT)
   const server = await createStaticServer(root, { geoCountry: process.env.GEO_COUNTRY || DEFAULT_GEO_COUNTRY })
-  server.listen(port, () => console.log(`Sirviendo ${root} en http://localhost:${port}`))
+  server.listen(port, () => console.log(`Serving ${root} at http://localhost:${port}`))
 }

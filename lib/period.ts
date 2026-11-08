@@ -1,4 +1,4 @@
-/** Periodo con fechas parciales (`YYYY` o `YYYY-MM`). `end: null` significa «actualidad». */
+/** Period with partial dates (`YYYY` or `YYYY-MM`). `end: null` means “present”. */
 export interface Period {
   start: string
   end: string | null
@@ -15,7 +15,7 @@ export function formatPartialDate(partialDate: string, locale: string): string {
   return new Intl.DateTimeFormat(locale, hasMonth ? MONTH_AND_YEAR : YEAR_ONLY).format(date)
 }
 
-/** Un periodo que empieza y acaba en la misma fecha se muestra como una sola fecha. */
+/** A period that starts and ends on the same date is shown as a single date. */
 export function isSingleDate(period: Period): boolean {
   return period.end === period.start
 }

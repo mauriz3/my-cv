@@ -23,8 +23,8 @@ import {
 } from '../../lib/animations'
 import { MOTION_ATTRIBUTE } from '../../lib/motion'
 
-describe('elección de animaciones', () => {
-  it('solo acepta on u off', () => {
+describe('animation preference', () => {
+  it('only accepts on or off', () => {
     expect(parseStoredAnimation('on')).toBe('on')
     expect(parseStoredAnimation('off')).toBe('off')
     expect(parseStoredAnimation('full')).toBeNull()
@@ -32,7 +32,7 @@ describe('elección de animaciones', () => {
     expect(parseStoredAnimation(null)).toBeNull()
   })
 
-  it('está encendida solo con on y, si el sistema pide menos movimiento, con un override de esta visita', () => {
+  it('is on only with on and, when the system requests less motion, with a per-visit override', () => {
     expect(isEffectiveOn(null, false, false)).toBe(false)
     expect(isEffectiveOn('off', false, false)).toBe(false)
     expect(isEffectiveOn('on', false, false)).toBe(true)
@@ -41,7 +41,7 @@ describe('elección de animaciones', () => {
     expect(isEffectiveOn('off', true, true)).toBe(false)
   })
 
-  it('el pulso solo sale en la primera carga visible, sin elección y sin reduced-motion', () => {
+  it('pulse only on first visible load, without a stored choice and without reduced-motion', () => {
     const ready = { stored: null, prefersReducedMotion: false, hintShown: false, visible: true }
     expect(shouldPulse(ready)).toBe(true)
     expect(shouldPulse({ ...ready, stored: 'off' })).toBe(false)
@@ -52,7 +52,7 @@ describe('elección de animaciones', () => {
     expect(PULSE_CYCLE_MS * PULSE_ITERATIONS + PULSE_DELAY_MS).toBeLessThan(5000)
   })
 
-  it('empieza al montar y la escala se distingue en el botón de 44 px', () => {
+  it('starts on mount and scale is perceptible on the 44px button', () => {
     const mobileButtonPx = 44
     const growth = mobileButtonPx * (PULSE_SCALE - 1)
     expect(PULSE_DELAY_MS).toBe(0)
@@ -63,7 +63,7 @@ describe('elección de animaciones', () => {
     expect(PULSE_HALO_SCALE).toBeLessThan(1.3)
   })
 
-  it('se detiene al pulsar o enfocar el botón, al ocultar la pestaña o al acabar los 3 ciclos', () => {
+  it('stops on button press or focus, when the tab is hidden, or after 3 cycles', () => {
     const onButton = { onToggle: true }
     expect(shouldStopPulse({ type: 'pointerdown', ...onButton })).toBe(true)
     expect(shouldStopPulse({ type: 'click', ...onButton })).toBe(true)
@@ -73,7 +73,7 @@ describe('elección de animaciones', () => {
     expect(shouldStopPulse({ type: 'animationend', onToggle: false, animationName: PULSE_HALO_ANIMATION })).toBe(true)
   })
 
-  it('no se corta con el scroll, el teclado ni toques o foco fuera del botón', () => {
+  it('does not stop on scroll, keyboard, or touches or focus outside the button', () => {
     for (const type of ['wheel', 'touchmove', 'keydown', 'pointerenter', 'pointerdown', 'focus', 'click'] as const) {
       expect(shouldStopPulse({ type, onToggle: false })).toBe(false)
     }
@@ -85,11 +85,11 @@ describe('elección de animaciones', () => {
     expect(shouldStopPulse({ type: 'visibilitychange', onToggle: false, hidden: false })).toBe(false)
     expect(shouldStopPulse({ type: 'visibilitychange', onToggle: false })).toBe(false)
     expect(shouldStopPulse({ type: 'animationend', ...onButton })).toBe(false)
-    expect(shouldStopPulse({ type: 'animationend', ...onButton, animationName: 'otra' })).toBe(false)
+    expect(shouldStopPulse({ type: 'animationend', ...onButton, animationName: 'other' })).toBe(false)
     expect(shouldStopPulse({ type: 'animationiteration', ...onButton, animationName: PULSE_ANIMATION })).toBe(false)
   })
 
-  it('el anillo usa los mismos nombres de animación que el CSS y el cajón del CTA', () => {
+  it('ring uses the same animation names as CSS and the CTA drawer', () => {
     const toggle = readFileSync(new URL('../../app/components/AnimationsToggle.vue', import.meta.url), 'utf8')
     const visits = readFileSync(new URL('../../app/components/JourneyVisits.vue', import.meta.url), 'utf8')
     const css = readFileSync(new URL('../../app/assets/css/main.css', import.meta.url), 'utf8')
@@ -103,8 +103,8 @@ describe('elección de animaciones', () => {
   })
 })
 
-describe('catch-up y visibilidad', () => {
-  it('va de 0 a pLive con easeOutCubic y no se mueve si pLive es 0', () => {
+describe('catch-up and visibility', () => {
+  it('goes from 0 to pLive with easeOutCubic and does not move when pLive is 0', () => {
     expect(catchUpShown(0, 0.8)).toBe(0)
     expect(catchUpShown(SCENE_CATCH_UP_MS / 2, 0.8)).toBeCloseTo(0.8 * 0.875)
     expect(catchUpShown(SCENE_CATCH_UP_MS, 0.8)).toBeCloseTo(0.8)
@@ -113,7 +113,7 @@ describe('catch-up y visibilidad', () => {
     expect(catchUpShown(100, -1)).toBe(0)
   })
 
-  it('mide la fracción visible y exige intersección además del umbral', () => {
+  it('measures visible fraction and requires intersection in addition to the threshold', () => {
     expect(intersectionRatio(100, 300, 800)).toBeCloseTo(200 / 200)
     expect(intersectionRatio(-100, 100, 800)).toBeCloseTo(0.5)
     expect(intersectionRatio(900, 1000, 800)).toBe(0)
@@ -126,7 +126,7 @@ describe('catch-up y visibilidad', () => {
   })
 })
 
-describe('script de animaciones anterior al pintado', () => {
+describe('pre-paint animations script', () => {
   function runScript({ stored = null as string | null, systemReduced = false, storageBlocked = false } = {}) {
     const attributes = new Map<string, string>()
     runInNewContext(ANIMATIONS_NO_FLASH_SCRIPT, {
@@ -146,7 +146,7 @@ describe('script de animaciones anterior al pintado', () => {
     return attributes.get(MOTION_ATTRIBUTE)
   }
 
-  it('arranca estático salvo on guardado y sin reduced-motion', () => {
+  it('starts static unless on is stored and reduced-motion is off', () => {
     expect(runScript()).toBe('reduced')
     expect(runScript({ stored: 'off' })).toBe('reduced')
     expect(runScript({ stored: 'full' })).toBe('reduced')
@@ -154,7 +154,7 @@ describe('script de animaciones anterior al pintado', () => {
     expect(runScript({ stored: 'on' })).toBe('full')
   })
 
-  it('con localStorage bloqueado no falla y queda estático', () => {
+  it('with blocked localStorage does not throw and stays static', () => {
     expect(runScript({ storageBlocked: true })).toBe('reduced')
   })
 })

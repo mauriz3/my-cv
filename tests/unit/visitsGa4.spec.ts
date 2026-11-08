@@ -14,7 +14,7 @@ import { VisitsReportSchema } from '../../lib/visitsSchema'
 import { NOW, TEST_PROPERTY_ID, TEST_SERVICE_ACCOUNT_JSON, TEST_TOKEN, fakeGoogleFetch, fakeRunReport, response } from './fixtures/ga4'
 
 describe('visitsPeriods', () => {
-  it('7d: los 7 días completos hasta ayer y los 7 anteriores', () => {
+  it('7d: seven full days through yesterday and the seven before', () => {
     const periods = visitsPeriods('7d', NOW)
     expect(periods.current).toEqual({ name: 'current', startDate: '2026-10-25', endDate: '2026-10-31' })
     expect(periods.previous).toEqual({ name: 'previous', startDate: '2026-10-18', endDate: '2026-10-24' })
@@ -23,14 +23,14 @@ describe('visitsPeriods', () => {
     expect(periods.currentKeys[0]).toBe('20261025')
   })
 
-  it('30d: 30 días y el mismo número en el anterior', () => {
+  it('30d: 30 days and the same count in the previous period', () => {
     const periods = visitsPeriods('30d', NOW)
     expect(periods.current.startDate).toBe('2026-10-02')
     expect(periods.previous).toEqual({ name: 'previous', startDate: '2026-09-02', endDate: '2026-10-01' })
     expect(periods.previousKeys).toHaveLength(30)
   })
 
-  it('1d: ayer por horas (24 etiquetas `YYYY-MM-DDTHH`) frente a anteayer', () => {
+  it('1d: yesterday by hour (24 `YYYY-MM-DDTHH` labels) vs day before', () => {
     const periods = visitsPeriods('1d', NOW)
     expect(periods.current).toEqual({ name: 'current', startDate: '2026-10-31', endDate: '2026-10-31' })
     expect(periods.previous.startDate).toBe('2026-10-30')
@@ -42,7 +42,7 @@ describe('visitsPeriods', () => {
 })
 
 describe('buildGa4Requests', () => {
-  it('7 informes; KPI y serie comparan dos periodos con nombre, los desgloses solo el actual', () => {
+  it('seven reports; KPI and series compare two named periods; breakdowns current only', () => {
     const periods = visitsPeriods('7d', NOW)
     const requests = buildGa4Requests(periods, '7d')
     expect(Object.keys(requests)).toEqual([...GA4_REPORT_NAMES])
@@ -53,12 +53,12 @@ describe('buildGa4Requests', () => {
     expect(requests.pages.orderBys?.[0]).toEqual({ metric: { metricName: 'screenPageViews' }, desc: true })
   })
 
-  it('1d agrupa la serie por hora', () => {
+  it('1d groups series by hour', () => {
     expect(buildGa4Requests(visitsPeriods('1d', NOW), '1d').timeseries.dimensions).toEqual([{ name: 'dateHour' }])
   })
 })
 
-describe('mapeo de respuestas', () => {
+describe('response mapping', () => {
   const periods = visitsPeriods('7d', NOW)
   const requests = buildGa4Requests(periods, '7d')
   const responses = Object.fromEntries(GA4_REPORT_NAMES.map((name) => [name, fakeRunReport(requests[name])])) as Parameters<
@@ -66,26 +66,26 @@ describe('mapeo de respuestas', () => {
   >[2]
   const report = mapGa4Report('7d', periods, responses, NOW)
 
-  it('cumple el contrato y no es de ejemplo', () => {
+  it('satisfies contract and is not sample', () => {
     expect(VisitsReportSchema.safeParse(report).success).toBe(true)
     expect(report.sample).toBe(false)
     expect(report.generatedAt).toBe(NOW.toISOString())
   })
 
-  it('KPI: sesiones, usuarios, duración media (s) y rebote con cambios', () => {
+  it('KPI: sessions, users, avg duration (s), bounce with changes', () => {
     expect(report.kpis.visits).toEqual({ value: 320, prev: 300, delta: 0.07 })
     expect(report.kpis.visitors).toEqual({ value: 250, prev: 240, delta: 0.04 })
     expect(report.kpis.avgDurationSec.value).toBe(112)
     expect(report.kpis.bounceRate).toEqual({ value: 0.39, prev: 0.41, deltaPp: -2 })
   })
 
-  it('serie: rellena con 0 los días sin filas y alinea el periodo anterior por posición', () => {
+  it('series: zero-fills days without rows; previous aligned by position', () => {
     expect(report.timeseries.labels).toEqual(periods.labels)
     expect(report.timeseries.current).toEqual([46, 0, 0, 0, 0, 0, 0])
     expect(report.timeseries.previous).toEqual([42, 0, 0, 0, 0, 0, 0])
   })
 
-  it('dispositivos en % que suman 100, sin categorías fuera del contrato', () => {
+  it('devices in % summing to 100, no out-of-contract categories', () => {
     expect(report.devices).toEqual([
       { key: 'mobile', value: 58 },
       { key: 'desktop', value: 36 },
@@ -93,7 +93,7 @@ describe('mapeo de respuestas', () => {
     ])
   })
 
-  it('países: los pequeños y «(not set)» van a «Otros»', () => {
+  it('countries: small ones and «(not set)» go to Other', () => {
     expect(report.countries).toEqual([
       { iso: 'ES', visits: 140 },
       { iso: 'US', visits: 80 },
@@ -101,12 +101,12 @@ describe('mapeo de respuestas', () => {
     ])
   })
 
-  it('fuentes: LinkedIn por origen, el resto por canal', () => {
+  it('sources: LinkedIn by source; rest by channel', () => {
     const shares = Object.fromEntries(report.sources.map((source) => [source.key, source.value]))
     expect(shares).toEqual({ organic: 41, direct: 28, linkedin: 18, referral: 9, other: 4 })
   })
 
-  it('páginas: sin prefijo de idioma, sumadas y las 6 primeras', () => {
+  it('pages: no locale prefix, merged, top six', () => {
     expect(report.pages).toEqual([
       { path: '/', views: 500 },
       { path: '/experience', views: 200 },
@@ -117,13 +117,13 @@ describe('mapeo de respuestas', () => {
     ])
   })
 
-  it('horas: lunes primero y franjas de 3 h', () => {
-    expect(report.hours.values[6]?.[7]).toBe(5) // domingo 23 h
-    expect(report.hours.values[0]?.[0]).toBe(5) // lunes 00 h + 02 h
-    expect(report.hours.values[3]?.[4]).toBe(7) // jueves 13 h
+  it('hours: Monday first and 3 h slots', () => {
+    expect(report.hours.values[6]?.[7]).toBe(5) // Sunday 23 h
+    expect(report.hours.values[0]?.[0]).toBe(5) // Monday 00 h + 02 h
+    expect(report.hours.values[3]?.[4]).toBe(7) // Thursday 13 h
   })
 
-  it('sin filas (propiedad sin visitas): todo a 0 y sigue cumpliendo el contrato', () => {
+  it('no rows (property with no visits): all zero, still satisfies contract', () => {
     const empty = response([], [], [])
     const blank = Object.fromEntries(GA4_REPORT_NAMES.map((name) => [name, empty])) as typeof responses
     const emptyReport = mapGa4Report('30d', visitsPeriods('30d', NOW), blank, NOW)
@@ -133,8 +133,8 @@ describe('mapeo de respuestas', () => {
   })
 })
 
-describe('utilidades', () => {
-  it('toPercentShares reparte el resto para sumar 100', () => {
+describe('utilities', () => {
+  it('toPercentShares distributes remainder to sum 100', () => {
     expect(toPercentShares([1, 1, 1])).toEqual([34, 33, 33])
     expect(toPercentShares([0, 0])).toEqual([0, 0])
   })
@@ -153,8 +153,8 @@ describe('utilidades', () => {
   })
 })
 
-describe('cliente GA4', () => {
-  it('pide un solo token y hace 7 runReport por rango a la propiedad configurada', async () => {
+describe('GA4 client', () => {
+  it('requests one token and seven runReports per range to configured property', async () => {
     const google = fakeGoogleFetch()
     const config = readGa4Config({ GA_PROPERTY_ID: TEST_PROPERTY_ID, GA_SERVICE_ACCOUNT_JSON: TEST_SERVICE_ACCOUNT_JSON })
     if (!config) throw new Error('config')
@@ -170,7 +170,7 @@ describe('cliente GA4', () => {
     expect((reportCalls[0]?.init?.headers as Record<string, string>).authorization).toBe(`Bearer ${TEST_TOKEN}`)
   })
 
-  it('un error de la API lleva el estado, no el token', async () => {
+  it('API error includes status, not token', async () => {
     const google = fakeGoogleFetch({ failRunReport: () => 403 })
     const options = { propertyId: TEST_PROPERTY_ID, getAccessToken: async () => TEST_TOKEN, fetch: google.fetch, now: NOW }
     const error = await fetchGa4Report('7d', options).catch((caught: Error) => caught)
@@ -180,12 +180,12 @@ describe('cliente GA4', () => {
 })
 
 describe('readGa4Config', () => {
-  it('sin variables no hay configuración (se sigue con la instantánea o el mock)', () => {
+  it('without env vars, no config (fallback snapshot or mock)', () => {
     expect(readGa4Config({})).toBeUndefined()
     expect(readGa4Config({ GA_PROPERTY_ID: TEST_PROPERTY_ID })).toBeUndefined()
   })
 
-  it('rechaza un ID de propiedad que no sea numérico', () => {
-    expect(() => readGa4Config({ GA_PROPERTY_ID: 'G-9HF9362QE9', GA_SERVICE_ACCOUNT_JSON: TEST_SERVICE_ACCOUNT_JSON })).toThrow('numérico')
+  it('rejects a non-numeric property ID', () => {
+    expect(() => readGa4Config({ GA_PROPERTY_ID: 'G-9HF9362QE9', GA_SERVICE_ACCOUNT_JSON: TEST_SERVICE_ACCOUNT_JSON })).toThrow('numeric property ID')
   })
 })

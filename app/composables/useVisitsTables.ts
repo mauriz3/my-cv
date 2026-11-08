@@ -6,7 +6,7 @@ export interface VisitsTable {
   rows: string[][]
 }
 
-/** Tablas «Ver tabla» de cada gráfica de Visitas: los mismos datos en texto (alternativa accesible). */
+/** "View table" tables of each Visits graph: the same data in text (accessible alternative). */
 export function useVisitsTables(report: Ref<VisitsReport | undefined>) {
   const { t } = useI18n()
   const { integer, percent, timeLabel, weekDay, slotLabel, countryName, pageName } = useVisitsFormat()

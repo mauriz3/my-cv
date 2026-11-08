@@ -2,8 +2,8 @@
 import type { Cv } from '~~/data/schema'
 
 /**
- * Panel lateral con el detalle de un proyecto. El diálogo (Nuxt UI) atrapa el foco,
- * se cierra con Escape y devuelve el foco a la tarjeta que lo abrió.
+ * Side panel with the detail of a project. Dialogue (Nuxt UI) catches the spotlight,
+ * closes with Escape and returns the spotlight to the card that opened it.
  */
 defineProps<{ project: Cv['projects'][number] }>()
 const open = defineModel<boolean>('open', { required: true })
@@ -19,7 +19,7 @@ const { t } = useI18n()
     :description="project.description"
     data-testid="project-detail"
   >
-    <!-- Botón de cierre propio para que su nombre accesible siga el idioma de la web. -->
+    <!-- Own close button so that its accessible name follows the language of the website. -->
     <template #close="{ ui }">
       <UButton icon="i-lucide-x" color="neutral" variant="ghost" :aria-label="t('projects.closeDetail')" :class="ui.close()" />
     </template>

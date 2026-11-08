@@ -1,22 +1,22 @@
-# CV en PDF (EN / ES)
+# CV PDF (EN / ES)
 
-Genera `public/Resume-Maurizio-Rendon-en.pdf` y `-es.pdf` (A4, exactamente 2 páginas) según el «Handoff – CV PDF» de diseño.
+Generates `public/Resume-Maurizio-Rendon-en.pdf` and `-es.pdf` (A4, exactly 2 pages) per the design «Handoff – CV PDF».
 
-**Fuente única:** el texto sale de `data/cv.*.ts` vía `getCv(locale)`. Para cambiar el summary, un puesto o una viñeta, edita `data/` y regenera; no hay texto del CV duplicado aquí. `tests/unit/pdfContent.spec.ts` comprueba que web y PDF comparten summary, viñetas de Octane11, puestos, formación, proyectos y skills.
+**Single source:** copy comes from `data/cv.*.ts` via `getCv(locale)`. To change the summary, a role, or a bullet, edit `data/` and regenerate; CV text is not duplicated here. `tests/unit/pdfContent.spec.ts` checks that web and PDF share summary, Octane11 bullets, roles, education, projects, and skills.
 
-- `content.ts`: construye el contenido del PDF desde los datos. Solo añade lo propio del PDF, con constantes con nombre: títulos de sección y pie, perfil = `summary` + `motivation`, orden de enlaces y de filas de Skills (Back End primero), alias ATS (`React (ReactJS)`, `Chart.js (ChartJS)`), etiqueta «DevOps (2016–2018)» calculada del periodo, salto de hoja antes de Open Canarias y ubicación corta de System73 («Tenerife»).
-- `template.ts`: HTML semántico de una columna (h1/h2/h3, listas) y pie «Maurizio Rendon · CV · Page X of Y» con `@page`.
-- `cv-print.css`: estilos de impresión (azul de marca `#0176AC` para texto y `#02A0E9` solo en el filete decorativo, sobre grafito; Inter + Space Grotesk locales).
-- `generate.ts` (CLI) y `render.ts` (lógica, con tests): Chromium (Google Chrome vía `playwright-core`) → PDF etiquetado; `pdf-lib` limpia los metadatos y comprueba las 2 páginas.
-- `check-privacy.sh`: falla si el PDF tiene correo, teléfono, `mailto:`/`tel:`, rutas locales, fuentes sin incrustar o más de 2 páginas.
-- `fonts/`: instancias estáticas recortadas a latín de Inter 400/500/600 y Space Grotesk 700 (SIL OFL 1.1, licencias en `fonts/OFL-*.txt`). Se recrean con `make-static-fonts.sh` (python3 + fontTools; las variables saldrían como Type 3).
+- `content.ts`: builds PDF content from data. Only adds PDF-specific pieces, with named constants: section titles and footer, profile = `summary` + `motivation`, link and Skills row order (Back End first), ATS aliases (`React (ReactJS)`, `Chart.js (ChartJS)`), computed «DevOps (2016–2018)» label from the period, page break before Open Canarias, and short System73 location («Tenerife»).
+- `template.ts`: semantic single-column HTML (h1/h2/h3, lists) and footer «Maurizio Rendon · CV · Page X of Y» with `@page`.
+- `cv-print.css`: print styles (brand blue `#0176AC` for text and `#02A0E9` only on the decorative rule, on graphite; local Inter + Space Grotesk).
+- `generate.ts` (CLI) and `render.ts` (logic, with tests): Chromium (Google Chrome via `playwright-core`) → tagged PDF; `pdf-lib` strips metadata and asserts 2 pages.
+- `check-privacy.sh`: fails if the PDF contains email, phone, `mailto:`/`tel:`, local paths, non-embedded fonts, or more than 2 pages.
+- `fonts/`: trimmed static Latin instances of Inter 400/500/600 and Space Grotesk 700 (SIL OFL 1.1, licenses in `fonts/OFL-*.txt`). Recreate with `make-static-fonts.sh` (python3 + fontTools; variable fonts would render as Type 3).
 
-## Regenerar
+## Regenerate
 
 ```sh
-npm run pdf   # genera los dos PDF y pasa check-privacy.sh a cada uno
+npm run pdf   # generates both PDFs and runs check-privacy.sh on each
 ```
 
-Requisitos: Google Chrome en `/usr/bin/google-chrome` (o `CHROME_PATH=/ruta/al/navegador`) y `poppler-utils` + `ripgrep` para la comprobación de privacidad. No corre en CI: los PDF se versionan en `public/`.
+Requirements: Google Chrome at `/usr/bin/google-chrome` (or `CHROME_PATH=/path/to/browser`) and `poppler-utils` + `ripgrep` for the privacy check. Not run in CI: PDFs are versioned in `public/`.
 
-Privacidad: solo enlaces de LinkedIn, GitHub y CodePen. Nunca correo, teléfono ni dirección.
+Privacy: LinkedIn, GitHub, and CodePen links only. Never email, phone, or address.

@@ -10,7 +10,7 @@ const cspHash = (content: string) => `'sha256-${createHash('sha256').update(cont
 const page = (body: string) => `<!doctype html><html><head>${body}</head><body></body></html>`
 
 describe('scripts/build-headers.mjs', () => {
-  it('hashea solo los scripts inline ejecutables, sin repetir', () => {
+  it('hashes only executable inline scripts, without duplicates', () => {
     const hashes = inlineScriptHashes([
       page(`<script>${INLINE_SCRIPT}</script><script src="/_nuxt/app.js"></script>`),
       page(`<script type="application/ld+json">{"@type":"Person"}</script><script type="application/json">{}</script>`),
@@ -19,7 +19,7 @@ describe('scripts/build-headers.mjs', () => {
     expect(hashes).toEqual([cspHash(INLINE_SCRIPT)])
   })
 
-  it('fuera de producción añade los hashes a script-src y noindex a todas las rutas, sin orígenes de GA', () => {
+  it('outside production adds hashes to script-src and noindex on all routes, without GA origins', () => {
     const { headers, hashCount, isProduction } = buildHeaders(HEADERS_TEMPLATE, [page(`<script>${INLINE_SCRIPT}</script>`)], 'deploy-preview')
     expect(isProduction).toBe(false)
     expect(hashCount).toBe(1)
@@ -28,7 +28,7 @@ describe('scripts/build-headers.mjs', () => {
     expect(headers).not.toContain(ANALYTICS_CSP_SOURCES['script-src'][0])
   })
 
-  it('en producción permite los orígenes de Google Analytics y no lleva noindex', () => {
+  it('in production allows Google Analytics origins and has no noindex', () => {
     const { headers, isProduction } = buildHeaders(HEADERS_TEMPLATE, [], 'production')
     expect(isProduction).toBe(true)
     expect(headers).not.toContain('X-Robots-Tag')
@@ -37,7 +37,7 @@ describe('scripts/build-headers.mjs', () => {
     }
   })
 
-  it('falla si a la plantilla le falta lo que debe completar', () => {
+  it('fails if the template is missing what it must fill in', () => {
     expect(() => buildHeaders('/*\n  X-Frame-Options: DENY\n', [], 'production')).toThrow("script-src 'self'")
     expect(() => buildHeaders("/*\n  Content-Security-Policy: script-src 'self'\n", [], 'production')).toThrow('connect-src')
     expect(() => buildHeaders("/api/*\n  Content-Security-Policy: script-src 'self'\n", [], undefined)).toThrow('«/*»')

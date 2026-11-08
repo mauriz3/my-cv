@@ -1,8 +1,8 @@
 /*
- * CV de impresión según «Handoff – CV PDF» (Disañador): A4, una columna, fondo blanco.
- * Paleta azul de la web sobre grafito: --color-brand (#0176AC, brand-700, 5.0:1 sobre blanco) para todo el texto
- * de color; --color-accent (#02A0E9, brand-500, 2.9:1) solo en el filete decorativo de los títulos.
- * Fuentes locales (instancias estáticas en fonts/): Inter 400/500/600 y Space Grotesk 700.
+ * Print CV per «Handoff – CV PDF» (designer): A4, single column, white background.
+ * Site blue palette on graphite: --color-brand (#0176AC, brand-700, 5.0:1 on white) for all colored text;
+ * --color-accent (#02A0E9, brand-500, 2.9:1) only on decorative section title bars.
+ * Local fonts (static instances in fonts/): Inter 400/500/600 and Space Grotesk 700.
  */
 @font-face { font-family: 'CV Inter'; src: url('fonts/Inter-400.ttf') format('truetype'); font-weight: 400; font-display: block; }
 @font-face { font-family: 'CV Inter'; src: url('fonts/Inter-500.ttf') format('truetype'); font-weight: 500; font-display: block; }
@@ -53,14 +53,14 @@ html {
   background: #FFFFFF;
   print-color-adjust: exact;
   -webkit-print-color-adjust: exact;
-  font-variant-ligatures: none; /* evita «fi»/«fl» rotos al copiar */
+  font-variant-ligatures: none; /* avoids broken «fi»/«fl» when copying */
   letter-spacing: 0;
 }
 body { margin: 0; }
 p, h1, h2, h3, ul { margin: 0; }
 a { color: var(--color-brand); font-weight: 500; text-decoration: none; }
 
-/* Cabecera: banda azul, nombre, titular, enlaces y filete */
+/* Header: blue band, name, headline, links, and rule */
 .cv-header {
   border-top: var(--header-band) solid var(--color-brand);
   padding-top: 6pt;
@@ -73,7 +73,7 @@ a { color: var(--color-brand); font-weight: 500; text-decoration: none; }
 .cv-links li { display: inline; }
 .cv-links li + li::before { content: '\00a0\00a0·\00a0\00a0'; }
 
-/* Secciones */
+/* Sections */
 .cv-section { margin-top: var(--space-between-sections); }
 .cv-section-title {
   font: 700 var(--size-section-title)/1.2 var(--font-display);
@@ -92,7 +92,7 @@ a { color: var(--color-brand); font-weight: 500; text-decoration: none; }
 }
 .cv-section--compact { break-inside: avoid; }
 
-/* Entradas */
+/* Entries */
 .cv-entry { break-inside: avoid; }
 .cv-entry + .cv-entry { margin-top: var(--space-between-entries); }
 .cv-entry--new-page { break-before: page; }
@@ -109,14 +109,14 @@ a { color: var(--color-brand); font-weight: 500; text-decoration: none; }
 .cv-certifications .cv-entry-title { font-size: var(--size-education-title); }
 .cv-education .cv-meta .cv-org { font-weight: 500; }
 
-/* Filas de Skills y Projects */
+/* Skills and Projects rows */
 .cv-row + .cv-row { margin-top: var(--space-between-rows); }
 .cv-row-label { font-weight: 600; }
 
-/* Proyectos: cada uno en una sola línea. «Feature Flags Panel» en ES excedía el ancho útil en ~3 px;
-   reducir un poco el espacio entre palabras lo evita sin cambiar tamaños ni texto. */
+/* Projects: one per line. ES «Feature Flags Panel» exceeded usable width by ~3 px;
+   slightly tighter word spacing fixes it without changing sizes or copy. */
 .cv-projects .cv-row { word-spacing: var(--project-word-spacing); }
 :root { --project-word-spacing: -0.4pt; }
 
-/* Cada habilidad en una línea, para que «Chart.js (ChartJS)» no se parta (búsqueda exacta de ATS). */
+/* Each skill on one line so «Chart.js (ChartJS)» does not break (exact ATS match). */
 .cv-skill { white-space: nowrap; }
