@@ -2,10 +2,12 @@
 import {
   PULSE_CYCLE_MS,
   PULSE_DELAY_MS,
+  PULSE_HALO_SCALE,
   PULSE_ITERATIONS,
   PULSE_SCALE,
   ANIMATIONS_HINT_KEY,
   shouldPulse,
+  shouldStopPulse,
 } from '~~/lib/animations'
 import { registerPulseStop, useAnimations } from '~/composables/useAnimations'
 
@@ -15,6 +17,7 @@ import { registerPulseStop, useAnimations } from '~/composables/useAnimations'
  * Sin aria-pressed: el nombre accesible es el copy de la acción. Escritorio muestra el texto;
  * por debajo de 1024 px solo el icono de 44×44 y un tooltip con el mismo texto.
  * Las dos etiquetas están en el DOM y el CSS enseña la que corresponde a data-motion, sin parpadeo.
+ * La primera visita sin elección pulsa el botón con un anillo; para al pulsarlo, enfocarlo, ocultar la pestaña o acabar.
  */
 const { t } = useI18n({ useScope: 'local' })
 const { motion, stored, prefersReducedMotion, toggle } = useAnimations()
@@ -35,6 +38,7 @@ const hintStyle = {
   '--hint-delay': `${PULSE_DELAY_MS}ms`,
   '--hint-count': String(PULSE_ITERATIONS),
   '--hint-scale': String(PULSE_SCALE),
+  '--hint-halo-scale': String(PULSE_HALO_SCALE),
 }
 
 let hintController: AbortController | undefined
@@ -74,6 +78,16 @@ function rememberHint() {
   }
 }
 
+/** Pulsar, enfocar o terminar la animación. El scroll y los toques fuera no llegan aquí. */
+function onHintSignal(event: Event) {
+  const animationName = event instanceof AnimationEvent ? event.animationName : undefined
+  if (shouldStopPulse({ type: event.type, onToggle: true, animationName })) stopHint()
+}
+
+function onVisibilityChange() {
+  if (shouldStopPulse({ type: 'visibilitychange', onToggle: false, hidden: document.hidden })) stopHint()
+}
+
 onMounted(() => {
   syncLabel()
   if (
@@ -89,17 +103,7 @@ onMounted(() => {
   rememberHint()
   hint.value = true
   hintController = new AbortController()
-  const options = { capture: true, passive: true, signal: hintController.signal } as const
-  for (const type of ['pointerdown', 'keydown', 'wheel', 'touchmove'] as const) {
-    document.addEventListener(type, stopHint, options)
-  }
-  document.addEventListener(
-    'visibilitychange',
-    () => {
-      if (document.hidden) stopHint()
-    },
-    { signal: hintController.signal },
-  )
+  document.addEventListener('visibilitychange', onVisibilityChange, { signal: hintController.signal })
 })
 
 onBeforeUnmount(stopHint)
@@ -109,15 +113,16 @@ onBeforeUnmount(stopHint)
   <span class="contents">
     <button
       type="button"
-      class="animations-toggle"
+      class="animations-toggle cta-halo"
       :class="{ 'animations-toggle--tooltip-off': isTooltipDismissed }"
       :style="hintStyle"
       :data-hint="hint ? '' : undefined"
       :aria-label="label"
       data-testid="animations-toggle"
       @click="onClick"
-      @pointerenter="stopHint"
-      @focus="stopHint"
+      @pointerdown="onHintSignal"
+      @focus="onHintSignal"
+      @animationend="onHintSignal"
       @keydown.esc="isTooltipDismissed = true"
       @blur="isTooltipDismissed = false"
       @mouseleave="isTooltipDismissed = false"
@@ -155,6 +160,7 @@ onBeforeUnmount(stopHint)
   font-weight: 600;
   white-space: nowrap;
   transform-origin: center;
+  --hint-ring-width: 2px;
   transition:
     background-color 150ms,
     color 150ms,
@@ -227,16 +233,37 @@ onBeforeUnmount(stopHint)
   pointer-events: none;
 }
 
+/*
+ * Anillo del mismo ámbar que el botón OFF (`--ui-secondary`): ese token ya contrasta en claro y oscuro.
+ * z-index por encima del botón: el centro es transparente y no tapa el icono.
+ */
+.animations-toggle.cta-halo::after {
+  z-index: 1;
+  background: transparent;
+  border: var(--hint-ring-width) solid var(--ui-secondary);
+}
+
 /* El pulso tiene que ganar a la regla global de movimiento reducido (por defecto data-motion="reduced"). */
 @media (prefers-reduced-motion: no-preference) {
   :root[data-motion] .animations-toggle[data-hint] {
-    animation: animations-hint var(--hint-cycle) ease-in-out var(--hint-delay) var(--hint-count) both !important;
+    animation: animations-hint var(--hint-cycle) cubic-bezier(0.4, 0, 0.2, 1) var(--hint-delay) var(--hint-count) both !important;
+  }
+
+  :root[data-motion] .animations-toggle[data-hint]::after {
+    animation: animations-hint-halo var(--hint-cycle) cubic-bezier(0.4, 0, 0.2, 1) var(--hint-delay) var(--hint-count) both !important;
   }
 }
 
 @keyframes animations-hint {
   50% {
     transform: scale(var(--hint-scale));
+  }
+}
+
+@keyframes animations-hint-halo {
+  50% {
+    opacity: 1;
+    transform: scale(var(--hint-halo-scale));
   }
 }
 

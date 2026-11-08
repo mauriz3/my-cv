@@ -14,11 +14,23 @@ export const LEGACY_MOTION_STORAGE_KEY = MOTION_STORAGE_KEY
 export const ANIMATION_CHOICES = ['on', 'off'] as const
 export type AnimationChoice = (typeof ANIMATION_CHOICES)[number]
 
-/** Pulso de descubrimiento del botón: 3 × 800 ms, tras 600 ms (termina a los 3 s). */
+/**
+ * Pulso de descubrimiento del botón: 3 × 800 ms, desde que se monta.
+ * En móvil el botón mide 44 px y crece unos 3 px; el anillo (el mismo `::after` que el CTA de Visitas)
+ * se ensancha un poco más, en el ámbar del botón.
+ */
 export const PULSE_CYCLE_MS = 800
 export const PULSE_ITERATIONS = 3
-export const PULSE_DELAY_MS = 600
-export const PULSE_SCALE = 1.04
+export const PULSE_DELAY_MS = 0
+/** 44 px × 1.08 ≈ 47.5 px. */
+export const PULSE_SCALE = 1.08
+/** Un poco mayor que el botón, sin el salto de un anillo grande. */
+export const PULSE_HALO_SCALE = 1.2
+/** Nombres de `@keyframes` en AnimationsToggle. `animationend` solo cuenta estos. */
+export const PULSE_ANIMATION = 'animations-hint'
+export const PULSE_HALO_ANIMATION = 'animations-hint-halo'
+
+const PULSE_BUTTON_STOP_TYPES = ['pointerdown', 'click', 'focus'] as const
 
 /** Las escenas visibles alcanzan su progreso real en este tiempo al activar. */
 export const SCENE_CATCH_UP_MS = 450
@@ -50,6 +62,30 @@ export interface PulseConditions {
 /** Primera carga de la pestaña, sin elección, sin reduced-motion y con la pestaña a la vista. */
 export function shouldPulse(conditions: PulseConditions): boolean {
   return conditions.stored === null && !conditions.prefersReducedMotion && !conditions.hintShown && conditions.visible
+}
+
+export interface PulseStopSignal {
+  type: string
+  /** El evento ocurre en el botón. El scroll y los toques en el resto del documento no cuentan. */
+  onToggle: boolean
+  /** `document.hidden` en `visibilitychange`. */
+  hidden?: boolean
+  /** `animationName` de `animationend`. */
+  animationName?: string
+}
+
+function isPulseAnimation(name: string | undefined): boolean {
+  return name === PULSE_ANIMATION || name === PULSE_HALO_ANIMATION
+}
+
+/**
+ * El pulso solo se detiene al pulsar o enfocar el botón, al ocultar la pestaña o al terminar los 3 ciclos.
+ * `wheel`, `touchmove`, `keydown` y un `pointerdown` fuera del botón no lo cortan.
+ */
+export function shouldStopPulse(signal: PulseStopSignal): boolean {
+  if (signal.type === 'visibilitychange') return signal.hidden === true
+  if (signal.type === 'animationend') return isPulseAnimation(signal.animationName)
+  return signal.onToggle && PULSE_BUTTON_STOP_TYPES.some((type) => type === signal.type)
 }
 
 /** Fracción visible de un rectángulo `[top, bottom)` dentro de la ventana. 0 si no tiene alto. */

@@ -124,7 +124,7 @@ const summary = computed(() => {
     <UButton
       :to="localePath({ path: '/visits', hash: '#visits-title' })"
       trailing-icon="i-lucide-arrow-right"
-      class="journey-visits__cta mt-3 min-h-11"
+      class="journey-visits__cta cta-halo mt-3 min-h-11"
       data-testid="journey-visits-cta"
     >
       {{ t('cta') }}
@@ -179,21 +179,6 @@ const summary = computed(() => {
   outline: 2px solid var(--ui-text);
   outline-offset: 2px;
   box-shadow: 0 0 0 6px color-mix(in srgb, var(--brand-vivid) 45%, transparent);
-}
-
-.journey-visits__cta {
-  position: relative;
-}
-
-.journey-visits__cta::after {
-  content: '';
-  position: absolute;
-  inset: -4px;
-  border-radius: inherit;
-  background: var(--brand-vivid);
-  opacity: 0;
-  z-index: -1;
-  pointer-events: none;
 }
 
 :root[data-motion='full'] .journey-visits[data-pulse] .journey-visits__cta {

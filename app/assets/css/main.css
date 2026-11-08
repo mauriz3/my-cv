@@ -125,7 +125,7 @@ h3 {
  * al cargar). Saltan a su estado final (0,01 ms para que `fill-mode` lo deje) y solo se permiten las
  * transiciones de color y sombra del hover. Sin transiciones de posición, tamaño u opacidad: el cambio
  * de maqueta al desactivar se ve y se mide en el mismo fotograma.
- * El pulso del botón (`.animations-toggle[data-hint]`) es la excepción: su regla es más específica.
+ * El pulso del botón (`.animations-toggle[data-hint]` y su `::after`) es la excepción: su regla es más específica.
  */
 :root[data-motion='reduced'] *,
 :root[data-motion='reduced'] *::before,
@@ -147,6 +147,25 @@ h3 {
     transition-delay: 0s !important;
     scroll-behavior: auto !important;
   }
+}
+
+/*
+ * Halo de llamada a la acción: el mismo `::after` para el CTA de Visitas y el pulso de animaciones.
+ * 4 px por fuera del botón, detrás del relleno. Cada uno concreta el color y la animación.
+ */
+.cta-halo {
+  position: relative;
+}
+
+.cta-halo::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  background: var(--brand-vivid);
+  opacity: 0;
+  z-index: -1;
+  pointer-events: none;
 }
 
 /* ---------- Visitas: entrada escalonada de tarjetas · marcador de carga compartido (visitas y libros) ---------- */
