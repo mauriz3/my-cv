@@ -42,6 +42,10 @@ npm run dev
 - `scripts/` generación de cabeceras, PDF, imagen Open Graph, auditorías y servidor local para la CI.
 - `tests/` Vitest (`unit/`, `nuxt/`) y axe (`a11y/`).
 
+## Imágenes
+
+Ráster en WebP (sin pérdida para capturas, calidad 85 para portadas); siguen en PNG/ICO/JPG solo `og-cv.png` (LinkedIn), `favicon.ico` y `webtele.jpg` (su WebP pesa más). `tests/unit/images.spec.ts` impide imágenes sin usar o ráster nuevos fuera de esas excepciones. Detalle: [docs/imagenes.md](docs/imagenes.md).
+
 ## CI y calidad
 
 Cada PR y cada push a master pasan por `.github/workflows/ci.yml`: typecheck, tests con cobertura (bloquea por debajo del 80 %), generate, `audit:check`, gitleaks, axe (falla con violaciones serious/critical) y Lighthouse (umbrales por categoría). Los informes quedan como artefactos de la ejecución en Actions. Detalle: [docs/calidad.md](docs/calidad.md). Seguridad (CSP, cabeceras, dependencias): [docs/seguridad.md](docs/seguridad.md).
@@ -54,5 +58,6 @@ Solo un push a master despliega en Netlify (job `deploy-production`, tras pasar 
 
 - [Funcionalidades](docs/funcionalidades.md): Visitas, analítica y consentimiento, movimiento, microanimaciones, tema, libros y vista previa al compartir.
 - [Visitas con datos de GA4](docs/ga4.md): instantánea, puesta en marcha y pruebas en local.
+- [Imágenes](docs/imagenes.md): formatos, excepciones y cómo añadir una imagen.
 - [Calidad](docs/calidad.md) · [Seguridad](docs/seguridad.md) · [Despliegue](docs/despliegue.md).
 - [Diagramas de arquitectura, tipos y flujos](docs/README.md) · [Decisiones (ADR)](docs/adr.md) · [Normas para agentes](AGENTS.md).

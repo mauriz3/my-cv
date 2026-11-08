@@ -22,19 +22,6 @@ const textBlocks = [
   { name: 'es', texts: textsEs },
 ]
 
-/** Medidas de un JPEG leyendo su marcador SOF (baseline o progresivo). */
-function jpegSize(bytes: Buffer): { width: number; height: number } {
-  let offset = 2
-  while (offset < bytes.length) {
-    const marker = bytes[offset + 1]!
-    if (marker === 0xc0 || marker === 0xc2) {
-      return { height: bytes.readUInt16BE(offset + 5), width: bytes.readUInt16BE(offset + 7) }
-    }
-    offset += 2 + bytes.readUInt16BE(offset + 2)
-  }
-  throw new Error('JPEG sin marcador SOF')
-}
-
 /** Todos los textos visibles del CV de un idioma, para buscar datos personales. */
 function visibleStrings(value: unknown): string[] {
   if (typeof value === 'string') return [value]
@@ -108,15 +95,6 @@ describe('enlaces e imágenes', () => {
       const normalized = alt.trim().toLowerCase()
       expect(GENERIC_ALT_TEXTS).not.toContain(normalized)
       expect(normalized.split(/\s+/).length).toBeGreaterThanOrEqual(3)
-    }
-  })
-
-  it('cada portada existe en public/ y su width/height son las medidas reales del JPEG', () => {
-    for (const { cover } of cvFacts.books) {
-      expect(jpegSize(readFileSync(new URL(`../../public${cover.src}`, import.meta.url)))).toEqual({
-        width: cover.width,
-        height: cover.height,
-      })
     }
   })
 })

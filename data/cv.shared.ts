@@ -102,7 +102,7 @@ export const cvFacts: CvFacts = {
   certifications: [{ id: 'accelerated-es6', name: 'Accelerated ES6 JavaScript Training' }],
 
   projects: [
-    { id: 'my-cv', url: 'https://github.com/mauriz3/my-cv', image: 'cv.png', category: 'nuxt' },
+    { id: 'my-cv', url: 'https://github.com/mauriz3/my-cv', image: 'cv.webp', category: 'nuxt' },
     { id: 'webtele', url: 'https://www.webtelehd.com/', image: 'webtele.jpg', category: 'website' },
     {
       id: 'balance-of-the-force',
@@ -113,16 +113,16 @@ export const cvFacts: CvFacts = {
     {
       id: 'feature-flags-panel',
       url: 'https://codepen.io/maurirz3/full/eYzMyWe',
-      image: 'ff.png',
+      image: 'ff.webp',
       category: 'codepen',
     },
     {
       id: 'streaming-analytics',
       url: 'https://codepen.io/maurirz3/full/JjYLMrZ',
-      image: 'sa.png',
+      image: 'sa.webp',
       category: 'codepen',
     },
-    { id: 'search-mock', url: 'https://codepen.io/maurirz3/full/JjyYRXq', image: 'sm.png', category: 'codepen' },
+    { id: 'search-mock', url: 'https://codepen.io/maurirz3/full/JjyYRXq', image: 'sm.webp', category: 'codepen' },
   ],
 
   /** Portadas de la edición en español (Tanda D), optimizadas en `public/books/`. */
@@ -130,12 +130,12 @@ export const cvFacts: CvFacts = {
     {
       id: 'enigma-room-622',
       author: 'Joël Dicker',
-      cover: { src: '/books/enigma-habitacion-622.jpg', width: 317, height: 500 },
+      cover: { src: '/books/enigma-habitacion-622.webp', width: 317, height: 500 },
     },
     {
       id: 'surrounded-by-idiots',
       author: 'Thomas Erikson',
-      cover: { src: '/books/rodeados-de-idiotas.jpg', width: 333, height: 500 },
+      cover: { src: '/books/rodeados-de-idiotas.webp', width: 333, height: 500 },
     },
   ],
 

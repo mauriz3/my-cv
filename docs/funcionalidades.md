@@ -117,7 +117,7 @@ Fuentes: [configuración Nuxt](../nuxt.config.ts), [layout](../app/layouts/defau
 
 ## Libros que recomiendo
 
-- Sección del Perfil tras el recorrido (`#books`, sin entrada en el menú). Datos en `data/` (`books` en `cv.shared.ts` y textos en `cv.en.ts` / `cv.es.ts`); portadas optimizadas en `public/books/` con sus medidas reales (un test lo comprueba).
+- Sección del Perfil tras el recorrido (`#books`, sin entrada en el menú). Datos en `data/` (`books` en `cv.shared.ts` y textos en `cv.en.ts` / `cv.es.ts`); portadas WebP en `public/books/` con sus medidas reales (un test lo comprueba).
 - Enlaces cortos `/en/books` y `/es/libros` para Destacados de LinkedIn (que quita el `#`): pega `https://www.mauriziorendon.com/en/books` (o `/es/libros`). Son una página mínima (`app/pages/books.vue`, rutas traducidas en `nuxt.config.ts` → `i18n.pages`) que responde **200** con la misma vista previa que el Perfil (`og:title`, `og:description`, `og:image`, `twitter:card`; `usePageSeo` con `canonicalPath`: `canonical` y `og:url` al Perfil, sin `hreflang`, sin `noindex`) y salta a `/en/#books` (o `/es/#books`) con `location.replace` (script inline con hash en la CSP vía `scripts/build-headers.mjs`) y `<meta http-equiv="refresh">` sin JS; el enlace visible queda de respaldo. Sin scripts de Nuxt (`routeRules` → `noScripts`) ni `_payload.json`.
 - Se prerenderizan como `en/books.html` y `es/libros.html` (hook `prerender:generate`, `lib/booksShortLink.ts`): Netlify sirve `ruta.html` con 200 en `/ruta` y manda `/ruta/` a `/ruta` (301), mientras que `ruta/index.html` haría un 301 a `/ruta/`. No hay reglas en `_redirects`: el 301 anterior con fragmento (`/en/#books`) hacía fallar el Post Inspector de LinkedIn (500), y una regla para la barra final podría hacer bucle (Netlify empareja con o sin ella). Tests: `tests/unit/booksShortLink.spec.ts` y `redirects.spec.ts`. Comprobación: `curl -A LinkedInBot -i https://www.mauriziorendon.com/en/books` → 200 con `og:image`.
 
@@ -125,7 +125,7 @@ Fuentes: [configuración Nuxt](../nuxt.config.ts), [layout](../app/layouts/defau
 
 `usePageSeo` es el único punto: todas las páginas (EN/ES) llevan `og:image` absoluta (`https://www.mauriziorendon.com/og-cv.png`, 1200×630 PNG, `alt` traducido en `seo.imageAlt`), `og:url`/`og:locale` de `useLocaleHead` (misma URL que `canonical` y `hreflang`) y `twitter:card=summary_large_image`. Constantes en `lib/socialMeta.ts`.
 
-La imagen sale de `scripts/og-image.mjs` (azul de los tokens `--color-brand-*` de `main.css`, Inter y Space Grotesk locales, avatar `public/me.png`; sin datos de contacto). Para regenerarla, con Google Chrome instalado (o `CHROME_PATH=/ruta/al/navegador`):
+La imagen sale de `scripts/og-image.mjs` (azul de los tokens `--color-brand-*` de `main.css`, Inter y Space Grotesk locales, avatar `public/me.webp`; sin datos de contacto). Para regenerarla, con Google Chrome instalado (o `CHROME_PATH=/ruta/al/navegador`):
 
 ```sh
 npm i --no-save playwright-core && node scripts/og-image.mjs
