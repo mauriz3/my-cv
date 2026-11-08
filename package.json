@@ -18,6 +18,7 @@
     "coverage": "vitest run --coverage",
     "test:a11y": "playwright test",
     "lighthouse": "npx --yes @lhci/cli@0.16.0 autorun",
+    "lighthouse:consent": "LHCI_CONSENT=1 npx --yes @lhci/cli@0.16.0 autorun",
     "audit:check": "node scripts/audit.mjs",
     "visits:snapshot": "jiti scripts/visits-snapshot.ts",
     "pdf": "jiti scripts/pdf/generate.ts && scripts/pdf/check-privacy.sh public/Resume-Maurizio-Rendon-en.pdf && scripts/pdf/check-privacy.sh public/Resume-Maurizio-Rendon-es.pdf"

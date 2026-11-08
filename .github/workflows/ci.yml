@@ -72,7 +72,7 @@ jobs:
           path: playwright-report
           retention-days: 7
 
-  # Lighthouse (@lhci/cli, lighthouserc.json) sobre el mismo artefacto; informes HTML/JSON como artefacto, sin servicio externo.
+  # Lighthouse (@lhci/cli, lighthouserc.cjs) sobre el mismo artefacto; informes HTML/JSON como artefacto, sin servicio externo.
   lighthouse:
     needs: verify
     runs-on: ubuntu-latest
@@ -87,12 +87,18 @@ jobs:
           name: site
           path: .output/public
       # @lhci/cli va con versión fija vía npx (como netlify-cli): no entra en package-lock ni en npm ci.
+      # Visita de fuera de la zona con aviso: todos los umbrales bloquean.
       - run: npm run lighthouse
+      # Solo el build de producción lleva el aviso de analítica: primera visita desde la UE (ES), rendimiento informativo.
+      - run: npm run lighthouse:consent
+        if: ${{ !cancelled() && env.CONTEXT == 'production' }}
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ !cancelled() }}
         with:
           name: lighthouse-report
-          path: lighthouse-report
+          path: |
+            lighthouse-report
+            lighthouse-report-consent
           retention-days: 7
 
   secrets:

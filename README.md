@@ -26,6 +26,7 @@ npm run dev
 | `npm run generate` | Sitio estático en `.output/public` + cabeceras y hashes CSP |
 | `npm run test:a11y` | axe sobre el sitio generado (requiere `generate` y Google Chrome) |
 | `npm run lighthouse` | Lighthouse sobre el sitio generado (requiere `generate` y Google Chrome) |
+| `npm run lighthouse:consent` | Lo mismo con el aviso de analítica (visita desde la UE; build de producción) |
 | `npm run audit:check` | `npm audit` con excepciones justificadas |
 | `npm run pdf` | Regenera los PDF del CV desde `data/` ([scripts/pdf/README.md](scripts/pdf/README.md)) |
 | `npm run visits:snapshot` | Instantánea local de GA4 ([docs/ga4.md](docs/ga4.md)) |

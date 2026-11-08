@@ -98,5 +98,5 @@ playwright-report
 .netlify
 
 # Auditorías de CI (Lighthouse y axe)
-lighthouse-report
+lighthouse-report*
 .lighthouseci
