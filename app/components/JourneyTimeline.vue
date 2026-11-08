@@ -19,6 +19,7 @@ const { t } = useI18n()
         :key="point.id"
         class="journey__marker"
         :data-state="markerStates[index]"
+        :data-point-id="point.id"
         :style="{ '--point-position': pointPosition(index) }"
       >
         <span class="journey__dot" />

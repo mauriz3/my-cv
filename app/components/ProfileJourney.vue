@@ -25,6 +25,7 @@ import { yearsInPeriods } from '~~/lib/years'
  */
 const { t } = useI18n({ useScope: 'local' })
 const { t: tGlobal } = useI18n()
+const localePath = useLocalePath()
 const cv = useCv()
 
 /** Tecnologías que caben en la tarjeta de Skills (el resto está en su sección). */
@@ -72,6 +73,10 @@ const relativeProfile = computed(() => cv.value.skillProfile.map((axis) => axis.
 const skillChips = computed(() =>
   [...new Set(cv.value.skillAreas.flatMap((area) => area.skills))].slice(0, SKILL_CHIP_LIMIT),
 )
+const flashSkillSet = computed(
+  () => new Set(cv.value.skillAreas.find((area) => area.id === 'frontend')?.skills ?? []),
+)
+const spotlightProject = computed(() => cv.value.projects[0]!)
 const today = new Date()
 const areasByYears = computed(() =>
   [...cv.value.skillAreas].sort((a, b) => yearsInPeriods(b.periods, today) - yearsInPeriods(a.periods, today)),
@@ -161,7 +166,12 @@ const courses = computed(() =>
             </template>
           </p>
           <ul class="mt-2 flex flex-wrap gap-1.5">
-            <li v-for="skill in skillChips" :key="skill">
+            <li
+              v-for="skill in skillChips"
+              :key="skill"
+              class="journey-skill-chip"
+              :data-flash-area="flashSkillSet.has(skill) || undefined"
+            >
               <UBadge color="neutral" variant="subtle" :label="skill" />
             </li>
           </ul>
@@ -200,11 +210,16 @@ const courses = computed(() =>
             </h2>
           </template>
           <p class="mt-1 text-sm">{{ degree.institution }} · <PeriodTime :period="degree.period" /></p>
-          <p v-if="cv.certifications.length" class="mt-1 text-sm text-muted">
-            {{ tGlobal('education.certifications') }}:
-            {{ cv.certifications.map((item) => item.name).join(' · ') }}
-          </p>
-          <p v-if="courses.length" class="mt-1 text-sm text-muted">{{ t('courses') }}: {{ courses.join(' · ') }}</p>
+          <div v-if="cv.certifications.length" class="card-fx mt-2" :style="fx('cert')">
+            <p class="text-xs font-medium text-muted">{{ tGlobal('education.certifications') }}</p>
+            <p class="mt-0.5 text-sm text-muted">
+              {{ cv.certifications.map((item) => item.name).join(' · ') }}
+            </p>
+          </div>
+          <div v-if="courses.length" class="card-fx mt-2" :style="fx('courses')">
+            <p class="text-xs font-medium text-muted">{{ t('courses') }}</p>
+            <p class="mt-0.5 text-sm text-muted">{{ courses.join(' · ') }}</p>
+          </div>
         </JourneyCard>
 
         <JourneyCard :index="4" :state="cardStates[4]!">
@@ -214,11 +229,28 @@ const courses = computed(() =>
             </h2>
           </template>
           <p class="mt-1 text-sm text-muted">{{ t('projectsHint') }}</p>
-          <ul class="mt-2 flex flex-wrap gap-1.5">
-            <li v-for="project in cv.projects" :key="project.id">
-              <UBadge color="neutral" variant="subtle" :label="project.title" />
-            </li>
-          </ul>
+          <div class="journey-project-spotlight mt-2 flex flex-col gap-2 sm:flex-row sm:items-start">
+            <NuxtLink
+              :to="localePath('/projects')"
+              class="journey-project-spotlight__thumb group block w-full shrink-0 overflow-hidden rounded-lg border border-default shadow-sm transition-shadow hover:shadow-md focus-visible:outline-2 focus-visible:outline-primary sm:w-28"
+              :aria-label="spotlightProject.title"
+            >
+              <img
+                :src="`/${spotlightProject.image}`"
+                :alt="spotlightProject.imageAlt"
+                width="320"
+                height="180"
+                loading="lazy"
+                decoding="async"
+                class="aspect-video w-full object-cover"
+              >
+            </NuxtLink>
+            <ul class="flex min-w-0 flex-1 flex-wrap gap-1.5">
+              <li v-for="project in cv.projects" :key="project.id">
+                <UBadge color="neutral" variant="subtle" :label="project.title" />
+              </li>
+            </ul>
+          </div>
         </JourneyCard>
 
         <JourneyCard :index="5" :state="cardStates[5]!" own-action @focusin="revealLastPoint">
@@ -524,8 +556,12 @@ const courses = computed(() =>
 
   :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__cards {
     position: absolute;
-    inset: var(--cards-top) 0.5rem 0.75rem;
+    inset: var(--cards-top) 0.5rem max(1.25rem, env(safe-area-inset-bottom, 0px));
     display: block;
+  }
+
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__card[data-point-index='0'] > article {
+    padding-bottom: 0.5rem;
   }
 
   :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__card {
@@ -584,10 +620,10 @@ const courses = computed(() =>
     --fx-eyebrow: 0;
     --fx-headline: 0;
     --fx-tagline: 0;
-    --fx-kpi-0: 0;
-    --fx-kpi-1: 0;
-    --fx-kpi-2: 0;
-    --fx-kpi-3: 0;
+    --fx-kpi-0: 1;
+    --fx-kpi-1: 1;
+    --fx-kpi-2: 1;
+    --fx-kpi-3: 1;
   }
 }
 
@@ -596,10 +632,10 @@ const courses = computed(() =>
     --fx-eyebrow: 0;
     --fx-headline: 0;
     --fx-tagline: 0;
-    --fx-kpi-0: 0;
-    --fx-kpi-1: 0;
-    --fx-kpi-2: 0;
-    --fx-kpi-3: 0;
+    --fx-kpi-0: 1;
+    --fx-kpi-1: 1;
+    --fx-kpi-2: 1;
+    --fx-kpi-3: 1;
   }
 }
 
@@ -838,6 +874,50 @@ const courses = computed(() =>
 /* ---------- Punto 6 «Visitas»: la única tarjeta con acción (borde brand-vivid) ---------- */
 .journey__card[data-point-index='5'] > article {
   border-color: var(--brand-vivid);
+}
+
+/* Skills: resalta las tecnologías del eje que pulsa el flash de la escena. */
+:root[data-motion='full'] .journey__card[data-point-index='1']:not(:focus-within) .journey-skill-chip[data-flash-area] {
+  --chip-emphasis: var(--fx-flash-opacity, 0);
+}
+
+.journey-skill-chip[data-flash-area] {
+  border-radius: var(--ui-radius);
+  box-shadow: 0 0 0 calc(var(--chip-emphasis, 0) * 2px)
+    color-mix(in srgb, var(--brand-vivid) calc(var(--chip-emphasis, 0) * 40%), transparent);
+}
+
+:root[data-motion='full'] .journey-project-spotlight__thumb:hover img,
+:root[data-motion='full'] .journey-project-spotlight__thumb:focus-visible img {
+  transform: scale(1.02);
+}
+
+.journey-project-spotlight__thumb img {
+  transition: transform 200ms ease;
+}
+
+/* Experience: anillo en el marcador al pararse en el punto (como Visitas). */
+.journey__marker[data-point-id='experience'] .journey__dot {
+  position: relative;
+}
+
+.journey__marker[data-point-id='experience'] .journey__dot::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border: 2px solid var(--marker-current);
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  :root[data-motion='full']
+    .journey[data-point='experience']:is([data-phase='point'], [data-phase='reveal'], [data-phase='read'])
+    .journey__marker[data-point-id='experience'][data-state='current']
+    .journey__dot::after {
+    animation: journey-ring 500ms cubic-bezier(0.16, 1, 0.3, 1) 1;
+  }
 }
 
 /* Anillo del marcador 6: se expande una vez al pararse en él. */

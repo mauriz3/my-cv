@@ -6,7 +6,9 @@ import {
   flowCardProgress,
   mobileFirstCardProgress,
   pinnedCardProgress,
-  profileCountProgress
+  profileCountProgress,
+  profileCounterProgress,
+  profileMotionOptions,
 } from '~~/lib/cardMotion'
 import { JOURNEY_POINTS, PINNED_TIMELINE, cardStateAt, journeyStateAt, readingProgressOf } from '~~/lib/journey'
 import { setBox, stubMatchMedia, withSetup } from './helpers'
@@ -48,6 +50,14 @@ describe('useCardMotion', () => {
     const { result, wrapper } = await withSetup(() => useCardMotion(isMobilePinned))
     return { ...result, media, isMobilePinned, wrapper, ...journeyCards() }
   }
+
+  it('al cargar en escritorio los contadores del Perfil ya están al valor final', async () => {
+    const { paint, section, profileCount } = await mountCardMotion({ wide: true })
+    const state = journeyStateAt(0)
+    paint(section, state, 0)
+    const options = profileMotionOptions(0, 'profile', cardStateAt(0, state), state, 0, PINNED_TIMELINE, true)
+    expect(profileCount.value).toBe(profileCounterProgress(0, options))
+  })
 
   it('con el recorrido fijado escribe en cada tarjeta las variables de su avance', async () => {
     const { paint, section, cards } = await mountCardMotion({ wide: true })

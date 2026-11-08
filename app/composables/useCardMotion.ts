@@ -13,7 +13,8 @@ import {
   flowCardProgress,
   mobileFirstCardProgress,
   pinnedCardProgress,
-  profileCountProgress,
+  profileCounterProgress,
+  profileMotionOptions,
   type CardMotionKind,
 } from '~~/lib/cardMotion'
 import {
@@ -21,7 +22,9 @@ import {
   MOBILE_TIMELINE,
   PINNED_TIMELINE,
   cardStateAt,
+  type CardState,
   type JourneyState,
+  type JourneyTimeline,
 } from '~~/lib/journey'
 import { mobileCardStateAt } from '~~/lib/mobileJourney'
 import { useReplayable } from './useReplayable'
@@ -61,6 +64,18 @@ export function useCardMotion(
   let catchingUp = false
   let catchFrame = 0
 
+  function timelineOf(): JourneyTimeline {
+    if (isMobilePinned.value) return MOBILE_TIMELINE
+    if (wideQuery?.matches) return PINNED_TIMELINE
+    return PINNED_TIMELINE
+  }
+
+  function cardStateOf(index: number, state: JourneyState): CardState {
+    if (isMobilePinned.value) return mobileCardStateAt(index, state)
+    if (wideQuery?.matches) return cardStateAt(index, state)
+    return index === state.pointIndex ? 'current' : index < state.pointIndex ? 'past' : 'upcoming'
+  }
+
   function progressOf(card: HTMLElement, index: number, state: JourneyState, journeyProgress: number): number {
     if (isMobilePinned.value) {
       if (index === 0) return mobileFirstCardProgress(journeyProgress)
@@ -70,11 +85,30 @@ export function useCardMotion(
     return flowCardProgress(card.getBoundingClientRect().top, window.innerHeight)
   }
 
-  function writeProgress(card: HTMLElement, index: number, kind: CardMotionKind, progress: number) {
+  function writeProgress(
+    card: HTMLElement,
+    index: number,
+    kind: CardMotionKind,
+    progress: number,
+    state: JourneyState,
+    journeyProgress: number,
+  ) {
     lastProgress.set(index, progress)
-    for (const [name, value] of Object.entries(cardMotionCssVars(kind, progress))) card.style.setProperty(name, value)
+    const timeline = timelineOf()
+    const journeyPinned = isMobilePinned.value || !!wideQuery?.matches
+    const options = profileMotionOptions(
+      index,
+      kind,
+      cardStateOf(index, state),
+      state,
+      journeyProgress,
+      timeline,
+      journeyPinned,
+    )
+    for (const [name, value] of Object.entries(cardMotionCssVars(kind, progress, options)))
+      card.style.setProperty(name, value)
     card.toggleAttribute(ACTIVE_ATTRIBUTE, progress > 0 && progress < 1)
-    if (kind === 'profile') profileCount.value = profileCountProgress(progress)
+    if (kind === 'profile') profileCount.value = profileCounterProgress(progress, options)
   }
 
   function eachCard(section: HTMLElement, visit: (card: HTMLElement, index: number, kind: CardMotionKind) => void) {
@@ -94,7 +128,7 @@ export function useCardMotion(
     eachCard(section, (card, index, kind) => {
       const progress = progressOf(card, index, state, journeyProgress)
       if (Math.abs(progress - (lastProgress.get(index) ?? Number.NEGATIVE_INFINITY)) < MIN_CARD_PROGRESS_CHANGE) return
-      writeProgress(card, index, kind, progress)
+      writeProgress(card, index, kind, progress, state, journeyProgress)
     })
   }
 
@@ -116,7 +150,7 @@ export function useCardMotion(
       const box = card.getBoundingClientRect()
       const visible = meetsVisibility(intersectionRatio(box.top, box.bottom, window.innerHeight), SCENE_VISIBLE_RATIO)
       if (visible && pLive > 0) catchingIndexes.add(index)
-      writeProgress(card, index, kind, visible && pLive > 0 ? 0 : pLive)
+      writeProgress(card, index, kind, visible && pLive > 0 ? 0 : pLive, frame.state, frame.journeyProgress)
     })
     if (catchingIndexes.size === 0) return
     catchingUp = true
@@ -129,7 +163,7 @@ export function useCardMotion(
       eachCard(current.section, (card, index, kind) => {
         const pLive = progressOf(card, index, current.state, current.journeyProgress)
         const progress = catchingIndexes.has(index) ? catchUpShown(elapsed, pLive) : pLive
-        writeProgress(card, index, kind, progress)
+        writeProgress(card, index, kind, progress, current.state, current.journeyProgress)
       })
       if (elapsed < SCENE_CATCH_UP_MS) catchFrame = requestAnimationFrame(step)
       else {
