@@ -96,7 +96,8 @@ describe('gestos, tarjeta y zancada', () => {
     expect(isPointing('walk')).toBe(false)
     expect(isPointing('point')).toBe(true)
     expect(isPointing('leave')).toBe(false)
-    expect(isCardShown('point')).toBe(false)
+    expect(isCardShown('stop')).toBe(true)
+    expect(isCardShown('point')).toBe(true)
     expect(isCardShown('reveal')).toBe(true)
     expect(isCardShown('read')).toBe(true)
   })
@@ -118,6 +119,10 @@ describe('estado de las tarjetas', () => {
 
   it('caminando hacia el punto 3: su tarjeta aún no está y las anteriores ya salieron', () => {
     expect(cards(at(2, 0.2))).toEqual(['past', 'past', 'upcoming', 'upcoming', 'upcoming', 'upcoming'])
+  })
+
+  it('caminando hacia un punto: la tarjeta entra antes de terminar el pase', () => {
+    expect(cards(at(2, 0.32))[2]).toBe('current')
   })
 
   it('parado en el punto 3: solo se ve su tarjeta; al continuar sale', () => {

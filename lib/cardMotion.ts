@@ -7,7 +7,13 @@
  */
 import { clamp01, easeInOutCubic, progressBetween } from './easing'
 import { flatSceneValues } from './journeyScene'
-import { MOBILE_TIMELINE, type CardState, type JourneyPointId, type JourneyState, type JourneyTimeline } from './journey'
+import {
+  MOBILE_TIMELINE,
+  type CardState,
+  type JourneyPointId,
+  type JourneyState,
+  type JourneyTimeline,
+} from './journey'
 
 /** Tarjetas con microanimación. Visitas no se toca (tiene la suya). */
 export type CardMotionKind = Exclude<JourneyPointId, 'visits'>
@@ -96,8 +102,34 @@ export function profileCountProgress(p: number): number {
   return eased(p, PROFILE_TIMING.counters)
 }
 
+/** KPI al valor final mientras la tarjeta de Perfil es la que se lee (sin esperar al primer scroll). */
+export interface ProfileMotionOptions {
+  profileKpisReady?: boolean
+}
+
+/** Tarjeta de Perfil legible en el recorrido: KPI y contadores ya en su valor final. */
+export function profileMotionOptions(
+  cardIndex: number,
+  kind: CardMotionKind,
+  cardState: CardState,
+  state: JourneyState,
+  journeyProgress: number,
+  timeline: JourneyTimeline,
+  journeyPinned: boolean,
+): ProfileMotionOptions | undefined {
+  if (!journeyPinned || kind !== 'profile' || cardIndex !== 0 || cardState !== 'current') return undefined
+  if (timeline.startsReading && state.pointIndex === 0 && state.phase === 'read') return { profileKpisReady: true }
+  if (timeline === MOBILE_TIMELINE && journeyProgress >= timeline.entryShare) return { profileKpisReady: true }
+  return undefined
+}
+
+export function profileCounterProgress(p: number, options?: ProfileMotionOptions): number {
+  if (options?.profileKpisReady) return 1
+  return profileCountProgress(p)
+}
+
 /** Valor de cada elemento animado de la tarjeta para p, por nombre de variable CSS (sin `--fx-`). */
-export function cardMotionValues(kind: CardMotionKind, p: number): Record<string, number> {
+export function cardMotionValues(kind: CardMotionKind, p: number, options?: ProfileMotionOptions): Record<string, number> {
   switch (kind) {
     case 'profile': {
       const values: Record<string, number> = {
@@ -107,8 +139,16 @@ export function cardMotionValues(kind: CardMotionKind, p: number): Record<string
       }
       for (let index = 0; index < PROFILE_KPI_COUNT; index++) {
         const from = PROFILE_TIMING.kpiFrom + index * PROFILE_TIMING.kpiStagger
-        values[`kpi-${index}`] = eased(p, { from, to: from + KPI_DURATION })
+        values[`kpi-${index}`] = options?.profileKpisReady
+          ? 1
+          : eased(p, { from, to: from + KPI_DURATION })
       }
+      return values
+    }
+    case 'education': {
+      const values = flatSceneValues('education', p)
+      values.cert = eased(p, { from: 0.52, to: 0.72 })
+      values.courses = eased(p, { from: 0.68, to: 0.88 })
       return values
     }
     default:
@@ -119,8 +159,8 @@ export function cardMotionValues(kind: CardMotionKind, p: number): Record<string
 const round = (value: number) => Number(value.toFixed(3))
 
 /** Variables CSS (`--fx-<elemento>`) que lee el CSS de las tarjetas (puede haber valores negativos). */
-export function cardMotionCssVars(kind: CardMotionKind, p: number): Record<string, string> {
+export function cardMotionCssVars(kind: CardMotionKind, p: number, options?: ProfileMotionOptions): Record<string, string> {
   return Object.fromEntries(
-    Object.entries(cardMotionValues(kind, p)).map(([name, value]) => [`--fx-${name}`, String(round(value))]),
+    Object.entries(cardMotionValues(kind, p, options)).map(([name, value]) => [`--fx-${name}`, String(round(value))]),
   )
 }

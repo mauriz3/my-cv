@@ -172,7 +172,10 @@ export function markerStateAt(markerIndex: number, state: JourneyState): MarkerS
 }
 
 const POINTING_PHASES: readonly JourneyPhase[] = ['point', 'reveal', 'read']
-const CARD_PHASES: readonly JourneyPhase[] = ['reveal', 'read']
+/** Tarjeta visible al pararse y señalar, no solo en reveal (evita pantallas vacías al caminar). */
+const CARD_PHASES: readonly JourneyPhase[] = ['stop', 'point', 'reveal', 'read']
+/** Durante el pase, la tarjeta entra antes de terminar de caminar. */
+const WALK_CARD_REVEAL_SHARE = 0.28
 
 export function isPointing(phase: JourneyPhase): boolean {
   return POINTING_PHASES.includes(phase)
@@ -189,6 +192,7 @@ export function cardStateAt(cardIndex: number, state: JourneyState): CardState {
   if (cardIndex < state.pointIndex) return 'past'
   if (cardIndex > state.pointIndex) return 'upcoming'
   if (isCardShown(state.phase)) return 'current'
+  if (state.phase === 'walk' && state.segmentProgress >= WALK_CARD_REVEAL_SHARE) return 'current'
   return state.phase === 'leave' ? 'past' : 'upcoming'
 }
 

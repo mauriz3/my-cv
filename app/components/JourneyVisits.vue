@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { PULSE_CYCLE_MS, PULSE_HALO_SCALE, PULSE_SCALE } from '~~/lib/animations'
 import { DEFAULT_VISITS_RANGE, formatKpiChange, kpiTrend, type KpiKey } from '~~/lib/visits'
 import { donutArcs, endTrend, sparklinePaths } from '~~/lib/sparkline'
 
@@ -49,6 +50,12 @@ const kpis = computed(() =>
   }),
 )
 
+const pulseStyle = {
+  '--visits-pulse-cycle': `${PULSE_CYCLE_MS}ms`,
+  '--visits-pulse-scale': String(PULSE_SCALE),
+  '--visits-pulse-halo-scale': String(PULSE_HALO_SCALE),
+} as const
+
 const summary = computed(() => {
   const data = report.value
   if (!data) return t('loading')
@@ -67,7 +74,11 @@ const summary = computed(() => {
 </script>
 
 <template>
-  <div class="journey-visits" :data-pulse="pulse || undefined" :style="{ '--visits-draw': draw }">
+  <div
+    class="journey-visits"
+    :data-pulse="pulse || undefined"
+    :style="{ '--visits-draw': draw, ...pulseStyle }"
+  >
     <h2 class="mt-1 font-display text-xl font-bold text-highlighted">{{ t('title') }}</h2>
 
     <dl class="mt-2 grid grid-cols-2 gap-3">
@@ -182,11 +193,13 @@ const summary = computed(() => {
 }
 
 :root[data-motion='full'] .journey-visits[data-pulse] .journey-visits__cta {
-  animation: journey-visits-pulse 600ms cubic-bezier(0.4, 0, 0.2, 1) var(--visits-pulse-count, 1);
+  animation: journey-visits-pulse var(--visits-pulse-cycle, 800ms) cubic-bezier(0.4, 0, 0.2, 1)
+    var(--visits-pulse-count, 1);
 }
 
 :root[data-motion='full'] .journey-visits[data-pulse] .journey-visits__cta::after {
-  animation: journey-visits-halo 600ms cubic-bezier(0.4, 0, 0.2, 1) var(--visits-pulse-count, 1);
+  animation: journey-visits-halo var(--visits-pulse-cycle, 800ms) cubic-bezier(0.4, 0, 0.2, 1)
+    var(--visits-pulse-count, 1);
 }
 
 @media (min-width: 768px) {
@@ -197,13 +210,14 @@ const summary = computed(() => {
 
 @keyframes journey-visits-pulse {
   50% {
-    transform: scale(1.04);
+    transform: scale(var(--visits-pulse-scale, 1.08));
   }
 }
 
 @keyframes journey-visits-halo {
   50% {
-    opacity: 0.45;
+    opacity: 1;
+    transform: scale(var(--visits-pulse-halo-scale, 1.2));
   }
 }
 </style>

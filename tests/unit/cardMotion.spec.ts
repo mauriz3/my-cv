@@ -7,6 +7,8 @@ import {
   cardMotionCssVars,
   cardMotionKindOf,
   cardMotionValues,
+  profileCounterProgress,
+  profileMotionOptions,
   flowCardProgress,
   mobileFirstCardProgress,
   pinnedCardProgress,
@@ -14,7 +16,7 @@ import {
   profileCountProgress,
   type CardMotionKind,
 } from '../../lib/cardMotion'
-import { MOBILE_TIMELINE, PINNED_TIMELINE, journeyStateAt, type JourneyState } from '../../lib/journey'
+import { MOBILE_TIMELINE, PINNED_TIMELINE, cardStateAt, journeyStateAt, type JourneyState } from '../../lib/journey'
 
 const KINDS: CardMotionKind[] = ['profile', 'skills', 'experience', 'education', 'projects']
 const VIEWPORT = 900
@@ -93,10 +95,32 @@ describe('elementos de cada tarjeta', () => {
     expect(profileCountProgress(0.675)).toBeCloseTo(0.5, 2)
   })
 
+  it('Perfil legible al cargar: KPI y contadores en el valor final con p = 0', () => {
+    const state = journeyStateAt(0)
+    const options = profileMotionOptions(0, 'profile', cardStateAt(0, state), state, 0, PINNED_TIMELINE, true)
+    expect(options?.profileKpisReady).toBe(true)
+    expect(cardMotionValues('profile', 0, options)['kpi-0']).toBe(1)
+    expect(profileCounterProgress(0, options)).toBe(1)
+    expect(cardMotionValues('profile', 0, options).headline).toBe(0)
+  })
+
   it.each(KINDS.filter((kind) => kind !== 'profile'))('%s: variables «parte-canal» de su escena (Tanda G)', (kind) => {
     const names = Object.keys(cardMotionValues(kind, 0.5))
+    const scenePattern = /^[a-z0-9-]+-(x|y|scale|scaleY|rotate|opacity|offset)$/
     expect(names.length).toBeGreaterThan(0)
-    expect(names.every((name) => /^[a-z0-9-]+-(x|y|scale|scaleY|rotate|opacity|offset)$/.test(name))).toBe(true)
+    for (const name of names) {
+      if (kind === 'education' && (name === 'cert' || name === 'courses')) continue
+      expect(name).toMatch(scenePattern)
+    }
+  })
+
+  it('Education: certificaciones y cursos escalonados en el cuerpo de la tarjeta', () => {
+    const start = cardMotionValues('education', 0.55)
+    const end = cardMotionValues('education', 0.85)
+    expect(start.cert!).toBeGreaterThan(0)
+    expect(start.courses!).toBeLessThan(end.courses!)
+    expect(cardMotionValues('education', 1).cert).toBe(1)
+    expect(cardMotionValues('education', 1).courses).toBe(1)
   })
 
   it('variables CSS con prefijo --fx- y 3 decimales (también negativas)', () => {
