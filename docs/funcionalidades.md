@@ -92,7 +92,7 @@ Fuentes: [configuración Nuxt](../nuxt.config.ts), [layout](../app/layouts/defau
 - Preferencia en `localStorage["animations"]` (`on` | `off`). Sin elección = OFF. La clave antigua `motion` se ignora. Un script inline fija `<html data-motion>` antes de pintar (`lib/animations.ts`); ON → `full`, OFF → `reduced`.
 - Al cargar, `prefers-reduced-motion` manda: con PRM activo la web queda OFF aunque haya `on` guardado. Un clic en «Activar» anima en el documento actual y no sobrevive a una recarga (ADR-016).
 - Al activar sin recargar: las gráficas visibles hacen `reset` + `update`; las escenas del recorrido (Profile) alcanzan su progreso actual en 450 ms sin mover el scroll. Al desactivar, todo salta al estado final.
-- Tres pulsos suaves del botón (2,4 s tras 600 ms) solo en la primera sesión de pestaña sin elección y sin PRM (`sessionStorage["animations-hint"]`).
+- Tres pulsos suaves del botón en cuanto se monta (3 × 800 ms, sin espera): el botón crece un poco (44 px → unos 47 px) y un anillo se ensancha. El anillo reutiliza el `::after` del CTA de Visitas (`.cta-halo`) y se pinta con `--ui-secondary`, el ámbar del botón OFF, que ya contrasta en claro y en oscuro. Solo la primera sesión de pestaña sin elección y sin PRM (`sessionStorage["animations-hint"]`). Se detiene al pulsar o enfocar el botón, al ocultar la pestaña (`visibilitychange`) o al acabar los 3 ciclos. El scroll y los toques fuera del botón no lo cortan.
 
 ## Microanimaciones de las tarjetas del Inicio
 

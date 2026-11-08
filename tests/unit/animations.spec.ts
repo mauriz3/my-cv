@@ -1,12 +1,17 @@
+import { readFileSync } from 'node:fs'
 import { runInNewContext } from 'node:vm'
 import { describe, expect, it } from 'vitest'
 import {
   ANIMATIONS_NO_FLASH_SCRIPT,
   ANIMATIONS_STORAGE_KEY,
   CHART_VISIBLE_RATIO,
+  PULSE_ANIMATION,
   PULSE_CYCLE_MS,
   PULSE_DELAY_MS,
+  PULSE_HALO_ANIMATION,
+  PULSE_HALO_SCALE,
   PULSE_ITERATIONS,
+  PULSE_SCALE,
   SCENE_CATCH_UP_MS,
   catchUpShown,
   intersectionRatio,
@@ -14,6 +19,7 @@ import {
   meetsVisibility,
   parseStoredAnimation,
   shouldPulse,
+  shouldStopPulse,
 } from '../../lib/animations'
 import { MOTION_ATTRIBUTE } from '../../lib/motion'
 
@@ -44,6 +50,56 @@ describe('elección de animaciones', () => {
     expect(shouldPulse({ ...ready, hintShown: true })).toBe(false)
     expect(shouldPulse({ ...ready, visible: false })).toBe(false)
     expect(PULSE_CYCLE_MS * PULSE_ITERATIONS + PULSE_DELAY_MS).toBeLessThan(5000)
+  })
+
+  it('empieza al montar y la escala se distingue en el botón de 44 px', () => {
+    const mobileButtonPx = 44
+    const growth = mobileButtonPx * (PULSE_SCALE - 1)
+    expect(PULSE_DELAY_MS).toBe(0)
+    expect(PULSE_ITERATIONS).toBe(3)
+    expect(growth).toBeGreaterThan(2)
+    expect(growth).toBeLessThan(4)
+    expect(PULSE_HALO_SCALE).toBeGreaterThan(PULSE_SCALE)
+    expect(PULSE_HALO_SCALE).toBeLessThan(1.3)
+  })
+
+  it('se detiene al pulsar o enfocar el botón, al ocultar la pestaña o al acabar los 3 ciclos', () => {
+    const onButton = { onToggle: true }
+    expect(shouldStopPulse({ type: 'pointerdown', ...onButton })).toBe(true)
+    expect(shouldStopPulse({ type: 'click', ...onButton })).toBe(true)
+    expect(shouldStopPulse({ type: 'focus', ...onButton })).toBe(true)
+    expect(shouldStopPulse({ type: 'visibilitychange', onToggle: false, hidden: true })).toBe(true)
+    expect(shouldStopPulse({ type: 'animationend', onToggle: true, animationName: PULSE_ANIMATION })).toBe(true)
+    expect(shouldStopPulse({ type: 'animationend', onToggle: false, animationName: PULSE_HALO_ANIMATION })).toBe(true)
+  })
+
+  it('no se corta con el scroll, el teclado ni toques o foco fuera del botón', () => {
+    for (const type of ['wheel', 'touchmove', 'keydown', 'pointerenter', 'pointerdown', 'focus', 'click'] as const) {
+      expect(shouldStopPulse({ type, onToggle: false })).toBe(false)
+    }
+    const onButton = { onToggle: true }
+    expect(shouldStopPulse({ type: 'wheel', ...onButton })).toBe(false)
+    expect(shouldStopPulse({ type: 'touchmove', ...onButton })).toBe(false)
+    expect(shouldStopPulse({ type: 'keydown', ...onButton })).toBe(false)
+    expect(shouldStopPulse({ type: 'pointerenter', ...onButton })).toBe(false)
+    expect(shouldStopPulse({ type: 'visibilitychange', onToggle: false, hidden: false })).toBe(false)
+    expect(shouldStopPulse({ type: 'visibilitychange', onToggle: false })).toBe(false)
+    expect(shouldStopPulse({ type: 'animationend', ...onButton })).toBe(false)
+    expect(shouldStopPulse({ type: 'animationend', ...onButton, animationName: 'otra' })).toBe(false)
+    expect(shouldStopPulse({ type: 'animationiteration', ...onButton, animationName: PULSE_ANIMATION })).toBe(false)
+  })
+
+  it('el anillo usa los mismos nombres de animación que el CSS y el cajón del CTA', () => {
+    const toggle = readFileSync(new URL('../../app/components/AnimationsToggle.vue', import.meta.url), 'utf8')
+    const visits = readFileSync(new URL('../../app/components/JourneyVisits.vue', import.meta.url), 'utf8')
+    const css = readFileSync(new URL('../../app/assets/css/main.css', import.meta.url), 'utf8')
+    expect(toggle).toContain(`@keyframes ${PULSE_ANIMATION}`)
+    expect(toggle).toContain(`@keyframes ${PULSE_HALO_ANIMATION}`)
+    expect(toggle).toContain('border: var(--hint-ring-width) solid var(--ui-secondary)')
+    expect(toggle).toContain('cta-halo')
+    expect(visits).toContain('cta-halo')
+    expect(visits).toContain('journey-visits-halo')
+    expect(css).toContain('.cta-halo::after')
   })
 })
 
