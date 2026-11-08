@@ -1,105 +1,105 @@
-# Decisiones de arquitectura (ADR)
+# Architecture decisions (ADR)
 
-Un ADR registra contexto, decisión y consecuencias; se actualiza en cada PR que tome una decisión nueva.
-Fechas del primer commit/PR verificable (Atlantic/Canary); base: `master` en `8974b35` (tras la PR #57).
+An ADR records context, decision, and consequences; update it in each PR that makes a new decision.
+First commit/PR dates verified (Atlantic/Canary); base: `master` at `8974b35` (after PR #57).
 
-## ADR-001 · Nuxt 4 estático en Netlify
-**2026-10-24 · Aceptada** · `be08b7f`, `11391be`.
-- **Contexto:** Nuxt 2/Vuetify acumulaba deuda.
-- **Decisión:** Rehacer con Nuxt 4, Vue 3, Nuxt UI 4, Tailwind 4 y TS estricto; generar estáticos en Netlify.
-- **Consecuencias:** Sin servidor Nuxt permanente; conservar contenido, no deuda heredada.
+## ADR-001 · Static Nuxt 4 on Netlify
+**2026-10-24 · Accepted** · `be08b7f`, `11391be`.
+- **Context:** Nuxt 2/Vuetify accumulated debt.
+- **Decision:** Rebuild with Nuxt 4, Vue 3, Nuxt UI 4, Tailwind 4, and strict TS; generate static assets on Netlify.
+- **Consequences:** No permanent Nuxt server; preserve content, not inherited debt.
 
-## ADR-002 · Contenido tipado y fuente única
-**2026-10-24 · Aceptada** · `be08b7f`, `0dc7f15`.
-- **Contexto:** Textos incrustados en vistas.
-- **Decisión:** Centralizar datos TS y esquemas Zod; separar hechos y textos EN/ES; generar PDFs desde ellos.
-- **Consecuencias:** Web/PDF comparten contenido; validación en tests.
+## ADR-002 · Typed content and single source
+**2026-10-24 · Accepted** · `be08b7f`, `0dc7f15`.
+- **Context:** Copy embedded in views.
+- **Decision:** Centralize TS data and Zod schemas; separate facts and EN/ES copy; generate PDFs from them.
+- **Consequences:** Web/PDF share content; validation in tests.
 
-## ADR-003 · Publicar solo desde GitHub Actions
-**2026-10-25 · Aceptada** · `c674d67`, `0324d77`.
-- **Contexto:** Evitar publicaciones paralelas.
-- **Decisión:** Tras verificaciones, publicar el artefacto con Netlify CLI `--no-build`, solo por push a master.
-- **Consecuencias:** No desplegar develop. Compilación automática de Netlify desactivada: verificado (confirmado por Maurizio, 2026-11-07).
+## ADR-003 · Publish only from GitHub Actions
+**2026-10-25 · Accepted** · `c674d67`, `0324d77`.
+- **Context:** Avoid parallel publishes.
+- **Decision:** After checks, publish the artifact with Netlify CLI `--no-build`, only on push to master.
+- **Consequences:** Do not deploy develop. Netlify automatic builds disabled: verified (confirmed by Maurizio, 2026-11-07).
 
-## ADR-004 · CSP con hashes tras generar
-**2026-10-24 · Aceptada** · `be08b7f`, `95d753d`.
-- **Contexto:** Nuxt necesita scripts inline.
-- **Decisión:** Calcular SHA-256 del HTML generado; prohibir `unsafe-inline`/`unsafe-eval` en `script-src`.
-- **Consecuencias:** Regenerar hashes; excepción documentada únicamente para `style-src 'unsafe-inline'`.
+## ADR-004 · CSP with hashes after generate
+**2026-10-24 · Accepted** · `be08b7f`, `95d753d`.
+- **Context:** Nuxt needs inline scripts.
+- **Decision:** Compute SHA-256 of generated HTML; forbid `unsafe-inline`/`unsafe-eval` in `script-src`.
+- **Consequences:** Regenerate hashes; exception documented only for `style-src 'unsafe-inline'`.
 
-## ADR-005 · Cadena de suministro revisable
-**2026-10-25 · Aceptada** · `83341e2`, `c706d1a`.
-- **Contexto:** Dependencias y acciones ejecutan código.
-- **Decisión:** Acciones fijadas por SHA, gitleaks y Dependabot semanal sin auto-merge; token de lectura.
-- **Consecuencias:** Actualizaciones mediante PR; secretos y auditoría bloquean el despliegue.
+## ADR-005 · Reviewable supply chain
+**2026-10-25 · Accepted** · `83341e2`, `c706d1a`.
+- **Context:** Dependencies and actions execute code.
+- **Decision:** Actions pinned by SHA, gitleaks, and weekly Dependabot without auto-merge; read token.
+- **Consequences:** Updates via PR; secrets and audit block deploy.
 
-## ADR-006 · Visitas mediante instantáneas
-**2026-11-01 · Aceptada** · `500ebd0`, `31baafb` ([PR #42](https://github.com/mauriz3/my-cv/pull/42)).
-- **Contexto:** Evitar consultas GA4 por visitante.
-- **Decisión:** Función programada cada tres horas → GA4 → snapshot validado en Blobs → `/api/visits`; respaldo ficticio.
-- **Consecuencias:** Solo agregados públicos; indicar real/ejemplo; credenciales exclusivamente servidor.
+## ADR-006 · Visits via snapshots
+**2026-11-01 · Accepted** · `500ebd0`, `31baafb` ([PR #42](https://github.com/mauriz3/my-cv/pull/42)).
+- **Context:** Avoid GA4 queries per visitor.
+- **Decision:** Scheduled function every three hours → GA4 → validated snapshot in Blobs → `/api/visits`; fictional fallback.
+- **Consequences:** Public aggregates only; indicate real/example; credentials server-only.
 
-## ADR-007 · Zod sin JIT
-**2026-11-07 · Aceptada** · `ae0f801` ([PR #55](https://github.com/mauriz3/my-cv/pull/55)).
-- **Contexto:** Zod prueba `new Function` para compilar validadores; la CSP sin `unsafe-eval` lo bloquea y Lighthouse lo marca en buenas prácticas.
-- **Decisión:** `lib/zod.ts` aplica `z.config({ jitless: true })` y todo el código importa `z` desde ahí.
-- **Consecuencias:** No se relaja la CSP; validación algo más lenta, suficiente para estos datos.
+## ADR-007 · Zod without JIT
+**2026-11-07 · Accepted** · `ae0f801` ([PR #55](https://github.com/mauriz3/my-cv/pull/55)).
+- **Context:** Zod probes `new Function` to compile validators; CSP without `unsafe-eval` blocks it and Lighthouse flags it under best practices.
+- **Decision:** `lib/zod.ts` applies `z.config({ jitless: true })` and all code imports `z` from there.
+- **Consequences:** CSP is not relaxed; validation somewhat slower, sufficient for this data.
 
-## ADR-008 · Consentimiento según país
-**2026-10-31 · Aceptada** · `bc57e89`, `c706d1a`.
-- **Contexto:** Analítica con consentimiento regional.
-- **Decisión:** Consent Mode v2 inicialmente denied; Edge `/geo` determina aviso UE/EEE/UK/Suiza, también ante país desconocido/error.
-- **Consecuencias:** Fuera se concede analítica sin aviso; elección previa prevalece; denied no garantiza ausencia de solicitudes Google.
+## ADR-008 · Consent by country
+**2026-10-31 · Accepted** · `bc57e89`, `c706d1a`.
+- **Context:** Analytics with regional consent.
+- **Decision:** Consent Mode v2 initially denied; Edge `/geo` drives EU/EEA/UK/Switzerland notice, also for unknown country/error.
+- **Consequences:** Outside zone analytics granted without notice; prior choice prevails; denied does not guarantee zero Google requests.
 
-## ADR-009 · Retención declarada de 14 meses
-**2026-10-31 · Aceptada** · `95d753d`.
-- **Contexto:** Informar plazos de analítica.
-- **Decisión:** Declarar 14 meses para datos usuario/evento en `lib/privacy.ts`.
-- **Consecuencias:** Coincide con GA Admin → Retención de datos: verificado (confirmado por Maurizio, 2026-11-07). No equivale a la duración de las cookies.
+## ADR-009 · Declared 14-month retention
+**2026-10-31 · Accepted** · `95d753d`.
+- **Context:** Disclose analytics retention periods.
+- **Decision:** Declare 14 months for user/event data in `lib/privacy.ts`.
+- **Consequences:** Matches GA Admin → Data retention: verified (confirmed by Maurizio, 2026-11-07). Not the same as cookie lifetime.
 
-## ADR-010 · Libros: HTML 200 con Open Graph
-**2026-11-01 · Aceptada** · `4830a57` ([PR #48](https://github.com/mauriz3/my-cv/pull/48)).
-- **Contexto:** El 301 fallaba en LinkedIn.
-- **Decisión:** `/en/books` y `/es/libros` responden 200 con OG; salto posterior al ancla.
-- **Consecuencias:** Sustituye al 301 de `d4d017c`; HTML mínimo sin hidratación Nuxt.
+## ADR-010 · Books: HTML 200 with Open Graph
+**2026-11-01 · Accepted** · `4830a57` ([PR #48](https://github.com/mauriz3/my-cv/pull/48)).
+- **Context:** 301 failed on LinkedIn.
+- **Decision:** `/en/books` and `/es/libros` return 200 with OG; later jump to anchor.
+- **Consequences:** Replaces 301 from `d4d017c`; minimal HTML without Nuxt hydration.
 
-## ADR-011 · Oscuro sin parpadeo
-**2026-11-01 · Aceptada** · `d3a1bf9`.
-- **Contexto:** Tema inicial coherente.
-- **Decisión:** HTML oscuro y script previo al pintado; respetar elección explícita, no preferencia del sistema.
-- **Consecuencias:** Persistencia local; script incluido en CSP.
+## ADR-011 · Dark without flash
+**2026-11-01 · Accepted** · `d3a1bf9`.
+- **Context:** Coherent initial theme.
+- **Decision:** Dark HTML and pre-paint script; respect explicit choice, not system preference.
+- **Consequences:** Local persistence; script included in CSP.
 
-## ADR-012 · Movimiento ligado al scroll
-**2026-10-31 · Aceptada** · `e81bd81`, `b9cb7f7`.
-- **Contexto:** Recorrido visual accesible.
-- **Decisión:** Progreso por scroll, lógica pura y composables; respetar reduced-motion y pausa global.
-- **Consecuencias:** Alternativa estática; contenido accesible sin animación.
+## ADR-012 · Motion tied to scroll
+**2026-10-31 · Accepted** · `e81bd81`, `b9cb7f7`.
+- **Context:** Accessible visual journey.
+- **Decision:** Scroll progress, pure logic and composables; respect reduced-motion and global pause.
+- **Consequences:** Static alternative; content accessible without animation.
 
-## ADR-013 · Calidad ampliada en CI
-**2026-11-07 · Aceptada** · `ae0f801`, `ff47458` ([PR #55](https://github.com/mauriz3/my-cv/pull/55)).
-- **Contexto:** Typecheck, tests y audit no detectaban regresiones de accesibilidad, rendimiento ni código sin probar.
-- **Decisión:** En cada PR y push a master: cobertura bloqueante ≥80 % (líneas, sentencias, funciones y ramas) sobre el TS/JS propio, sin `.vue`; axe WCAG 2.2 A/AA falla con serious/critical; Lighthouse (mediana de 3) ≥0,85/0,95/0,90/0,95 (rendimiento/a11y/prácticas/SEO). axe y Lighthouse usan el artefacto de `verify`.
-- **Consecuencias:** `deploy-production` espera a `verify`, `secrets`, `a11y` y `lighthouse`; los `.vue` solo los cubren axe y Lighthouse.
+## ADR-013 · Expanded quality in CI
+**2026-11-07 · Accepted** · `ae0f801`, `ff47458` ([PR #55](https://github.com/mauriz3/my-cv/pull/55)).
+- **Context:** Typecheck, tests, and audit did not catch accessibility, performance, or untested code regressions.
+- **Decision:** On every PR and push to master: blocking coverage ≥80% (lines, statements, functions, branches) on own TS/JS, excluding `.vue`; axe WCAG 2.2 A/AA fails on serious/critical; Lighthouse (median of 3) ≥0.85/0.95/0.90/0.95 (performance/a11y/practices/SEO). axe and Lighthouse use the `verify` artifact.
+- **Consequences:** `deploy-production` waits for `verify`, `secrets`, `a11y`, and `lighthouse`; `.vue` files are covered only by axe and Lighthouse.
 
-## ADR-014 · Tipos Node alineados
-**2026-11-05 · Aceptada** · `f4e21ed` ([PR #52](https://github.com/mauriz3/my-cv/pull/52)).
-- **Contexto:** Runtime Node 24.
-- **Decisión:** Dependabot ignora mayores de `@types/node`.
-- **Consecuencias:** Revisar manualmente al cambiar el runtime.
+## ADR-014 · Aligned Node types
+**2026-11-05 · Accepted** · `f4e21ed` ([PR #52](https://github.com/mauriz3/my-cv/pull/52)).
+- **Context:** Node 24 runtime.
+- **Decision:** Dependabot ignores `@types/node` majors.
+- **Consequences:** Review manually when runtime changes.
 
-## ADR-015 · Lighthouse con perfil de visita UE
-**2026-11-08 · Aceptada** · [PR #57](https://github.com/mauriz3/my-cv/pull/57).
-- **Contexto:** En producción, una primera visita desde la UE ve el aviso de analítica, que aparece tras hidratar y consultar `/geo` y pasa a ser el LCP; el job `lighthouse` del push a master falló por eso.
-- **Decisión:** El servidor de CI imita a Netlify (Brotli y `/geo` con la Edge Function real y país simulado). Dos perfiles en `lighthouserc.cjs`: visita fuera de la zona del aviso (US), con todos los umbrales bloqueantes; y primera visita UE (ES) con aviso, solo en push a master, donde a11y, buenas prácticas y SEO bloquean y el rendimiento solo avisa. Aprobado por Maurizio.
-- **Consecuencias:** El rendimiento con aviso queda visible sin bloquear el despliegue. Bajarlo exigiría rediseñar el aviso (prerenderizarlo visible y ocultarlo fuera de la UE, con riesgo de parpadeo); queda pendiente de decisión.
+## ADR-015 · Lighthouse with EU visit profile
+**2026-11-08 · Accepted** · [PR #57](https://github.com/mauriz3/my-cv/pull/57).
+- **Context:** In production, a first visit from the EU sees the analytics notice, which appears after hydrate and `/geo` and becomes LCP; the master push `lighthouse` job failed because of that.
+- **Decision:** CI server mimics Netlify (Brotli and `/geo` with real Edge Function and simulated country). Two profiles in `lighthouserc.cjs`: visit outside notice zone (US), all thresholds blocking; and first EU visit (ES) with notice, only on push to master, where a11y, best practices, and SEO block and performance only warns. Approved by Maurizio.
+- **Consequences:** Performance with notice stays visible without blocking deploy. Lowering it would require redesigning the notice (prerender visible and hide outside EU, with flash risk); pending decision.
 
-## ADR-016 · Animaciones opt-in (apagadas por defecto)
-**2026-11-08 · Propuesta**.
-- **Contexto:** La web arrancaba con movimiento completo si no había elección (`localStorage["motion"]` o `prefers-reduced-motion`). El botón usaba `aria-pressed` y un copy fijo «Reducir movimiento». Maurizio pide el contrario: todo estático al cargar y un botón «Activar animaciones».
-- **Decisión:**
-  - Nueva clave `localStorage["animations"]` (`on` | `off`). Sin elección = OFF. La clave antigua `motion` se ignora y se borra al guardar la primera elección nueva.
-  - El atributo sigue siendo `<html data-motion="full | reduced">` (ON → `full`, OFF → `reduced`) para reutilizar el CSS.
-  - Al cargar, `prefers-reduced-motion` manda: con PRM activo la web queda estática aunque `animations=on`. Un clic manual en «Activar» anima solo en el documento actual (`override` en memoria) y no sobrevive a una recarga.
-  - El botón es una acción simple **sin `aria-pressed`**; el `aria-label` coincide con el copy visible («Activar» / «Desactivar animaciones»). En la primera sesión sin elección y sin PRM, tres pulsos suaves con anillo ámbar (`--ui-secondary`, el color del botón OFF) empiezan al montar el botón. Paran al pulsarlo o enfocarlo, al ocultar la pestaña o al terminar los tres ciclos; el scroll y los toques fuera no los cortan.
-  - Al activar, las gráficas visibles se reinician sin recargar y las escenas del recorrido alcanzan su progreso actual en 450 ms sin mover el scroll. Un registro compartido (`useReplayable`) evita repetir al cambiar tema, idioma o filtro.
-- **Consecuencias:** Sustituye el modelo «full por defecto» y la decisión de texto fijo/`aria-pressed` de `lib/motion.ts`. Hay que regenerar el hash CSP del script anterior al pintado. Profile y Visitas no cambian de diseño: solo su estado por defecto y el reinicio al activar. El halo del CTA de Visitas comparte la clase `.cta-halo`; su animación no cambia.
+## ADR-016 · Opt-in animations (off by default)
+**2026-11-08 · Proposed**.
+- **Context:** The site started with full motion when there was no choice (`localStorage["motion"]` or `prefers-reduced-motion`). The button used `aria-pressed` and fixed copy «Reducir movimiento». Maurizio asked for the opposite: all static on load and a «Activar animaciones» button.
+- **Decision:**
+  - New key `localStorage["animations"]` (`on` | `off`). No choice = OFF. Legacy key `motion` is ignored and removed when saving the first new choice.
+  - Attribute remains `<html data-motion="full | reduced">` (ON → `full`, OFF → `reduced`) to reuse CSS.
+  - On load, `prefers-reduced-motion` wins: with PRM active the site stays static even if `animations=on`. A manual click on «Activar» animates only the current document (`override` in memory) and does not survive reload.
+  - Button is a simple action **without `aria-pressed`**; `aria-label` matches visible copy («Activar» / «Desactivar animaciones»). On first session with no choice and no PRM, three soft pulses with amber ring (`--ui-secondary`, OFF button color) start when the button mounts. They stop on click or focus, on tab hide, or after three cycles; scroll and outside taps do not stop them.
+  - When enabled, visible charts reset without reload and journey scenes catch up to current progress in 450 ms without moving scroll. Shared registry (`useReplayable`) avoids repeat on theme, locale, or filter change.
+- **Consequences:** Replaces «full by default» and fixed copy/`aria-pressed` from `lib/motion.ts`. Must regenerate CSP hash for pre-paint script. Profile and Visits design unchanged: only default state and reset on enable. Visits CTA halo shares `.cta-halo` class; its animation unchanged.

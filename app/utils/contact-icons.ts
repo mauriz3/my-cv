@@ -1,4 +1,4 @@
-/** Icono de cada enlace de contacto, por su etiqueta en los datos. Sin teléfono, email ni dirección. */
+/** Icon of each contact link, by its label in the data. No phone, email or address. */
 export const CONTACT_ICONS: Record<string, string> = {
   LinkedIn: 'i-lucide-linkedin',
   CodePen: 'i-lucide-codepen',

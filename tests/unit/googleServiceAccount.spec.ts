@@ -12,26 +12,26 @@ import { NOW, TEST_PUBLIC_KEY, TEST_SERVICE_ACCOUNT, TEST_SERVICE_ACCOUNT_JSON, 
 const decode = (part: string) => JSON.parse(Buffer.from(part, 'base64url').toString()) as Record<string, unknown>
 
 describe('parseServiceAccount', () => {
-  it('lee client_email y private_key del JSON de la clave', () => {
+  it('reads client_email and private_key from the key JSON', () => {
     expect(parseServiceAccount(TEST_SERVICE_ACCOUNT_JSON)).toEqual(TEST_SERVICE_ACCOUNT)
   })
 
-  it('falla sin repetir el contenido de la clave', () => {
-    expect(() => parseServiceAccount('{"private_key": "secreto')).toThrow('no es JSON válido')
+  it('fails without echoing key contents', () => {
+    expect(() => parseServiceAccount('{"private_key": "secret')).toThrow('not valid JSON')
     const error = (() => {
       try {
-        parseServiceAccount(JSON.stringify({ private_key: 'secreto-PRIVATE KEY' }))
+        parseServiceAccount(JSON.stringify({ private_key: 'secret-PRIVATE KEY' }))
       } catch (caught) {
         return caught as Error
       }
     })()
     expect(error?.message).toContain('client_email')
-    expect(error?.message).not.toContain('secreto')
+    expect(error?.message).not.toContain('secret')
   })
 })
 
 describe('buildJwtAssertion', () => {
-  it('firma un JWT RS256 para el token de Google con alcance de solo lectura y 1 h de vida', () => {
+  it('signs an RS256 JWT for the Google token with read-only scope and 1 h lifetime', () => {
     const jwt = buildJwtAssertion(TEST_SERVICE_ACCOUNT, NOW)
     const [header = '', claims = '', signature = ''] = jwt.split('.')
     expect(decode(header)).toEqual({ alg: 'RS256', typ: 'JWT' })
@@ -49,7 +49,7 @@ describe('buildJwtAssertion', () => {
 })
 
 describe('fetchAccessToken', () => {
-  it('canjea el JWT por el token (grant jwt-bearer)', async () => {
+  it('exchanges the JWT for the token (grant jwt-bearer)', async () => {
     const google = fakeGoogleFetch()
     expect(await fetchAccessToken(TEST_SERVICE_ACCOUNT, google.fetch, NOW)).toBe(TEST_TOKEN)
     const body = new URLSearchParams(String(google.calls[0]?.init?.body))
@@ -58,8 +58,8 @@ describe('fetchAccessToken', () => {
     expect(body.get('assertion')?.split('.')).toHaveLength(3)
   })
 
-  it('un error de Google solo informa del estado HTTP', async () => {
+  it('a Google error only reports the HTTP status', async () => {
     const failing = (async () => Response.json({ error: 'invalid_grant' }, { status: 400 })) as unknown as typeof fetch
-    await expect(fetchAccessToken(TEST_SERVICE_ACCOUNT, failing, NOW)).rejects.toThrow('Google OAuth respondió 400')
+    await expect(fetchAccessToken(TEST_SERVICE_ACCOUNT, failing, NOW)).rejects.toThrow('Google OAuth returned 400')
   })
 })

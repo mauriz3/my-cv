@@ -11,18 +11,18 @@ vi.mock('@netlify/blobs', () => ({ getStore: blobs.getStore }))
 
 const SNAPSHOT: VisitsSnapshot = { version: VISITS_SNAPSHOT_VERSION, updatedAt: '2026-11-07T00:00:00Z', reports: {} }
 
-describe('instantánea en Netlify Blobs', () => {
+describe('snapshot in Netlify Blobs', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     blobs.getStore.mockReturnValue({ get: blobs.get, setJSON: blobs.setJSON })
   })
 
-  it('no abre el store al crearse (solo hay contexto de Blobs dentro de la función)', () => {
+  it('does not open store on create (Blobs context only inside function)', () => {
     blobSnapshotStore()
     expect(blobs.getStore).not.toHaveBeenCalled()
   })
 
-  it('lee y escribe la clave de la instantánea como JSON en el store «visits»', async () => {
+  it('reads and writes snapshot key as JSON in «visits» store', async () => {
     blobs.get.mockResolvedValue(SNAPSHOT)
     const store = blobSnapshotStore()
     expect(await store.read()).toEqual(SNAPSHOT)
@@ -32,14 +32,14 @@ describe('instantánea en Netlify Blobs', () => {
     expect(blobs.setJSON).toHaveBeenCalledWith(VISITS_SNAPSHOT_KEY, SNAPSHOT)
   })
 
-  it('sin instantánea guardada lee undefined', async () => {
+  it('reads undefined when no snapshot saved', async () => {
     blobs.get.mockResolvedValue(null)
     expect(await blobSnapshotStore().read()).toBeUndefined()
   })
 })
 
-describe('instantánea en fichero (pruebas en local)', () => {
-  it('escribe JSON legible creando la carpeta y lo vuelve a leer', async () => {
+describe('snapshot on file (local tests)', () => {
+  it('writes readable JSON creating folder and reads back', async () => {
     const file = join(mkdtempSync(join(tmpdir(), 'visits-')), '.data/visits-snapshot.json')
     const store = fileSnapshotStore(file)
     await store.write(SNAPSHOT)
@@ -47,10 +47,10 @@ describe('instantánea en fichero (pruebas en local)', () => {
     expect(await store.read()).toEqual(SNAPSHOT)
   })
 
-  it('si el fichero no existe o no es JSON lee undefined', async () => {
+  it('reads undefined when file missing or not JSON', async () => {
     const directory = mkdtempSync(join(tmpdir(), 'visits-'))
-    expect(await fileSnapshotStore(join(directory, 'no-existe.json')).read()).toBeUndefined()
-    writeFileSync(join(directory, 'roto.json'), '{')
-    expect(await fileSnapshotStore(join(directory, 'roto.json')).read()).toBeUndefined()
+    expect(await fileSnapshotStore(join(directory, 'missing.json')).read()).toBeUndefined()
+    writeFileSync(join(directory, 'broken.json'), '{')
+    expect(await fileSnapshotStore(join(directory, 'broken.json')).read()).toBeUndefined()
   })
 })

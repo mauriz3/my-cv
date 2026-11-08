@@ -1,17 +1,17 @@
 /**
- * Atributo con el que el CSS decide si anima. ON = `full`, OFF = `reduced`.
- * La elección de la persona vive en `lib/animations.ts` (`animations` = on | off), no aquí.
+ * Attribute the CSS uses to decide whether to animate. ON = `full`, OFF = `reduced`.
+ * The user’s choice lives in `lib/animations.ts` (`animations` = on | off), not here.
  */
 
 export const MOTION_PREFERENCES = ['full', 'reduced'] as const
 export type MotionPreference = (typeof MOTION_PREFERENCES)[number]
 
 export const MOTION_ATTRIBUTE = 'data-motion'
-/** Clave antigua. Ya no se lee; se borra al guardar la primera elección de animaciones. */
+/** Legacy key. No longer read; cleared when saving the first animations choice. */
 export const MOTION_STORAGE_KEY = 'motion'
 export const SYSTEM_REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
 
-/** Lo guardado en el atributo solo vale si es un estado conocido. */
+/** Value stored in the attribute only applies if it is a known state. */
 export function parseStoredMotion(stored: string | null): MotionPreference | null {
   return MOTION_PREFERENCES.find((preference) => preference === stored) ?? null
 }

@@ -1,5 +1,5 @@
 <script lang="ts">
-/** Valor del filtro que muestra todas las áreas. */
+/** Filter value showing all areas. */
 import { ALL_FILTER_ID } from '~/utils/filters'
 
 export const ALL_SKILL_AREAS = ALL_FILTER_ID
@@ -7,8 +7,8 @@ export const ALL_SKILL_AREAS = ALL_FILTER_ID
 
 <script setup lang="ts">
 /**
- * Filtro de Habilidades: All · Front End · Back End · DevOps (las áreas salen de los datos).
- * `v-model` = `ALL_SKILL_AREAS` o el `id` del área elegida.
+ * Skills Filter: All · Front End · Back End · DevOps (areas come out of the data).
+ * `v-model` = `ALL_SKILL_AREAS` or the `id` of the chosen area.
  */
 const selectedArea = defineModel<string>({ default: ALL_SKILL_AREAS })
 

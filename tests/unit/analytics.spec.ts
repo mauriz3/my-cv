@@ -22,7 +22,7 @@ function fakeStorage(initial?: string) {
   }
 }
 
-/** Ejecuta el script inline y devuelve las llamadas a gtag que dejó en dataLayer. */
+/** Runs the inline script and returns gtag calls left on dataLayer. */
 function runInlineScript(stored?: string) {
   const context: Record<string, unknown> = { localStorage: fakeStorage(stored), Date }
   context.window = context
@@ -30,8 +30,8 @@ function runInlineScript(stored?: string) {
   return (context.dataLayer as ArrayLike<unknown>[]).map((call) => Array.from(call))
 }
 
-describe('Consent Mode v2 (script inline)', () => {
-  it('todo «denied» por defecto, antes de configurar GA', () => {
+describe('Consent Mode v2 (inline script)', () => {
+  it('all «denied» by default, before configuring GA', () => {
     const [consentDefault, , config] = runInlineScript()
     expect(consentDefault).toEqual([
       'consent',
@@ -48,34 +48,34 @@ describe('Consent Mode v2 (script inline)', () => {
     expect(config?.[1]).toBe(ANALYTICS_MEASUREMENT_ID)
   })
 
-  it('sin elección guardada o con «denied» no activa analytics_storage', () => {
+  it('with no stored choice or «denied», does not enable analytics_storage', () => {
     for (const stored of [undefined, 'denied']) {
       const updates = runInlineScript(stored).filter(([, action]) => action === 'update')
       expect(updates).toEqual([])
     }
   })
 
-  it('con «granted» guardado, solo activa analytics_storage', () => {
+  it('with stored «granted», only enables analytics_storage', () => {
     const updates = runInlineScript('granted').filter(([, action]) => action === 'update')
     expect(updates).toEqual([['consent', 'update', { analytics_storage: 'granted' }]])
   })
 
-  it('no lleva datos personales ni señales de anuncios', () => {
+  it('does not include personal data or ad signals', () => {
     const script = buildAnalyticsInlineScript(ANALYTICS_MEASUREMENT_ID)
     expect(script).toContain('allow_google_signals:false')
     expect(script).toContain('allow_ad_personalization_signals:false')
   })
 })
 
-describe('aviso de consentimiento', () => {
-  it('lee solo valores válidos', () => {
+describe('consent banner', () => {
+  it('reads only valid values', () => {
     expect(readConsent(fakeStorage())).toBeNull()
-    expect(readConsent(fakeStorage('otra-cosa'))).toBeNull()
+    expect(readConsent(fakeStorage('other'))).toBeNull()
     expect(readConsent(fakeStorage('granted'))).toBe('granted')
     expect(readConsent(fakeStorage('denied'))).toBe('denied')
   })
 
-  it('Aceptar guarda «granted» y activa analytics_storage', () => {
+  it('Accept stores «granted» and enables analytics_storage', () => {
     const storage = fakeStorage()
     const calls: unknown[][] = []
     applyConsent('granted', storage, (...args) => void calls.push(args))
@@ -83,7 +83,7 @@ describe('aviso de consentimiento', () => {
     expect(calls).toEqual([['consent', 'update', { analytics_storage: 'granted' }]])
   })
 
-  it('Rechazar guarda «denied» y deja analytics_storage en «denied»', () => {
+  it('Reject stores «denied» and keeps analytics_storage «denied»', () => {
     const storage = fakeStorage()
     const calls: unknown[][] = []
     applyConsent('denied', storage, (...args) => void calls.push(args))
@@ -91,7 +91,7 @@ describe('aviso de consentimiento', () => {
     expect(calls).toEqual([['consent', 'update', { analytics_storage: 'denied' }]])
   })
 
-  it('cambiar la elección guardada (Preferencias de analítica) actualiza el consentimiento en ambos sentidos', () => {
+  it('changing stored choice (Analytics preferences) updates consent both ways', () => {
     const storage = fakeStorage('granted')
     const calls: unknown[][] = []
     const gtag = (...args: unknown[]) => void calls.push(args)
@@ -105,14 +105,14 @@ describe('aviso de consentimiento', () => {
     ])
   })
 
-  it('fuera de la zona con aviso: concede sin guardar la elección', () => {
+  it('outside notice region: grant without storing choice', () => {
     const calls: unknown[][] = []
     updateConsent('granted', (...args) => void calls.push(args))
     expect(calls).toEqual([['consent', 'update', { analytics_storage: 'granted' }]])
     expect(() => updateConsent('granted', undefined)).not.toThrow()
   })
 
-  it('si localStorage está bloqueado no rompe', () => {
+  it('when localStorage is blocked, does not break', () => {
     const blocked = {
       getItem: () => {
         throw new Error('blocked')
@@ -126,13 +126,13 @@ describe('aviso de consentimiento', () => {
   })
 })
 
-describe('CSP de analytics', () => {
-  it('script-src solo admite el host exacto de gtag.js', () => {
+describe('analytics CSP', () => {
+  it('script-src only allows the exact gtag.js host', () => {
     expect(ANALYTICS_CSP_SOURCES['script-src']).toEqual(['https://www.googletagmanager.com'])
     expect(GTAG_SCRIPT_URL.startsWith(`${ANALYTICS_CSP_SOURCES['script-src'][0]}/`)).toBe(true)
   })
 
-  it('las peticiones de medición van a los orígenes de Google Analytics por https', () => {
+  it('measurement requests go to Google Analytics origins over https', () => {
     for (const directive of ['connect-src', 'img-src'] as const) {
       const sources = ANALYTICS_CSP_SOURCES[directive]
       expect(sources.every((source) => source.startsWith('https://'))).toBe(true)

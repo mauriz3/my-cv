@@ -3,15 +3,15 @@ import { coverStatusOf, type CoverStatus } from '~~/lib/books'
 import type { Book } from '~~/data/schema'
 
 /**
- * Portada de un libro: marco de tamaño fijo (2:3, sin saltos de maqueta), esqueleto mientras carga
- * y, si la imagen falla, título y autor sobre brand-soft.
+ * Book cover: Fixed size frame (2:3, no mockup jumps), skeleton while loading
+ * and, if the image fails, title and author about brand-soft.
  */
 const props = defineProps<{ book: Book }>()
 
 const image = ref<HTMLImageElement | null>(null)
 const status = ref<CoverStatus>('loading')
 
-// Si la imagen terminó (o falló) antes de hidratar, Vue no recibe el evento: se lee del propio <img>.
+// If the image ended (or failed) before hydrating, Vue does not receive the event: it reads from its own<img>.
 onMounted(() => {
   if (image.value) status.value = coverStatusOf(image.value)
 })
@@ -33,7 +33,7 @@ onMounted(() => {
         @load="status = 'loaded'"
         @error="status = 'error'"
       />
-      <!-- Sustituto visual: el título y el autor ya se leen justo después, en la tarjeta. -->
+      <!-- Visual substitute: the title and author are already read right after, on the card. -->
       <div
         v-else
         class="flex size-full flex-col items-center justify-center gap-1 bg-(--brand-soft) p-2 text-center"

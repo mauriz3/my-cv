@@ -11,18 +11,18 @@ import {
 
 const EU27 = 'AT BE BG HR CY CZ DK EE FI FR DE GR HU IE IT LV LT LU MT NL PL PT RO SK SI ES SE'.split(' ')
 
-describe('zona con aviso de analítica', () => {
-  it('UE27 + IS, LI, NO + GB + CH, y nada más', () => {
+describe('analytics notice region', () => {
+  it('EU27 + IS, LI, NO + GB + CH, and nothing else', () => {
     expect(EU27).toHaveLength(27)
     expect([...CONSENT_BANNER_COUNTRIES].sort()).toEqual([...EU27, 'IS', 'LI', 'NO', 'GB', 'CH'].sort())
   })
 
-  it('aviso en la zona y con país desconocido; fuera, no', () => {
+  it('notice in region and when country unknown; none outside', () => {
     for (const country of ['ES', 'DE', 'NO', 'GB', 'CH', null]) expect(requiresConsentBanner(country)).toBe(true)
     for (const country of ['US', 'MX', 'AR', 'JP', 'TR']) expect(requiresConsentBanner(country)).toBe(false)
   })
 
-  it('la elección guardada manda; si no hay, decide el país', () => {
+  it('stored choice wins; otherwise country decides', () => {
     expect(consentStartAction('denied', 'US')).toBe('keep-stored')
     expect(consentStartAction('granted', 'ES')).toBe('keep-stored')
     expect(consentStartAction(null, 'ES')).toBe('show-banner')
@@ -31,8 +31,8 @@ describe('zona con aviso de analítica', () => {
   })
 })
 
-describe('respuesta de /geo', () => {
-  it('solo acepta un código ISO de dos letras', () => {
+describe('/geo response', () => {
+  it('only accepts a two-letter ISO code', () => {
     expect(parseGeoCountry({ country: 'es' })).toBe('ES')
     expect(parseGeoCountry({ country: 'US' })).toBe('US')
     expect(parseGeoCountry({ country: null })).toBeNull()
@@ -42,7 +42,7 @@ describe('respuesta de /geo', () => {
     expect(parseGeoCountry(null)).toBeNull()
   })
 
-  it('cualquier fallo de la petición da país desconocido (y por tanto aviso)', async () => {
+  it('any request failure yields unknown country (and thus notice)', async () => {
     const failing = [
       () => Promise.reject(new TypeError('offline')),
       () => Promise.resolve(new Response('not found', { status: 404 })),
@@ -51,7 +51,7 @@ describe('respuesta de /geo', () => {
     for (const fetchFn of failing) expect(await fetchVisitorCountry(fetchFn as typeof fetch)).toBeNull()
   })
 
-  it('pide /geo sin caché y lee el país', async () => {
+  it('requests /geo with no cache and reads country', async () => {
     const calls: [unknown, RequestInit | undefined][] = []
     const fetchFn = (async (url: unknown, init?: RequestInit) => {
       calls.push([url, init])
@@ -64,7 +64,7 @@ describe('respuesta de /geo', () => {
 })
 
 describe('Edge Function /geo', () => {
-  it('devuelve el país de Netlify sin caché, y null si no lo hay', async () => {
+  it('returns Netlify country with no cache, and null when missing', async () => {
     const withCountry = geo(new Request('https://example.test/geo'), { geo: { country: { code: 'FR' } } })
     expect(await withCountry.json()).toEqual({ country: 'FR' })
     expect(withCountry.headers.get('cache-control')).toBe('no-store')
@@ -74,12 +74,12 @@ describe('Edge Function /geo', () => {
     expect(await withoutCountry.json()).toEqual({ country: null })
   })
 
-  it('lleva HSTS (las cabeceras de _headers no llegan a la Edge Function)', () => {
+  it('includes HSTS (_headers rules do not apply to the Edge Function)', () => {
     const response = geo(new Request('https://example.test/geo'), {})
     expect(response.headers.get('strict-transport-security')).toBe('max-age=31536000; includeSubDomains')
   })
 
-  it('acepta GET y HEAD y responde 405 con Allow al resto', () => {
+  it('allows GET and HEAD and responds 405 with Allow for the rest', () => {
     expect(geo(new Request('https://example.test/geo', { method: 'HEAD' }), {}).status).toBe(200)
     const post = geo(new Request('https://example.test/geo', { method: 'POST' }), {})
     expect(post.status).toBe(405)
@@ -87,7 +87,7 @@ describe('Edge Function /geo', () => {
     expect(post.headers.get('cache-control')).toBe('no-store')
   })
 
-  it('se sirve en el mismo origen que usa el cliente', () => {
+  it('is served on the same origin the client uses', () => {
     expect(geoConfig.path).toBe(GEO_ENDPOINT)
   })
 })

@@ -2,7 +2,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname } from 'node:path'
 import type { SnapshotStore } from './visitsSnapshot'
 
-/** Instantánea en un fichero JSON (solo para probar en local; `.data/` está en .gitignore). */
+/** Snapshot in a JSON file (local testing only; `.data/` is in .gitignore). */
 export const LOCAL_SNAPSHOT_FILE = '.data/visits-snapshot.json'
 
 export function fileSnapshotStore(path: string): SnapshotStore {

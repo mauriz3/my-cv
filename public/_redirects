@@ -1,10 +1,9 @@
-# Netlify procesa las reglas de arriba abajo y aplica la primera que coincide. Las Edge Functions
-# (/geo) van antes que este archivo, y `_headers` se aplica a la respuesta final.
+# Netlify matches top to bottom; first rule wins. Edge Functions (/geo) run before this file; `_headers` applies to the final response.
 
-# Raíz → idioma (es para visitas con navegador en español; el resto, en).
+# Root → locale (es when browser prefers Spanish; en otherwise).
 /  /es/  302  Language=es
 /  /en/  302
 
-# Sin reglas para los enlaces cortos de Libros (/en/books, /es/libros): son páginas `en/books.html` y `es/libros.html` (200).
-# Netlify ya manda `/en/books/` a `/en/books` (301) y empareja las reglas con o sin barra final, así que una regla aquí
-# podría hacer bucle. El 301 con fragmento que había antes hacía fallar el Post Inspector de LinkedIn (500).
+# No rules for short book links (/en/books, /es/libros): they are `en/books.html` and `es/libros.html` (200).
+# Netlify already maps `/en/books/` → `/en/books` (301) and matches rules with or without trailing slash; a rule here
+# could loop. The old 301 with hash made LinkedIn Post Inspector fail (500).

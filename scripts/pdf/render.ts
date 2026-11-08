@@ -1,6 +1,6 @@
 /**
- * Del contenido del CV al PDF final: HTML de impresión → PDF de Chromium → metadatos limpios.
- * Lo usa `generate.ts` (CLI); recibe el navegador para poder probarlo sin Chrome.
+ * From CV content to final PDF: print HTML → Chromium PDF → clean metadata.
+ * Used by `generate.ts` (CLI); accepts a browser so tests can run without Chrome.
  */
 import { writeFile } from 'node:fs/promises'
 import path from 'node:path'
@@ -14,13 +14,13 @@ import { renderCvHtml } from './template'
 const PDF_DIR = path.dirname(fileURLToPath(import.meta.url))
 const STYLESHEET_URL = pathToFileURL(path.join(PDF_DIR, 'cv-print.css')).href
 const PAGE_FORMAT = 'A4'
-/** Páginas exactas que pide el diseño (hoja 1 y hoja 2). */
+/** Exact page count required by the design (sheet 1 and sheet 2). */
 export const EXPECTED_PAGES = 2
 export const PDF_KEYWORDS = ['Senior Software Engineer', 'Full stack', 'Back End', 'Front End', 'Node.js', 'React', 'Next.js', 'TypeScript', 'Vue.js', 'Chart.js', 'Cypress']
 
 export const pdfFileName = (locale: Locale) => `Resume-Maurizio-Rendon-${locale}.pdf`
 
-/** Solo lo que se usa del navegador (Playwright). */
+/** Only the browser surface used (Playwright). */
 export type PdfBrowser = Pick<Browser, 'newPage'>
 
 async function renderPdf(browser: PdfBrowser, workDir: string, locale: Locale) {
@@ -36,7 +36,7 @@ async function renderPdf(browser: PdfBrowser, workDir: string, locale: Locale) {
   return { content, pdfBytes }
 }
 
-/** Metadatos limpios: sin rutas ni nombres de herramientas del equipo que lo genera. */
+/** Clean metadata: no paths or toolchain names from the machine that generated it. */
 export async function cleanMetadata(pdfBytes: Uint8Array, content: ReturnType<typeof buildPdfContent>, now = new Date()) {
   const pdf = await PDFDocument.load(pdfBytes, { updateMetadata: false })
   pdf.setTitle(content.fullName, { showInWindowTitleBar: true })
@@ -51,13 +51,13 @@ export async function cleanMetadata(pdfBytes: Uint8Array, content: ReturnType<ty
   return { bytes: await pdf.save({ useObjectStreams: false }), pageCount: pdf.getPageCount() }
 }
 
-/** Escribe el PDF de cada idioma en `outputDir`; falla si alguno no tiene las páginas del diseño. */
+/** Writes each locale PDF in `outputDir`; fails if any does not match the design page count. */
 export async function writeCvPdfs(browser: PdfBrowser, options: { workDir: string; outputDir: string; log?: (line: string) => void }) {
   for (const locale of LOCALES) {
     const { content, pdfBytes } = await renderPdf(browser, options.workDir, locale)
     const { bytes, pageCount } = await cleanMetadata(pdfBytes, content)
-    if (pageCount !== EXPECTED_PAGES) throw new Error(`${pdfFileName(locale)}: ${pageCount} páginas (el diseño pide ${EXPECTED_PAGES})`)
+    if (pageCount !== EXPECTED_PAGES) throw new Error(`${pdfFileName(locale)}: ${pageCount} pages (design requires ${EXPECTED_PAGES})`)
     await writeFile(path.join(options.outputDir, pdfFileName(locale)), bytes)
-    options.log?.(`${pdfFileName(locale)}: ${pageCount} páginas`)
+    options.log?.(`${pdfFileName(locale)}: ${pageCount} pages`)
   }
 }

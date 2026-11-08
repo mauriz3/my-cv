@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/** Leyenda HTML enfocable: cada botón muestra u oculta su serie (`aria-pressed` = visible). */
+/** Focusable HTML legend: each button shows or hides its series (`aria-pressed` = visible). */
 export interface LegendItem {
   label: string
   color: string

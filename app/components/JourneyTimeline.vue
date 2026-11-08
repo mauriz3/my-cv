@@ -2,8 +2,8 @@
 import { JOURNEY_POINTS, pointPosition, type MarkerState } from '~~/lib/journey'
 
 /**
- * Timeline del recorrido: 5 marcadores (hecho · actual · pendiente) y la línea de progreso,
- * que crece con `--journey-position`. Es un apoyo visual: la información está en las tarjetas.
+ * Journey timeline: 5 markers (fact · current · pending) and progress line,
+ * that grows with `--journey-position`. It is a visual support: the information is on the cards.
  */
 defineProps<{ markerStates: MarkerState[] }>()
 

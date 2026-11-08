@@ -1,13 +1,13 @@
 /**
- * ¿Hace falta el aviso de analítica? Solo en la UE/EEE, Reino Unido y Suiza (decisión de Maurizio).
- * Fuera de esa zona, Consent Mode se concede sin aviso. Si no se sabe el país (local, error, tiempo agotado),
- * se muestra el aviso. Lógica pura, sin Vue ni DOM.
+ * Is the analytics notice required? Only in the EU/EEA, UK, and Switzerland (Maurizio’s decision).
+ * Outside that zone, Consent Mode is granted without a banner. If the country is unknown (local, error, timeout),
+ * show the banner. Pure logic, no Vue or DOM.
  */
 import type { ConsentChoice } from './analytics'
 
-/** Endpoint de mismo origen servido por la Edge Function `netlify/edge-functions/geo.ts`. */
+/** Same-origin endpoint served by Edge Function `netlify/edge-functions/geo.ts`. */
 export const GEO_ENDPOINT = '/geo'
-/** Si `/geo` no responde a tiempo, se trata como país desconocido (se muestra el aviso). */
+/** If `/geo` does not respond in time, treat as unknown country (show banner). */
 export const GEO_TIMEOUT_MS = 3000
 
 const EU_COUNTRIES = [
@@ -39,10 +39,10 @@ const EU_COUNTRIES = [
   'ES',
   'SE',
 ] as const
-/** EEE fuera de la UE. */
+/** EEA outside the EU. */
 const EEA_EXTRA_COUNTRIES = ['IS', 'LI', 'NO'] as const
 
-/** UE27 + IS, LI, NO + Reino Unido + Suiza (ISO 3166-1 alfa-2). */
+/** EU27 + IS, LI, NO + United Kingdom + Switzerland (ISO 3166-1 alpha-2). */
 export const CONSENT_BANNER_COUNTRIES: ReadonlySet<string> = new Set([
   ...EU_COUNTRIES,
   ...EEA_EXTRA_COUNTRIES,
@@ -52,7 +52,7 @@ export const CONSENT_BANNER_COUNTRIES: ReadonlySet<string> = new Set([
 
 const COUNTRY_CODE = /^[A-Z]{2}$/
 
-/** País de la respuesta de `/geo`, o `null` si no viene o no es un código válido. */
+/** Country from `/geo` response, or `null` if missing or not a valid code. */
 export function parseGeoCountry(body: unknown): string | null {
   if (typeof body !== 'object' || body === null || !('country' in body)) return null
   const { country } = body as { country: unknown }
@@ -66,8 +66,8 @@ export function requiresConsentBanner(country: string | null): boolean {
 }
 
 /**
- * Qué hacer al cargar, sin elección guardada todavía:
- * en la zona (o país desconocido) → mostrar el aviso; fuera → conceder sin aviso (sin guardarlo: se decide en cada visita).
+ * What to do on load with no stored choice yet:
+ * in-zone (or unknown country) → show banner; outside → grant without banner (not stored: decided each visit).
  */
 export type ConsentStartAction = 'keep-stored' | 'show-banner' | 'grant-without-banner'
 
@@ -76,7 +76,7 @@ export function consentStartAction(stored: ConsentChoice | null, country: string
   return requiresConsentBanner(country) ? 'show-banner' : 'grant-without-banner'
 }
 
-/** Pide el país a `/geo`; cualquier fallo (red, HTTP, JSON, tiempo) da `null`. */
+/** Fetches country from `/geo`; any failure (network, HTTP, JSON, timeout) returns `null`. */
 export async function fetchVisitorCountry(fetchFn: typeof fetch, timeoutMs = GEO_TIMEOUT_MS): Promise<string | null> {
   try {
     const response = await fetchFn(GEO_ENDPOINT, { cache: 'no-store', signal: AbortSignal.timeout(timeoutMs) })

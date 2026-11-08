@@ -7,11 +7,11 @@
   Cross-Origin-Opener-Policy: same-origin
   Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'
 
-# Informe de visitas (JSON prerrenderizado sin extensión).
+# Visits report (prerendered JSON without extension).
 /api/visits/*
   Content-Type: application/json; charset=utf-8
 
-# Assets de Nuxt con hash en el nombre: caché de un año. `:file` es un solo segmento,
-# así no entra `/_nuxt/builds/latest.json` (sin hash; avisa de despliegues nuevos).
+# Hashed Nuxt assets: one-year cache. `:file` is a single segment so `/_nuxt/builds/latest.json`
+# (no hash; warns on new deploys) is not included.
 /_nuxt/:file
   Cache-Control: public, max-age=31536000, immutable

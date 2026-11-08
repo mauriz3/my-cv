@@ -8,7 +8,7 @@ import {
   toggleCollapsed,
 } from '../../lib/sidebar'
 
-/** Doble mínimo de localStorage y de `<html>`. */
+/** Minimal localStorage and `<html>` doubles. */
 function createFakes(initialStored?: string) {
   const store = new Map<string, string>()
   if (initialStored !== undefined) store.set(SIDEBAR_STORAGE_KEY, initialStored)
@@ -32,12 +32,12 @@ function createFakes(initialStored?: string) {
   }
 }
 
-describe('sidebar colapsable', () => {
-  it('por defecto está expandido', () => {
+describe('collapsible sidebar', () => {
+  it('expanded by default', () => {
     expect(readCollapsed(createFakes().storage)).toBe(false)
   })
 
-  it('un clic colapsa y otro clic vuelve a expandir, guardando y aplicando cada estado', () => {
+  it('one click collapses and another expands, persisting and applying each state', () => {
     const { storage, root, store, classes } = createFakes()
 
     const collapsed = toggleCollapsed(storage, root, false)
@@ -53,11 +53,11 @@ describe('sidebar colapsable', () => {
     expect(classes.has(SIDEBAR_COLLAPSED_CLASS)).toBe(false)
   })
 
-  it('recuerda el estado colapsado entre visitas', () => {
+  it('remembers collapsed state across visits', () => {
     expect(readCollapsed(createFakes('1').storage)).toBe(true)
   })
 
-  it('si localStorage falla, no rompe: lee expandido y el botón sigue funcionando', () => {
+  it('when localStorage fails, does not break: reads expanded and toggle still works', () => {
     const blocked = {
       getItem: () => {
         throw new Error('blocked')
@@ -73,7 +73,7 @@ describe('sidebar colapsable', () => {
   })
 })
 
-describe('script anterior al pintado (sin parpadeo)', () => {
+describe('pre-paint script (no flash)', () => {
   function runScript(stored?: string, throwsOnRead = false) {
     const { classes, storage } = createFakes(stored)
     const localStorage = throwsOnRead
@@ -86,16 +86,16 @@ describe('script anterior al pintado (sin parpadeo)', () => {
     return classes
   }
 
-  it('pone la clase si el sidebar quedó colapsado', () => {
+  it('adds the class when sidebar was collapsed', () => {
     expect(runScript('1').has(SIDEBAR_COLLAPSED_CLASS)).toBe(true)
   })
 
-  it('no pone la clase si estaba expandido o no hay nada guardado', () => {
+  it('does not add the class when expanded or nothing stored', () => {
     expect(runScript('0').size).toBe(0)
     expect(runScript().size).toBe(0)
   })
 
-  it('no lanza error si localStorage está bloqueado', () => {
+  it('does not throw when localStorage is blocked', () => {
     expect(runScript(undefined, true).size).toBe(0)
   })
 })

@@ -3,7 +3,7 @@ import { CHART_VISIBLE_RATIO } from '~~/lib/animations'
 import { chartAnimation, markChartReplay } from '~/utils/chartOptions'
 import { observePendingReplayables, useReplayable } from './useReplayable'
 
-/** Trozo de Chart.js que hace falta para reiniciar sin arrastrar el tipo completo del canvas. */
+/** Chart.js slice needed to restart animation without importing the full canvas type. */
 interface ChartHandle {
   canvas: HTMLCanvasElement | null
   options: { animation?: false | { duration: number; easing: string } }
@@ -17,10 +17,10 @@ export interface ChartPlaybackRef {
 }
 
 /**
- * Reproducción de una gráfica Chart.js al activar las animaciones.
- * La gráfica no se destruye y los datos no se tocan: si se ve, `reset()` + `update()` en la misma
- * actualización; si no, queda pendiente y anima una sola vez al entrar.
- * Tema, idioma y resize no reinician: el modo de actualización pasa a `none`.
+ * Playing a Chart.js chart when animations are activated.
+ * The graph is not destroyed and the data is not touched: if seen, `reset()` + `update()` in it
+ * update; if not, it is pending and encourages only once when entering.
+ * Theme, language and resize do not restart: the update mode changes to `none`.
  */
 export function useChartPlayback(durationMs: number, extraQuiet?: Readonly<Ref<'none' | 'default'>>) {
   const chartRef = ref<ChartPlaybackRef | null>(null)

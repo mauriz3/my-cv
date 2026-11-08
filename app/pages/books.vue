@@ -3,7 +3,7 @@ import { booksSectionUrl, clientRedirectScript, metaRefreshContent } from '~~/li
 
 /**
  * Enlace corto a «Libros que recomiendo» (/en/books, /es/libros): 200 con la vista previa del Perfil
- * (canonical al Perfil) y salto en el cliente a la sección, con meta refresh y script; el enlace queda de respaldo.
+ * (canonical to the Profile) and skip in the client to the section, with meta refresh and script; the link is backup.
  */
 definePageMeta({ layout: false })
 

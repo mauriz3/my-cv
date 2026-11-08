@@ -1,6 +1,6 @@
-/** Colores ya resueltos del tema para Chart.js (pinta en canvas y no entiende `var(--x)`). */
+/** Resolved theme colors for Chart.js (canvas cannot use `var(--x)`). */
 export interface ChartTheme {
-  /** Series s1…s5: brand, ámbar, verde azulado, magenta y grafito (periodo anterior). */
+  /** Series s1…s5: brand, amber, teal, magenta and graphite (previous period). */
   series: [string, string, string, string, string]
   /** Escala secuencial del mapa y del mapa de calor (con opacidad). */
   sequential: string
@@ -26,9 +26,9 @@ function readChartTheme(): ChartTheme {
 }
 
 /**
- * Tema de las gráficas: se lee al montar y de nuevo al cambiar claro/oscuro.
- * `theme` vale `undefined` hasta montar (en el servidor no hay estilos que leer).
- * `updateMode` («none» justo tras cambiar de tema): los colores cambian sin animación.
+ * Theme of the graphs: it is read when mounting and again when changing light/dark.
+ * `theme` is worth `undefined` until mounted (on the server there are no styles to read).
+ * `updateMode` (`none' just after theme change): colors change without animation.
  */
 export function useChartTheme() {
   const colorMode = useColorMode()
@@ -37,14 +37,14 @@ export function useChartTheme() {
 
   onMounted(() => {
     theme.value = readChartTheme()
-    // La clase `.dark` cambia tras el render: esperamos al siguiente tick para leer los tokens nuevos.
+    // `.dark` toggles after render: wait one tick before reading updated tokens.
     watch(
       () => colorMode.value,
       async () => {
         await nextTick()
         updateMode.value = 'none'
         theme.value = readChartTheme()
-        // vue-chartjs actualiza en el tick siguiente al cambio de props; después se vuelve a animar.
+        // vue-chartjs updates in the tick following the props change, then animates again.
         await nextTick()
         await nextTick()
         updateMode.value = 'default'

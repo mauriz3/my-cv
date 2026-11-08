@@ -23,15 +23,15 @@ const THEME: ChartTheme = {
   font: 'Inter'
 }
 
-describe('opciones comunes de las gráficas', () => {
-  it('con movimiento reducido no anima; si no, anima la duración pedida', () => {
+describe('shared chart options', () => {
+  it('with reduced motion, does not animate; otherwise animates for the requested duration', () => {
     expect(chartAnimation(true, 800)).toBe(false)
     expect(chartAnimation(false, 800)).toEqual({ duration: 800, easing: 'easeOutQuart' })
     expect(baseChartOptions(THEME, true, 800).animation).toBe(false)
     expect(baseChartOptions(THEME, false, 800).transitions.resize.animation.duration).toBe(0)
   })
 
-  it('el tooltip invierte el contraste del tema y las gráficas no pintan leyenda en el canvas', () => {
+  it('tooltip inverts theme contrast and charts do not render legend on the canvas', () => {
     const tooltip = chartTooltip(THEME)
     expect(tooltip.backgroundColor).toBe(THEME.text)
     expect(tooltip.bodyColor).toBe(THEME.surface)
@@ -39,13 +39,13 @@ describe('opciones comunes de las gráficas', () => {
     expect(baseChartOptions(THEME, false, 800).plugins.legend.display).toBe(false)
   })
 
-  it('ejes: categorías sin rejilla; valores desde 0 con la rejilla del tema', () => {
+  it('axes: categories without grid; values from 0 with theme grid', () => {
     expect(categoryAxis(THEME).grid.display).toBe(false)
     expect(categoryAxis(THEME).border.color).toBe(THEME.grid)
     expect(valueAxis(THEME)).toMatchObject({ beginAtZero: true, grid: { color: THEME.grid }, ticks: { maxTicksLimit: 5 } })
   })
 
-  it('al llegar animation: false para la animación en curso', () => {
+  it('when animation becomes false, stops the in-flight animation', () => {
     const stop = vi.fn()
     const beforeUpdate = finishAnimationsWhenDisabled.beforeUpdate!.bind(finishAnimationsWhenDisabled)
     beforeUpdate({ options: { animation: false }, stop } as never, {} as never, {})
@@ -54,7 +54,7 @@ describe('opciones comunes de las gráficas', () => {
     expect(stop).toHaveBeenCalledOnce()
   })
 
-  it('si está marcada, la siguiente actualización la devuelve a su base una sola vez', () => {
+  it('when marked, the next update resets to base exactly once', () => {
     const reset = vi.fn()
     const chart = { options: { animation: { duration: 1 } }, stop: vi.fn(), reset }
     markChartReplay(chart)
@@ -67,7 +67,7 @@ describe('opciones comunes de las gráficas', () => {
 })
 
 describe('useChartTheme', () => {
-  it('lee los tokens del tema al montar y otra vez, sin animar, al cambiar claro/oscuro', async () => {
+  it('reads theme tokens on mount and again without animating when toggling light/dark', async () => {
     const root = document.documentElement.style
     root.setProperty('--ui-primary', '#0969da')
     root.setProperty('--ui-border', '#d0d7de')

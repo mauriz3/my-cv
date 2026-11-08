@@ -3,9 +3,9 @@ import type { Period } from '~~/lib/period'
 import { toMonthIndex } from '~~/lib/years'
 
 /**
- * Cifras clave del Perfil (años en tecnología, años full stack e idiomas) en una banda de tres
- * columnas iguales. La nota de cálculo va debajo. En el recorrido del Inicio, el scroll anima
- * acentos por columna (`PROFILE_COUNT_KEY` + `--fx-kpi-*`); los valores se leen desde el inicio.
+ * Key Profile figures (years in tech, full stack years, languages) in a band of three equal
+ * columns, with the calculation note below. On the Home journey, scroll drives accents per
+ * column (`PROFILE_COUNT_KEY` + `--fx-kpi-*`); values are readable from first paint.
  */
 const props = defineProps<{ noteSrOnly?: boolean }>()
 
@@ -22,6 +22,7 @@ const languageCodes = computed(() =>
   cv.value.languages.map((language) => LANGUAGE_CODES[language.id] ?? language.id.slice(0, 2).toUpperCase()).join(' · '),
 )
 
+/** Back End (Octane11) marks “full stack” years. */
 const FULL_STACK_AREA_ID = 'backend'
 const countProgress = inject(PROFILE_COUNT_KEY, undefined)
 const progress = computed(() => countProgress?.value)
@@ -35,19 +36,21 @@ function formatPartialDate(partialDate: string): string {
   return monthYear.value.format(new Date(Math.floor(monthIndex / MONTHS_PER_YEAR), monthIndex % MONTHS_PER_YEAR))
 }
 
+/** Oldest start in a period list (data guarantees at least one). */
 function earliestStart(periods: Period[]): string {
   return periods
     .map((period) => period.start)
     .reduce((earliest, start) => (toMonthIndex(start) < toMonthIndex(earliest) ? start : earliest))
 }
 
+/** From first experience month until today: “years in tech”. */
 const techPeriods = computed<Period[]>(() => [
   { start: earliestStart(cv.value.skillAreas.flatMap((area) => area.periods)), end: null },
 ])
 
 const fullStackPeriods = computed(() => {
   const area = cv.value.skillAreas.find((skillArea) => skillArea.id === FULL_STACK_AREA_ID)
-  if (!area) throw new Error(`Falta el área «${FULL_STACK_AREA_ID}» en los datos del CV`)
+  if (!area) throw new Error(`Missing area '${FULL_STACK_AREA_ID}' in CV data`)
   return area.periods
 })
 

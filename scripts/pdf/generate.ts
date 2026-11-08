@@ -1,6 +1,6 @@
 /**
- * Genera public/Resume-Maurizio-Rendon-{en,es}.pdf desde `data/cv.*.ts` (HTML de impresión + Chromium).
- * Uso: `npm run pdf` (ver scripts/pdf/README.md). Necesita Google Chrome o `CHROME_PATH`.
+ * Writes public/Resume-Maurizio-Rendon-{en,es}.pdf from `data/cv.*.ts` (print HTML + Chromium).
+ * Usage: `npm run pdf` (see scripts/pdf/README.md). Requires Google Chrome or `CHROME_PATH`.
  */
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'

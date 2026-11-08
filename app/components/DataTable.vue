@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/** Tabla simple y accesible (alternativa a una gráfica): la primera celda de cada fila es su encabezado. */
+/** Simple and accessible table (alternative to a graph): the first cell of each row is its header. */
 defineProps<{ caption: string; columns: readonly string[]; rows: readonly (readonly string[])[] }>()
 </script>
 

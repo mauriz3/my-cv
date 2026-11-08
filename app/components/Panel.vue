@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/** Contenedor de dashboard: título, nota gris opcional a la derecha y contenido. */
+/** Dashboard container: title, optional grey note on the right and content. */
 defineProps<{ title: string; note?: string }>()
 
 const titleId = useId()

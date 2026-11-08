@@ -26,7 +26,7 @@ ChartJS.register(
   finishAnimationsWhenDisabled,
 )
 
-/** Visitas en el tiempo: periodo actual (área con degradado) y anterior (grafito discontinuo). */
+/** Visits over time: current period (area with gradient) and previous (discontinuous graphite). */
 const props = defineProps<{ timeseries: VisitsReport['timeseries']; range: VisitsRange }>()
 
 const DRAW_DURATION_MS = 900
@@ -46,7 +46,7 @@ const legend = useLegendToggle()
 const labels = computed(() => props.timeseries.labels.map((label) => timeLabel(label, props.range)))
 const seriesNames = computed(() => SERIES_KEYS.map((key) => t(`visits.timeline.${key}`)))
 
-/** Degradado de la serie actual hacia transparente (necesita el área ya medida). */
+/** Gradient of the current series towards transparent (needs the area already measured). */
 function areaFill(context: ScriptableContext<'line'>, color: string) {
   const { ctx, chartArea } = context.chart
   if (!chartArea) return withAlpha(color, AREA_TOP_ALPHA / 2)
@@ -90,7 +90,7 @@ const chartOptions = computed<ChartOptions<'line'>>(() => {
   return {
     ...base,
     interaction: { mode: 'index', intersect: false },
-    // `monotone`: curva suave que no se pasa de los datos (con muchos ceros, la de `tension` bajaba de 0).
+    // `monotone`: smooth curve that does not overshoot (with many zeros, `tension` dipped below 0).
     elements: { line: { cubicInterpolationMode: 'monotone' }, point: { radius: 0, hoverRadius: 4, hitRadius: 8 } },
     scales: { x: categoryAxis(theme.value), y: valueAxis(theme.value) },
     plugins: {

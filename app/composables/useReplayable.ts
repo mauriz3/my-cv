@@ -7,7 +7,7 @@ export interface Replayable {
   threshold: number
   /**
    * `once`: si no estaba a la vista, se reproduce al entrar.
-   * `skip`: solo al activar si ya se veía (las escenas que no se veían siguen el scroll, sin catch-up).
+   * `skip`: only when activated if it was already seen (the scenes that were not seen follow the scroll, without catch-up).
    */
   onEnter: 'once' | 'skip'
   reset: () => void
@@ -20,14 +20,14 @@ interface ReplayEntry extends Replayable {
   pending: boolean
 }
 
-/** Umbrales que usa el único observador (gráficas 0,25, contadores 0,2, resto cualquiera). */
+/** Thresholds used by the single observer (graphs 0.25, counters 0.2, any remainder). */
 const OBSERVER_RATIOS = [0, 0.2, 0.25, 0.5, 1]
 
 const registry = new Set<ReplayEntry>()
 let observer: IntersectionObserver | undefined
 
 function ratioOf(element: Element): number {
-  // La página entera cuenta como visible: la entrada de Visitas no depende de un rectángulo medible.
+  // The entire page counts as visible: the Visits entry does not depend on a measurable rectangle.
   if (element === document.documentElement || element === document.body) return 1
   const box = element.getBoundingClientRect()
   return intersectionRatio(box.top, box.bottom, window.innerHeight)
@@ -59,7 +59,7 @@ function ensureObserver(): IntersectionObserver | null {
   return observer
 }
 
-/** Vuelve a observar los pendientes cuyo elemento ya existe (una gráfica que acaba de crearse). */
+/** Look again at the slopes whose element already exists (a graph that has just been created). */
 export function observePendingReplayables() {
   const pending = [...registry].filter((item) => item.pending)
   if (pending.length === 0) return
@@ -71,7 +71,7 @@ export function observePendingReplayables() {
   }
 }
 
-/** START: lo visible se reinicia y se reproduce; lo demás queda pendiente o, si `skip`, sigue su curso. */
+/** START: the visible is restarted and reproduced; the rest is pending or, if `skip`, it runs its course. */
 export function replayAnimations() {
   for (const item of registry) {
     const element = item.element()
@@ -88,7 +88,7 @@ export function replayAnimations() {
   observePendingReplayables()
 }
 
-/** STOP: estado final de todo lo registrado y se olvida lo que aún no se había reproducido. */
+/** STOP: final state of everything recorded and forgetting what had not yet been played. */
 export function finishAnimations() {
   for (const item of registry) {
     item.pending = false
@@ -98,7 +98,7 @@ export function finishAnimations() {
   observer = undefined
 }
 
-/** Registra un componente animable mientras está montado. */
+/** Register an animatable component while it is assembled. */
 export function useReplayable(options: Replayable) {
   const entry: ReplayEntry = { ...options, pending: false }
 

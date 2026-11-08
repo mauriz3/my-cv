@@ -1,10 +1,10 @@
 /**
- * Tras `nuxt generate`, completa `.output/public/_headers`:
- *  1. Añade a `script-src` el hash SHA-256 de cada script inline del HTML generado,
- *     así la CSP no necesita 'unsafe-inline'.
- *  2. En producción (el único build con Google Analytics) permite sus orígenes en script-src, connect-src e img-src.
- *  3. Añade `X-Robots-Tag: noindex` en todo despliegue que no sea producción
- *     (Netlify expone CONTEXT = production | branch-deploy | deploy-preview).
+ * After `nuxt generate`, completes `.output/public/_headers`:
+ * 1. Adds to `script-src` the SHA-256 hash of each inline script in the generated HTML,
+ * so CSP does not need 'unsafe-inline'.
+ * 2. In production (the only build with Google Analytics) allows its origins in script-src, connect-src, and img-src.
+ * 3. Adds `X-Robots-Tag: noindex` on every deploy that is not production
+ *     (Netlify sets CONTEXT = production | branch-deploy | deploy-preview).
  */
 import { createHash } from 'node:crypto'
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs'
@@ -28,7 +28,7 @@ function* htmlFiles(directory) {
   }
 }
 
-/** Hash CSP de cada script inline ejecutable (sin `src`, sin JSON ni JSON-LD), sin repetir. */
+/** CSP hash for each executable inline script (no `src`, not JSON or JSON-LD), deduplicated. */
 export function inlineScriptHashes(htmlDocuments) {
   const hashes = new Set()
   for (const html of htmlDocuments) {
@@ -41,24 +41,24 @@ export function inlineScriptHashes(htmlDocuments) {
 }
 
 function withScriptHashes(headers, hashes) {
-  if (!headers.includes(SCRIPT_SRC_PLACEHOLDER)) throw new Error(`Falta «${SCRIPT_SRC_PLACEHOLDER}» en _headers`)
+  if (!headers.includes(SCRIPT_SRC_PLACEHOLDER)) throw new Error(`Missing «${SCRIPT_SRC_PLACEHOLDER}» in _headers`)
   return headers.replace(SCRIPT_SRC_PLACEHOLDER, `${SCRIPT_SRC_PLACEHOLDER} ${hashes.join(' ')}`)
 }
 
 function withAnalyticsSources(headers) {
   return Object.entries(ANALYTICS_CSP_SOURCES).reduce((result, [name, sources]) => {
     const directive = `${name} 'self'`
-    if (!result.includes(directive)) throw new Error(`Falta «${directive}» en _headers`)
+    if (!result.includes(directive)) throw new Error(`Missing «${directive}» in _headers`)
     return result.replace(directive, `${directive} ${sources.join(' ')}`)
   }, headers)
 }
 
 function withNoindex(headers) {
-  if (!headers.startsWith(ALL_PATHS_RULE)) throw new Error('_headers debe empezar por la regla «/*»')
+  if (!headers.startsWith(ALL_PATHS_RULE)) throw new Error('_headers must start with the «/*» rule')
   return headers.replace(ALL_PATHS_RULE, `${ALL_PATHS_RULE}${NOINDEX_HEADER}\n`)
 }
 
-/** `_headers` final a partir de la plantilla de `public/`, el HTML generado y el CONTEXT de Netlify. */
+/** Final `_headers` from `public/` template, generated HTML, and Netlify CONTEXT. */
 export function buildHeaders(headersTemplate, htmlDocuments, context) {
   const hashes = inlineScriptHashes(htmlDocuments)
   const isProduction = context === PRODUCTION_CONTEXT
@@ -72,5 +72,5 @@ if (isDirectRun(import.meta.url)) {
   const context = process.env.CONTEXT
   const { headers, hashCount, isProduction } = buildHeaders(readFileSync(HEADERS_FILE, 'utf8'), htmlDocuments, context)
   writeFileSync(HEADERS_FILE, headers)
-  console.log(`Cabeceras: ${hashCount} hashes CSP; noindex ${isProduction ? 'NO' : 'sí'} (CONTEXT=${context ?? 'sin definir'})`)
+  console.log(`Headers: ${hashCount} CSP hashes; noindex ${isProduction ? 'NO' : 'yes'} (CONTEXT=${context ?? 'undefined'})`)
 }

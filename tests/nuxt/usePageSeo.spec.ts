@@ -13,22 +13,22 @@ async function waitForHead(condition: () => boolean) {
 
 describe('usePageSeo', () => {
   let mounted: VueWrapper | undefined
-  /** Cada test monta su página y la desmonta al acabar: así su <head> no se mezcla con el del siguiente. */
+  /** Each test mounts its page and unmounts after so <head> does not leak into the next. */
   async function mountPage(...args: Parameters<typeof usePageSeo>) {
     mounted = (await withSetup(() => usePageSeo(...args))).wrapper
   }
 
   afterEach(() => mounted?.unmount())
 
-  it('pone título, descripción, Open Graph, Twitter y JSON-LD de la persona', async () => {
+  it('sets title, description, Open Graph, Twitter, and Person JSON-LD', async () => {
     const cv = getCv('en')
-    await mountPage(() => 'Página de prueba')
-    await waitForHead(() => document.title === 'Página de prueba')
+    await mountPage(() => 'Test page')
+    await waitForHead(() => document.title === 'Test page')
 
-    expect(document.title).toBe('Página de prueba')
+    expect(document.title).toBe('Test page')
     expect(head().querySelectorAll('link[hreflang]').length).toBeGreaterThan(0)
     expect(metaContent('name="description"')).toBe(cv.motivation)
-    expect(metaContent('property="og:title"')).toBe('Página de prueba')
+    expect(metaContent('property="og:title"')).toBe('Test page')
     expect(metaContent('property="og:type"')).toBe('profile')
     expect(metaContent('property="og:image"')).toContain(SOCIAL_IMAGE.path)
     expect(metaContent('name="twitter:card"')).toBe('summary_large_image')
@@ -38,9 +38,9 @@ describe('usePageSeo', () => {
     expect(jsonLd.sameAs).toEqual(cv.contactLinks.map((link) => link.url))
   })
 
-  it('con canonicalPath, canonical y og:url apuntan a la página canónica y no hay hreflang', async () => {
-    await mountPage(() => 'Enlace corto', { canonicalPath: () => '/en/' })
-    await waitForHead(() => document.title === 'Enlace corto')
+  it('with canonicalPath, canonical and og:url point to canonical page and hreflang is omitted', async () => {
+    await mountPage(() => 'Short link', { canonicalPath: () => '/en/' })
+    await waitForHead(() => document.title === 'Short link')
     const canonical = head().querySelector('link[rel="canonical"]')?.getAttribute('href')
     expect(canonical).toMatch(/\/en\/$/)
     expect(metaContent('property="og:url"') ?? canonical).toBe(canonical)

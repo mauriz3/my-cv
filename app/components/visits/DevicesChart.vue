@@ -5,7 +5,7 @@ import type { VisitsReport } from '~~/lib/visits'
 
 ChartJS.register(DoughnutController, ArcElement, Tooltip, finishAnimationsWhenDisabled)
 
-/** Reparto por dispositivo (anillo con el total de visitas en el centro). */
+/** Distribution by device (ring with total visits in the center). */
 const props = defineProps<{ devices: VisitsReport['devices']; totalVisits: number }>()
 
 const DRAW_DURATION_MS = 800
@@ -38,7 +38,7 @@ const chartData = computed<ChartData<'doughnut'>>(() => ({
       data: visibleItems.value.map((item) => item.value),
       backgroundColor: visibleItems.value.map((item) => item.color),
       borderColor: theme.value?.surface,
-      // El borde solo separa segmentos: con uno solo (p. ej. «Móvil 100 %») o a 0 dejaría una raya en el anillo.
+      // The border only separates segments: with only one (e.g. “100% Mobile”) or at 0 it would leave a line in the ring.
       borderWidth: visibleItems.value.map((item) => (shownSegments.value > 1 && item.value > 0 ? SEGMENT_BORDER_PX : 0)),
     },
   ],

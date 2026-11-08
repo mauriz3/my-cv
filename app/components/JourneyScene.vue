@@ -25,18 +25,18 @@ import {
 } from '~~/lib/journeyScene'
 
 /**
- * Escena decorativa a ancho completo bajo el título de una tarjeta del recorrido (Tanda G). Pinta el estado
- * final (= estático: movimiento reducido, pausa o sin JS). Con movimiento, `useCardMotion` escribe en la tarjeta
- * las variables `--fx-<parte>-<canal>` (lib/journeyScene) y el CSS de abajo las aplica (solo transform,
- * opacity y stroke-dashoffset). Hasta que el JS escribe la primera, cada canal usa su valor de p = 0 (estado
- * inicial desde el primer pintado, sin parpadeo); sin `data-motion="full"` esas reglas no aplican: estado final.
+ * Full-width decorative scene under the title of a tour card (Tanda G). Paint the status
+ * end (= static: reduced movement, pause or no JS). With movement, `useCardMotion` writes to the card
+ * `--fx-<part>-<channel>` variables (lib/journeyScene) and the CSS below applies them (transform,
+ * opacity, and stroke-dashoffset only). Until JS writes the first value, each channel uses p = 0 from first
+ * paint without flashing; without `data-motion="full"` those rules do not apply (final state).
  */
 const props = defineProps<{ kind: SceneKind }>()
 const cv = useCv()
 
 const VIEWBOX = `0 0 ${SCENE_VIEWBOX.width} ${SCENE_VIEWBOX.height}`
 
-/** Variable local de cada canal y clase que la aplica. */
+/** Per-channel CSS variable and class that applies it. */
 const CHANNEL_VARIABLE: Record<SceneChannel, string> = {
   x: '--scene-x',
   y: '--scene-y',
@@ -68,7 +68,7 @@ function fx(part: string, ...channels: SceneChannel[]) {
   return { class: [...new Set(channels.map((channel) => CHANNEL_CLASS[channel]))], style: fxVars(part, ...channels) }
 }
 
-/* Skills: niveles del radar «Skill profile» de los datos (mismo orden de ejes); las barras, las mismas áreas. */
+/* Skills: levels of the radar "Skill profile" of the data (same order of axes); the bars, the same areas. */
 const levels = computed(() => cv.value.skillProfile.map((axis) => axis.level))
 const radarData = computed(() => radarPoints(levels.value))
 const radarGuides = computed(() => RADAR.guideShares.map((share) => svgPoints(radarPoints(levels.value.map(() => share)))))
@@ -101,7 +101,7 @@ const viewfinder = PROFILE_VIEWFINDER
 const BAR_CAP_INSET = 1.5
 const FLASH_RADIUS = 12
 const FLASH_WAIST = 0.28
-/** Estrella de 4 puntas en el vértice Front End (el primero). */
+/** 4-pointed star at the vertex of the Front End (the first). */
 const flashPath = computed(() => {
   const [x, y] = radarData.value[0]!
   const r = FLASH_RADIUS
@@ -179,7 +179,7 @@ const TOP_BLOCK = STACK_BLOCKS_Y.length - 1
           <circle class="f-acc" :cx="PROFILE_FICHE_WINDOW.x + 12" :cy="profileChromeY" r="2.5" />
           <circle class="f-main" :cx="PROFILE_FICHE_WINDOW.x + 22" :cy="profileChromeY" r="2.5" />
           <circle class="f-main" :cx="PROFILE_FICHE_WINDOW.x + 32" :cy="profileChromeY" r="2.5" />
-          <!-- Esquinas tipo marco (estático, opción F). -->
+          <!-- Frame type corners (static, option F). -->
           <path
             class="s-track journey-scene__profile-corner"
             :d="`M${PROFILE_FICHE_WINDOW.x + 6} ${PROFILE_FICHE_WINDOW.chromeY + 6}V${PROFILE_FICHE_WINDOW.chromeY + 16}H${PROFILE_FICHE_WINDOW.x + 16}`"
@@ -357,8 +357,8 @@ const TOP_BLOCK = STACK_BLOCKS_Y.length - 1
 
 <style>
 /*
- * Escena (Tanda G): ancho completo bajo el título, 336×120 en desktop y 224×80 (meet) en móvil.
- * Colores: brand y ámbar del tema; guías en un gris propio (≥ 3:1 sobre la tarjeta, spec §3).
+ * Scene (Tanda G): full width under the title, 336×120 on desktop and 224×80 (meet) on mobile.
+ * Colors: brand and theme amber; guides in a gray of their own (≥ 3:1 on the card, spec §3).
  */
 .journey-scene {
   --g-main: var(--ui-primary);
@@ -460,7 +460,7 @@ const TOP_BLOCK = STACK_BLOCKS_Y.length - 1
 
 /*
  * Con movimiento: cada canal sigue su variable (antes del primer fotograma de JS, su valor de p = 0). Con el foco
- * del teclado dentro de la tarjeta, estado final. Un trazo sin dibujar se oculta (sin el punto del remate redondo).
+ * of the keyboard inside the card, final state. An undrawn stroke is hidden (without the round end point).
  */
 :root[data-motion='full'] .journey__card:not(:focus-within) .journey-scene .scene-fx--move {
   translate: calc(var(--scene-x, 0) * 1px) calc(var(--scene-y, 0) * 1px);

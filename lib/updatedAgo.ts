@@ -1,6 +1,6 @@
 /**
- * «Datos actualizados hace 3 h» / «Data updated 3 h ago»: antigüedad de la instantánea de visitas.
- * Lógica pura (sin reloj propio: `now` entra por parámetro) y textos ES/EN con plural.
+ * Example copy: «Data updated 3 h ago» (EN) / «Datos actualizados hace 3 h» (ES): age of the visits snapshot.
+ * Pure logic (no internal clock: `now` is passed in) and ES/EN copy with plural rules.
  */
 
 const MS_PER_MINUTE = 60_000
@@ -13,7 +13,7 @@ export interface Age {
   count: number
 }
 
-/** Unidad mayor que cabe entera: < 1 min → «ahora»; < 60 min → minutos; < 24 h → horas; si no, días. Fechas futuras (reloj desfasado) → «ahora». */
+/** Largest whole unit: < 1 min → «now»; < 60 min → minutes; < 24 h → hours; else days. Future dates (skewed clock) → «now». */
 export function ageOf(updatedAt: Date, now: Date): Age {
   const minutes = Math.floor((now.getTime() - updatedAt.getTime()) / MS_PER_MINUTE)
   if (!Number.isFinite(minutes) || minutes < 1) return { unit: 'now', count: 0 }

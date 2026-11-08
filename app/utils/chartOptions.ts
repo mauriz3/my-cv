@@ -1,19 +1,19 @@
 import type { Plugin } from 'chart.js'
 import type { ChartTheme } from '~/composables/useChartTheme'
 
-/** Piezas comunes de las gráficas de Visitas (Chart.js). */
+/** Common parts of Visits charts (Chart.js). */
 
 export const CHART_FONT_SIZE_PX = 12
 const TOOLTIP_PADDING_PX = 8
 const TOOLTIP_RADIUS_PX = 8
 const MAX_VALUE_TICKS = 5
 
-/** Animación de entrada; con animaciones apagadas, ninguna (`animation: false`). */
+/** Input animation; with animations off, none (`animation: false`). */
 export function chartAnimation(isReduced: boolean, durationMs: number) {
   return isReduced ? (false as const) : { duration: durationMs, easing: 'easeOutQuart' as const }
 }
 
-/** Gráficas que deben volver a su base en la próxima actualización (activación con la gráfica a la vista). */
+/** Graphs that must return to their base in the next update (activation with the graph in view). */
 const chartsWaitingToReplay = new WeakSet<object>()
 
 export function markChartReplay(chart: object) {
@@ -27,8 +27,8 @@ function consumeChartReplay(chart: object): boolean {
 }
 
 /**
- * Al pasar a `animation: false`, para la animación en curso (el `update('none')` deja el estado final).
- * Si la gráfica está marcada, `reset()` la devuelve a su base en esa misma actualización.
+ * When moving to `animation: false`, for the animation in progress (the `update('none')` leaves the final state).
+ * If the graph is checked, `reset()` returns it to its base in that same update.
  */
 export const finishAnimationsWhenDisabled: Plugin = {
   id: 'finishAnimationsWhenDisabled',
@@ -45,7 +45,7 @@ export function chartFont(theme: ChartTheme) {
   return { family: theme.font, size: CHART_FONT_SIZE_PX }
 }
 
-/** Tooltip con el contraste invertido del tema (oscuro sobre claro y al revés). */
+/** Tooltip with the inverted contrast of the theme (dark on light and upside down). */
 export function chartTooltip(theme: ChartTheme) {
   return {
     backgroundColor: theme.text,
@@ -60,7 +60,7 @@ export function chartTooltip(theme: ChartTheme) {
   }
 }
 
-/** Opciones comunes: tamaño del contenedor (alto reservado), sin leyenda de canvas (va en HTML). */
+/** Common options: container size (reserved high), no canvas caption (goes in HTML). */
 export function baseChartOptions(theme: ChartTheme, isReduced: boolean, durationMs: number) {
   return {
     responsive: true,
@@ -71,7 +71,7 @@ export function baseChartOptions(theme: ChartTheme, isReduced: boolean, duration
   }
 }
 
-/** Eje de categorías (fechas, páginas, franjas): sin rejilla. */
+/** Category axis (dates, pages, stripes): no grid. */
 export function categoryAxis(theme: ChartTheme) {
   return {
     grid: { display: false },

@@ -1,7 +1,7 @@
 import { generateKeyPairSync } from 'node:crypto'
 import type { RunReportRequest, RunReportResponse } from '../../../lib/visitsGa4'
 
-/** Respuestas simuladas de la GA4 Data API (mismo formato que runReport) y una cuenta de servicio de prueba. */
+/** Simulated GA4 Data API responses (same format as runReport) and a test service account. */
 
 export const NOW = new Date('2026-11-01T10:30:00Z')
 
@@ -27,7 +27,7 @@ export function response(dimensions: string[], metrics: string[], rows: [Cell[],
   }
 }
 
-/** Respuesta simulada según las dimensiones pedidas (como haría GA4 con datos de 7 días). */
+/** Simulated response from requested dimensions (as GA4 would with 7-day data). */
 export function fakeRunReport(request: RunReportRequest): RunReportResponse {
   const dims = (request.dimensions ?? []).map((d) => d.name)
   const twoRanges = request.dateRanges.length > 1
@@ -93,11 +93,11 @@ export function fakeRunReport(request: RunReportRequest): RunReportResponse {
         [['4', '13'], [7]],
       ])
     default:
-      throw new Error(`Petición inesperada: ${dims.join(',')}`)
+      throw new Error(`Unexpected request: ${dims.join(',')}`)
   }
 }
 
-/** `fetch` simulado: token de Google OAuth y runReport. Guarda las peticiones para inspeccionarlas. */
+/** Simulated `fetch`: Google OAuth token and runReport. Records requests for inspection. */
 export function fakeGoogleFetch(options: { failRunReport?: (request: RunReportRequest) => number | undefined } = {}) {
   const calls: { url: string; init?: RequestInit }[] = []
   const fetchFn = (async (input: RequestInfo | URL, init?: RequestInit) => {

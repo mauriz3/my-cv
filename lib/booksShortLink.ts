@@ -1,53 +1,53 @@
 /**
- * Enlaces cortos a «Libros que recomiendo» (`/en/books`, `/es/libros`) para Destacados de LinkedIn, que quita el `#`.
- * Son páginas mínimas prerenderizadas (200, con la vista previa del Perfil) que llevan en el cliente a la sección:
- * el 301 con fragmento que había antes en `_redirects` hacía fallar el Post Inspector de LinkedIn (500).
+ * Short links to «Books I recommend» (`/en/books`, `/es/libros`) for LinkedIn highlights, which strip `#`.
+ * Minimal prerendered pages (200, Profile preview) that client-navigate to the section:
+ * the old 301 with fragment in `_redirects` broke LinkedIn Post Inspector (500).
  */
 
-/** `id` de la sección en el Perfil (`BooksSection.vue`). */
+/** Section `id` on Profile (`BooksSection.vue`). */
 export const BOOKS_SECTION_ID = 'books'
 
-/** Nombre de la página en `app/pages/` y ruta de cada idioma (i18n, `customRoutes: 'config'`). */
+/** Page name in `app/pages/` and path per locale (i18n, `customRoutes: 'config'`). */
 export const BOOKS_SHORT_LINK_PAGE = 'books'
 export const BOOKS_SHORT_LINK_PATHS = { en: '/books', es: '/libros' } as const
 
 export type BooksShortLinkLocale = keyof typeof BOOKS_SHORT_LINK_PATHS
 
-/** Rutas completas a prerenderizar: `/en/books`, `/es/libros`. */
+/** Full routes to prerender: `/en/books`, `/es/libros`. */
 export const BOOKS_SHORT_LINK_ROUTES = Object.entries(BOOKS_SHORT_LINK_PATHS).map(([locale, path]) => `/${locale}${path}`)
 
-/** Nombre del payload que Nuxt extrae por ruta prerenderizada. */
+/** Payload file name Nuxt extracts per prerendered route. */
 const PAYLOAD_FILE = '_payload.json'
 
-/** Segundos del `<meta http-equiv="refresh">`: respaldo sin JS, inmediato. */
+/** `<meta http-equiv="refresh">` seconds: no-JS fallback, immediate. */
 const META_REFRESH_DELAY_SECONDS = 0
 
-/** Destino: la sección dentro del Perfil del idioma (`/en` → `/en/#books`). */
+/** Target: section within Profile for the locale (`/en` → `/en/#books`). */
 export function booksSectionUrl(profilePath: string): string {
   return `${profilePath.replace(/\/$/, '')}/#${BOOKS_SECTION_ID}`
 }
 
-/** Contenido del `<meta http-equiv="refresh">`. */
+/** `<meta http-equiv="refresh">` content. */
 export function metaRefreshContent(target: string): string {
   return `${META_REFRESH_DELAY_SECONDS};url=${target}`
 }
 
-/** Script inline (su hash entra en la CSP con `scripts/build-headers.mjs`): `replace` no deja la página en el historial. */
+/** Inline script (hash in CSP via `scripts/build-headers.mjs`): `replace` does not leave the page in history. */
 export function clientRedirectScript(target: string): string {
   return `location.replace(${JSON.stringify(target)})`
 }
 
 /**
- * Fichero de cada ruta prerenderizada. Netlify (pretty URLs) responde 301 a `/ruta/` si existe `ruta/index.html`,
- * pero sirve `ruta.html` con 200 en `/ruta`: los enlaces cortos salen como `.html` plano; el resto, sin cambios.
+ * File per prerendered route. Netlify (pretty URLs) 301s `/route/` when `route/index.html` exists,
+ * but serves `route.html` as 200 on `/route`: short links are flat `.html`; others unchanged.
  */
 export function prerenderFileName(route: string, defaultFileName: string): string {
   return BOOKS_SHORT_LINK_ROUTES.includes(route) ? `${route}.html` : defaultFileName
 }
 
 /**
- * Payload de un enlace corto: sobra (la página va sin scripts) y su carpeta `ruta/` haría convivir
- * `ruta.html` con un directorio del mismo nombre en Netlify. No se escribe.
+ * Short-link payload is unused (page has no scripts) and its `route/` folder would collide
+ * with a same-named `route.html` on Netlify. Not written.
  */
 export function isUnusedPayload(route: string): boolean {
   return BOOKS_SHORT_LINK_ROUTES.some((shortLink) => route.startsWith(`${shortLink}/${PAYLOAD_FILE}`))

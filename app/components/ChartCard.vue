@@ -1,15 +1,15 @@
 <script setup lang="ts">
 /**
- * Tarjeta de una gráfica de Visitas: h2, descripción, botón «Ver tabla» y cuerpo de alto fijo (CLS 0).
- * La gráfica (slot por defecto) se monta cuando el cuerpo entra en pantalla (25 %): anima al verse
- * y su código (Chart.js) se descarga solo entonces. Slot `table`: la alternativa accesible.
+ * Card of a Visits chart: h2, description, "View table" button and fixed height body (CLS 0).
+ * The graphic (default slot) is mounted when the body enters the screen (25%): animates when viewed
+ * and your code (Chart.js) is downloaded only then. Slot `table`: the accessible alternative.
  */
 const props = withDefaults(
   defineProps<{ title: string; description: string; loading: boolean; size?: 'chart' | 'withLegend' | 'withList' }>(),
   { size: 'chart' },
 )
 
-/** Altos reservados (móvil / md+): gráfica 200 / 240 px, más la leyenda o la lista cuando las hay. */
+/** Reserved highs (mobile / md+): graphic 200 / 240 px, plus the legend or list when there are any. */
 const BODY_HEIGHT_CLASSES: Record<typeof props.size, string> = {
   chart: 'h-[200px] md:h-[240px]',
   withLegend: 'h-[296px] md:h-[320px]',

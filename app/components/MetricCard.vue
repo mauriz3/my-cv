@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/** Tarjeta de una cifra clave: el valor va en el slot (número, años…) y debajo su etiqueta. */
+/** Card of a key figure: the value goes in the slot (number, years...) and under its label. */
 defineProps<{ label: string }>()
 </script>
 

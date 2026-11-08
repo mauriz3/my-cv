@@ -11,12 +11,12 @@ import {
 export type VisitsStatus = 'loading' | 'ready' | 'error'
 
 /**
- * Informe de visitas de un filtro. ÚNICO punto del cliente que pide los datos: `/api/visits/:range`
- * (en Netlify, la instantánea de GA4 o el mock; en local y como respaldo, el JSON prerrenderizado del mock).
- * «Datos de ejemplo» no depende de la API: el mock se genera en el navegador con `buildMockReport`, que se carga
- * en diferido (chunk aparte, solo cuando se elige ese filtro).
- * Al cambiar de filtro se mantiene el informe anterior hasta que llega el nuevo (las gráficas transicionan).
- * `dataState`: de dónde salió la última respuesta (`real`, `sample` o `failed`); `undefined` hasta la primera.
+ * Report of visits of a filter. SINGLE point of the customer asking for the data: `/api/visits/:range`
+ * (in Netlify, the GA4 snapshot or the mock; locally and as a backup, the mock's pre-rendered JSON).
+ * Sample data does not hit the API: the browser builds it with `buildMockReport`, loaded on demand
+ * (separate chunk, only when that filter is selected).
+ * Changing the filter keeps the previous report until the new one arrives (the graphs transition).
+ * `dataState`: where the last response came from (`real`, `sample` or `failed`); `undefined` until the first.
  */
 export function useVisits(filter: Ref<VisitsFilter>) {
   const report = shallowRef<VisitsReport>()
@@ -26,7 +26,7 @@ export function useVisits(filter: Ref<VisitsFilter>) {
 
   async function fetchReport(selected: VisitsFilter): Promise<unknown> {
     if (selected === SAMPLE_FILTER) return (await import('~~/lib/visitsMock')).buildMockReport(SAMPLE_RANGE)
-    // `responseType`: el JSON estático se sirve sin extensión y no siempre con su Content-Type.
+    // `responseType`: the static JSON is served without extension and not always with its Content-Type.
     return $fetch(visitsEndpoint(selected), { responseType: 'json' })
   }
 
@@ -41,7 +41,7 @@ export function useVisits(filter: Ref<VisitsFilter>) {
     } catch {
       response = undefined
     }
-    if (request !== latestRequest) return // llegó tarde: ya se pidió otro filtro
+    if (request !== latestRequest) return // stale: a newer filter request was sent
     const state = dataStateOf(response, range)
     dataState.value = state
     if (state === 'failed') {

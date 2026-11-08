@@ -2,7 +2,7 @@
 import { PRIVACY_PATH } from '~~/lib/privacy'
 
 /**
- * Pie mínimo: «Preferencias de analítica» (reabre el aviso de consentimiento) y «Privacidad».
+ * Minimum footer: “Analytics Preferences” (reopens consent notice) and “Privacy”.
  * El layout solo lo monta si el build lleva Google Analytics (igual que el aviso).
  */
 const { t } = useI18n({ useScope: 'local' })

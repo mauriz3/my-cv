@@ -4,11 +4,11 @@ import { consentStartAction, fetchVisitorCountry } from '~~/lib/consentRegion'
 import { PRIVACY_PATH } from '~~/lib/privacy'
 
 /**
- * Aviso mínimo de analítica (solo existe si el build lleva Google Analytics). Aceptar activa
- * `analytics_storage`; Rechazar lo deja en «denied». La elección se recuerda en localStorage
- * y se puede cambiar después desde el pie («Preferencias de analítica»).
- * Solo aparece en la UE/EEE, Reino Unido y Suiza (país de `/geo`); oculto hasta saberlo y, si no se sabe, visible.
- * Fuera de esa zona se concede sin aviso, solo para esa visita.
+ * Minimum analytics warning (only exists if the build carries Google Analytics). Accept active
+ * `analytics_storage`; Decline leaves it in 'denied'. The choice is remembered in localStorage
+ * and can be changed later from the footer (“Analytics Preferences”).
+ * Appears only in EU/EEA, UK and Switzerland (country of `/geo`); hidden until known and, if not known, visible.
+ * Outside that zone, consent is granted without a banner for that visit only.
  */
 const { t } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
@@ -37,7 +37,7 @@ onMounted(async () => {
   else if (action === 'grant-without-banner') updateConsent('granted', gtag())
 })
 
-// Reabierto desde el pie: el foco va al aviso (sin preseleccionar opción) para elegir con el teclado.
+// Reopened from the bottom: the focus goes to the prompt (without preselecting option) to choose with the keyboard.
 watch(isVisible, async (visible) => {
   if (!visible || !wantsFocus.value) return
   wantsFocus.value = false
@@ -65,7 +65,7 @@ watch(isVisible, async (visible) => {
         >{{ t('moreInfo') }}</NuxtLink
       >
     </p>
-    <!-- Aceptar y Rechazar con el mismo tamaño, peso y contraste: ninguna opción se destaca. -->
+    <!-- Accept and Reject with the same size, weight and contrast - no option stands out. -->
     <div class="mt-3 grid grid-cols-2 gap-2 sm:flex">
       <UButton
         v-for="option in CONSENT_OPTIONS"

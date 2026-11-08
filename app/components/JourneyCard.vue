@@ -3,11 +3,11 @@ import { JOURNEY_POINTS, pointPosition, type CardState } from '~~/lib/journey'
 import { SCENE_KINDS, type SceneKind } from '~~/lib/journeyScene'
 
 /**
- * Tarjeta HTML de un punto del recorrido: «n · Sección», contenido (slot) y enlace a la sección
- * (salvo con `ownAction`: la tarjeta de Visitas lleva su propio botón en el contenido).
- * `state`: visible, ya leída o por llegar en el recorrido con pin (la versión estática lo ignora y las muestra todas).
- * Con el slot `title`, la cabecera es «eyebrow + título». Skills, Experience, Education y Projects llevan debajo
- * una escena a ancho completo (Tanda G, `JourneyScene`) que no reduce el ancho del título ni tapa el cuerpo.
+ * HTML card of a point of the tour: "n · Section", content (slot) and link to the section
+ * (except with `ownAction`: the Visitors card has its own button in the content).
+ * `state`: visible, already read or to come on the tour with pin (the static version ignores it and shows them all).
+ * With the `title` slot, the header is' eyebrow + title '. Skills, Experience, Education and Projects are underneath
+ * a full-width scene (Tanda G, `JourneyScene`) that does not reduce the width of the title or cover the body.
  */
 const props = defineProps<{ index: number; state: CardState; ownAction?: boolean }>()
 
@@ -20,7 +20,7 @@ const sceneKind = SCENE_KINDS.find((kind) => kind === point.id) as SceneKind | u
 /** El eyebrow de Profile entra con su contenido (el h1 no se anima: LCP). */
 const eyebrowStyle = props.index === 0 ? { '--fx': 'var(--fx-eyebrow, 1)' } : undefined
 const label = computed(() => tGlobal(`nav.${point.id}`))
-/** El primer punto es esta misma página: sin enlace. */
+/** The first point is this same page: no link. */
 const hasSectionLink = props.index > 0 && !props.ownAction
 </script>
 
@@ -75,8 +75,8 @@ const hasSectionLink = props.index > 0 && !props.ownAction
 }
 
 /*
- * Contenido de Profile ligado al scroll (`--fx` 0 → 1): sube 8 px a su sitio; KPI: escala 0,96 → 1.
- * Sin opacidad: se lee desde la carga, también con p = 0 (decisión de Maurizio, sin hueco vacío).
+ * Profile content tied to scroll (`--fx` 0 → 1): rises 8px into place; KPI scale 0.96 → 1.
+ * No fade-out: readable from load even at p = 0 (Maurizio decision, no empty hole).
  */
 :root[data-motion='full'] .journey__card:not(:focus-within) .card-fx {
   translate: 0 calc((1 - var(--fx)) * 8px);

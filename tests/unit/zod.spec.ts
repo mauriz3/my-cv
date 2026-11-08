@@ -13,12 +13,12 @@ function sourceFiles(directory: string): string[] {
     .map((file) => join(directory, file))
 }
 
-describe('zod sin JIT (CSP sin unsafe-eval)', () => {
-  it('desactiva el JIT, que probaría `new Function` y la CSP lo bloquearía', () => {
+describe('zod without JIT (CSP without unsafe-eval)', () => {
+  it('disables JIT, which would use `new Function` and be blocked by CSP', () => {
     expect(z.config().jitless).toBe(true)
   })
 
-  it('nadie importa zod directamente salvo lib/zod.ts', () => {
+  it('nothing imports zod directly except lib/zod.ts', () => {
     const offenders = SOURCE_DIRECTORIES.flatMap(sourceFiles).filter(
       (file) => file !== ZOD_ENTRY && DIRECT_ZOD_IMPORT.test(readFileSync(file, 'utf8'))
     )

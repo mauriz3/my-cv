@@ -1,8 +1,8 @@
 /**
- * Escenas a ancho completo de las tarjetas del recorrido (Tanda G, spec tanda-g/especificaciones.md):
- * geometría (viewBox 280×100) y, para cada p (0–1), el valor de cada canal animado de cada parte.
- * Sin bucles: todo es función de p (scrub reversible). En p = 1 todos los canales quedan en su valor neutro
- * (sin desplazar, escala 1, opacidad 1, trazo completo), así que el SVG sin variables ya es el estado final.
+ * Full-width scenes of the route cards (Tanda G, spec tanda-g/specifications.md):
+ * geometry (viewBox 280×100) and, for each p (0–1), the value of each animated channel of each part.
+ * No loops: everything is a function of p (reversible scrub). At p = 1 all channels rest at their neutral value
+ * (no offset, scale 1, opacity 1, full stroke), so the SVG without variables is already the final state.
  */
 import {
   clamp01,
@@ -20,12 +20,12 @@ export const SCENE_KINDS: readonly SceneKind[] = ['profile', 'skills', 'experien
 
 export const SCENE_VIEWBOX = { width: 280, height: 100 } as const
 
-/** Canales que el CSS de la escena sabe aplicar (solo transform, opacity y stroke-dashoffset). */
+/** Channels the scene CSS knows how to apply (transform, opacity, and stroke-dashoffset only). */
 export type SceneChannel = 'x' | 'y' | 'scale' | 'scaleY' | 'rotate' | 'opacity' | 'offset'
 export type ScenePartValues = Partial<Record<SceneChannel, number>>
 export type SceneValues = Record<string, ScenePartValues>
 
-/** Valor de cada canal en el estado final (= estático): el que pinta el SVG sin variables. */
+/** Value of each channel in the final (= static) state: what the SVG paints without variables. */
 export const NEUTRAL_CHANNEL_VALUE: Record<SceneChannel, number> = {
   x: 0,
   y: 0,
@@ -45,21 +45,21 @@ interface Range {
 const POP_OVERSHOOT = 2
 const TASSEL_OVERSHOOT = 2.2
 const at = (p: number, { from, to }: Range) => progressBetween(p, from, to)
-/** Tramo de duración `length` que empieza en `from`. */
+/** Segment of duration `length` starting at `from`. */
 const span = (from: number, length: number): Range => ({ from, to: from + length })
-/** 0 hasta que empieza la fase, 1 desde entonces (aparición sin fundido). */
+/** 0 until the phase starts, 1 from then on (appear without fade). */
 const shownFrom = (p: number, from: number) => (p > from ? 1 : 0)
 
 export type CodeTone = 'main' | 'acc' | 'track'
 
-/* ---------- Profile: ficha CV (ventana + campos + verificación) ---------- */
+/* ---------- Profile: CV card (window + fields + verification) ---------- */
 
-/** Ficha centrada en el viewBox 280×100 (como opción F: marco + tres campos). */
+/** Card centered in viewBox 280×100 (option F: frame + three fields). */
 export const PROFILE_FICHE_WINDOW = { x: 30, y: 8, width: 220, height: 84, chromeY: 24, pad: 22 } as const
 export const PROFILE_FICHE_INNER_X = PROFILE_FICHE_WINDOW.x + PROFILE_FICHE_WINDOW.pad
 const PROFILE_INNER_W = PROFILE_FICHE_WINDOW.width - PROFILE_FICHE_WINDOW.pad * 2
 
-/** Dos líneas de texto; la barra inferior se anima aparte (`progress`). */
+/** Two lines of text; the bottom bar is animated separately (`progress`). */
 export const PROFILE_FIELD_LINES: readonly (readonly (readonly [number, number, CodeTone])[])[] = [
   [[PROFILE_FICHE_INNER_X, PROFILE_INNER_W, 'main']],
   [[PROFILE_FICHE_INNER_X, PROFILE_INNER_W - 28, 'main']],
@@ -72,7 +72,7 @@ export const PROFILE_PROGRESS_BAR = {
   height: 6,
   fillShare: 0.62,
 } as const
-/** Esquinas exteriores (visor) alrededor de la ficha, opción F. */
+/** Outer corners (viewfinder) around the card, option F. */
 export const PROFILE_VIEWFINDER = { x: 16, y: 2, width: 248, height: 96, arm: 12 } as const
 
 export const PROFILE_SCENE_TIMING = {
@@ -118,14 +118,14 @@ function profileSceneValues(p: number): SceneValues {
   return values
 }
 
-/* ---------- Skills: radar hexagonal + 6 barras ---------- */
+/* ---------- Skills: hexagonal radar + 6 bars ---------- */
 
 export const RADAR = { center: [52, 52] as Point, radius: 44, guideShares: [1, 0.5] } as const
 export const BARS = { firstX: 124, step: 26, width: 16, baseY: 92, maxHeight: 80 } as const
 const FULL_TURN_DEG = 360
 const TOP_ANGLE_DEG = -90
 
-/** Vértices de un radar (el primero arriba y en sentido horario) para niveles 0–1. */
+/** Vertices of a radar (first one at the top, then clockwise) for levels 0–1. */
 export function radarPoints(levels: readonly number[]): [number, number][] {
   const step = FULL_TURN_DEG / levels.length
   return levels.map((level, index) => {
@@ -165,7 +165,7 @@ function skillsValues(p: number): SceneValues {
   return values
 }
 
-/* ---------- Experience: trayectoria de 5 nodos (los 5 puestos) ---------- */
+/* ---------- Experience: path of 5 nodes (the 5 roles) ---------- */
 
 export const EXPERIENCE_POINTS: readonly Point[] = [
   [20, 88],
@@ -176,7 +176,7 @@ export const EXPERIENCE_POINTS: readonly Point[] = [
 ]
 export const EXPERIENCE_RADII = { node: 6, milestone: 8, innerRing: 15, outerRing: 22 } as const
 
-/** Posición (0–1, por longitud) de cada vértice a lo largo de una polilínea. */
+/** Position (0–1, by length) of each vertex along a polyline. */
 export function polylineStops(points: readonly Point[]): number[] {
   const lengths = points.slice(1).map(([x, y], index) => Math.hypot(x - points[index]![0], y - points[index]![1]))
   const total = lengths.reduce((sum, length) => sum + length, 0)
@@ -188,7 +188,7 @@ export function polylineLength(points: readonly Point[]): number {
   return points.slice(1).reduce((sum, [x, y], index) => sum + Math.hypot(x - points[index]![0], y - points[index]![1]), 0)
 }
 
-/** La estela va 50 unidades detrás de la cabeza de la línea (fracción de la longitud total). */
+/** The trail sits 50 units behind the line head (fraction of total length). */
 const TRAIL_LENGTH_UNITS = 50
 export const EXPERIENCE_TRAIL_SHARE = round(TRAIL_LENGTH_UNITS / polylineLength(EXPERIENCE_POINTS))
 
@@ -200,18 +200,18 @@ export const EXPERIENCE_TIMING = {
   nodeScaleFrom: 0.6,
   milestone: { from: 0.8, to: 0.9 },
   outerRing: { from: 0.8, to: 1 },
-  /** La onda exterior se hace visible en el primer tercio de su tramo. */
+  /** The outer wave becomes visible in the first third of its segment. */
   outerRingFadeShare: 1 / 3,
   innerRing: { from: 0.87, to: 1 },
 } as const
 
 const experienceLine = (p: number) => easeInOutCubic(at(p, EXPERIENCE_TIMING.line))
 const EXPERIENCE_STOPS = polylineStops(EXPERIENCE_POINTS)
-/** p en el que la línea (ya suavizada) llega a cada nodo: ahí empieza su salto. */
+/** p at which the (already smoothed) line reaches each node: its jump starts there. */
 export const EXPERIENCE_NODE_ARRIVALS = EXPERIENCE_STOPS.map((stop) =>
   stop === 0 ? 0 : inverseOf(experienceLine, stop),
 )
-/** Nodos que saltan (todos salvo el último, que es el hito). */
+/** Nodes that jump (all except the last, which is the milestone). */
 export const EXPERIENCE_JUMPING_NODES = EXPERIENCE_POINTS.length - 1
 
 function experienceValues(p: number): SceneValues {
@@ -221,10 +221,10 @@ function experienceValues(p: number): SceneValues {
   const { milestone, innerRing, outerRing } = EXPERIENCE_RADII
   const values: SceneValues = {
     line: { offset: 1 - line },
-    // Dash de `EXPERIENCE_TRAIL_SHARE` que termina en la cabeza; no existe en el estado final.
+    // Dash of `EXPERIENCE_TRAIL_SHARE` ending at the head; absent in the final state.
     trail: { offset: EXPERIENCE_TRAIL_SHARE - line, opacity: p > 0 ? 1 - at(p, EXPERIENCE_TIMING.trailFade) : 0 },
     milestone: { scale: overshootOut(at(p, EXPERIENCE_TIMING.milestone), POP_OVERSHOOT) },
-    // Los anillos están dibujados con su radio final: escalan desde el del hito (r 8).
+    // Rings are drawn at their final radius: they scale from the milestone (r 8).
     'outer-ring': {
       scale: lerp(milestone, outerRing, easeOutCubic(outer)) / outerRing,
       opacity: clamp01(outer / EXPERIENCE_TIMING.outerRingFadeShare),
@@ -246,20 +246,20 @@ function experienceValues(p: number): SceneValues {
   return values
 }
 
-/* ---------- Education: 4 escalones + birrete ---------- */
+/* ---------- Education: 4 steps + mortarboard ---------- */
 
 export const EDUCATION_STEPS = { firstX: 42, step: 48, width: 44, baseY: 94, heights: [16, 32, 48, 62] } as const
 export const EDUCATION_TIMING = {
   stepStagger: 0.1,
   stepDuration: 0.3,
   stepRisePx: 40,
-  /** Los escalones se hacen opacos en el primer 40 % de su tramo. */
+  /** Steps become opaque in the first 40% of their segment. */
   stepFadeShare: 0.4,
   capFall: { from: 0.5, to: 0.73 },
   capFallPx: 70,
   capBounce: { from: 0.73, to: 0.85 },
   capBouncePx: 9,
-  /** El birrete se hace visible en el primer cuarto de su caída y rebote. */
+  /** The mortarboard becomes visible in the first quarter of its fall and bounce. */
   capFadeShare: 0.25,
   tassel: { from: 0.8, to: 1 },
   tasselFromDeg: 25,
@@ -277,7 +277,7 @@ function educationValues(p: number): SceneValues {
   const fall = at(p, EDUCATION_TIMING.capFall)
   const bounce = at(p, EDUCATION_TIMING.capBounce)
   const capRange = { from: EDUCATION_TIMING.capFall.from, to: EDUCATION_TIMING.capBounce.to }
-  // Cae con aceleración (t², gravedad) y rebota una vez (medio seno).
+  // Falls with acceleration (t², gravity) and bounces once (half sine).
   const capY =
     bounce > 0
       ? -EDUCATION_TIMING.capBouncePx * halfSineBump(bounce)
@@ -289,9 +289,9 @@ function educationValues(p: number): SceneValues {
   return values
 }
 
-/* ---------- Projects: ventana de código + deploy + pila de bloques ---------- */
+/* ---------- Projects: code window + deploy + block stack ---------- */
 
-/** Fichas de cada línea de código: [x inicial, longitud, tono]. Líneas en y = 36 + 12·i. */
+/** Tokens per code line: [start x, length, tone]. Lines at y = 36 + 12·i. */
 export const CODE_LINES: readonly (readonly (readonly [number, number, CodeTone])[])[] = [
   [
     [20, 40, 'main'],
@@ -309,7 +309,7 @@ export const CODE_LINES: readonly (readonly (readonly [number, number, CodeTone]
   [[20, 30, 'main']],
 ]
 export const CODE_LINE = { firstY: 36, step: 12 } as const
-/** El cursor va 5 unidades por delante de la cabeza del tecleo. */
+/** The cursor sits 5 units ahead of the typing head. */
 export const CURSOR_GAP = 5
 export const STACK_BLOCKS_Y = [74, 52, 30] as const
 
@@ -326,7 +326,7 @@ export const PROJECTS_TIMING = {
   blockStagger: 0.1,
   blockDuration: 0.15,
   blockDropPx: 40,
-  /** Los bloques se hacen opacos en el primer tercio de su caída. */
+  /** Blocks become opaque in the first third of their drop. */
   blockFadeShare: 1 / 3,
   check: { from: 0.9, to: 1 },
 } as const
@@ -347,7 +347,7 @@ function projectsValues(p: number): SceneValues {
     check: { offset: 1 - easeOutCubic(at(p, PROJECTS_TIMING.check)) },
   }
   const lastLine = CODE_LINES.length - 1
-  // El cursor descansa al final de la última línea y, mientras se teclea, sigue a la cabeza.
+  // The cursor rests at the end of the last line and, while typing, follows the head.
   let cursor: ScenePartValues = { x: 0, y: 0, opacity: 0 }
   CODE_LINES.forEach((tokens, index) => {
     const typed = at(p, span(PROJECTS_TIMING.lineFrom + index * PROJECTS_TIMING.lineStagger, PROJECTS_TIMING.lineDuration))
@@ -368,7 +368,7 @@ function projectsValues(p: number): SceneValues {
   return values
 }
 
-/* ---------- Valores por escena y paso a variables ---------- */
+/* ---------- Per-scene values and variable mapping ---------- */
 
 const VALUES_OF: Record<SceneKind, (p: number) => SceneValues> = {
   profile: profileSceneValues,
@@ -378,23 +378,23 @@ const VALUES_OF: Record<SceneKind, (p: number) => SceneValues> = {
   projects: projectsValues,
 }
 
-/** Canales animados de cada parte de la escena para el progreso p (0–1). */
+/** Animated channels of each scene part for progress p (0–1). */
 export function sceneValues(kind: SceneKind, p: number): SceneValues {
   return VALUES_OF[kind](clamp01(p))
 }
 
-/** Nombre de la variable que escribe la tarjeta (sin el prefijo `--fx-`): «parte-canal». */
+/** Name of the variable the card writes (without the `--fx-` prefix): `part-channel`. */
 export const sceneVariableName = (part: string, channel: SceneChannel) => `${part}-${channel}`
 
-/** Estado inicial (p = 0) de cada escena, «parte-canal» → número. */
+/** Initial state (p = 0) of each scene, `part-channel` → number. */
 export const INITIAL_SCENE_VALUES = Object.fromEntries(
   SCENE_KINDS.map((kind) => [kind, flatSceneValues(kind, 0)]),
 ) as Record<SceneKind, Record<string, number>>
 
 /**
- * Referencia CSS a la variable de un canal con el valor de p = 0 como respaldo. Así, con movimiento, el HTML
- * prerenderizado ya pinta el estado inicial antes de que el JS escriba la primera variable (sin parpadeo).
- * El respaldo solo se lee bajo `data-motion="full"`: sin JS o con movimiento reducido, el estado final.
+ * CSS reference to a channel variable with the p = 0 value as fallback. With motion on, prerendered HTML
+ * already paints the initial state before JS writes the first variable (no flash).
+ * The fallback is read only under `data-motion="full"`: without JS or with reduced motion, the final state.
  */
 export function sceneVariableReference(kind: SceneKind, part: string, channel: SceneChannel): string {
   const name = sceneVariableName(part, channel)
@@ -402,7 +402,7 @@ export function sceneVariableReference(kind: SceneKind, part: string, channel: S
   return `var(--fx-${name}, ${round(initial)})`
 }
 
-/** Valores planos «parte-canal» → número (los usa `cardMotionValues`). */
+/** Flat `part-channel` → number map (used by `cardMotionValues`). */
 export function flatSceneValues(kind: SceneKind, p: number): Record<string, number> {
   const flat: Record<string, number> = {}
   for (const [part, channels] of Object.entries(sceneValues(kind, p))) {

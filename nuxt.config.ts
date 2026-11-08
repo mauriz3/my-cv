@@ -5,7 +5,7 @@ import { SITE_ORIGIN } from './lib/socialMeta'
 import { DEFAULT_THEME, THEME_STORAGE_KEY } from './lib/theme'
 import { VISITS_RANGES, visitsEndpoint } from './lib/visits'
 
-// Solo el build de producción (CI en push a master) lleva Google Analytics: ni pull requests, ni preview, ni local.
+// Only the production build (CI on push to master) includes Google Analytics: not PRs, previews, or local.
 const IS_PRODUCTION_BUILD = process.env.CONTEXT === 'production'
 
 export default defineNuxtConfig({
@@ -17,24 +17,24 @@ export default defineNuxtConfig({
 
   runtimeConfig: { public: { analyticsId: IS_PRODUCTION_BUILD ? ANALYTICS_MEASUREMENT_ID : '' } },
 
-  // Fuentes e iconos van empaquetados en local: nada se pide a dominios externos (CSP estricta).
+  // Fonts and icons are bundled locally: nothing is fetched from external domains (strict CSP).
   ui: { fonts: false },
-  // Oscuro por defecto sin elección guardada; nunca se sigue a prefers-color-scheme (decisión en lib/theme.ts).
+  // Dark by default with no saved choice; never follows prefers-color-scheme (decision in lib/theme.ts).
   colorMode: { preference: DEFAULT_THEME, fallback: DEFAULT_THEME, storageKey: THEME_STORAGE_KEY },
-  // Los iconos de `app/utils` (menú, enlaces) también van al bundle del cliente: la página de error
-  // se pinta solo en el cliente (404.html) y no puede pedirlos a la API de Iconify.
+  // Icons from `app/utils` (menu, links) also ship in the client bundle: the error page
+  // renders client-only (404.html) and cannot request them from the Iconify API.
   icon: {
     fallbackToApi: false,
     clientBundle: { scan: { globInclude: ['**/*.{vue,jsx,tsx,md,mdc,mdx,yml,yaml}', 'app/utils/**/*.ts'] } }
   },
 
   i18n: {
-    // Netlify expone la URL de cada despliegue; en local y en producción cae al dominio real.
+    // Netlify exposes each deploy URL; locally and in production it falls back to the real domain.
     baseUrl: process.env.DEPLOY_PRIME_URL ?? SITE_ORIGIN,
     strategy: 'prefix',
     defaultLocale: 'en',
     detectBrowserLanguage: false,
-    // Rutas traducidas en un solo sitio (enlaces cortos a Libros: /en/books, /es/libros).
+    // Translated routes in one place (short book links: /en/books, /es/libros).
     customRoutes: 'config',
     pages: { [BOOKS_SHORT_LINK_PAGE]: BOOKS_SHORT_LINK_PATHS },
     locales: [
@@ -43,7 +43,7 @@ export default defineNuxtConfig({
     ]
   },
 
-  // Enlaces cortos de Libros: HTML estático sin la app de Vue (ni hidratación ni `_payload.json`); solo saltan a la sección.
+  // Short book links: static HTML without the Vue app (no hydration or `_payload.json`); they jump to the section only.
   routeRules: Object.fromEntries(BOOKS_SHORT_LINK_ROUTES.map((route) => [route, { noScripts: true }])),
 
   typescript: {
@@ -54,8 +54,8 @@ export default defineNuxtConfig({
   },
 
   nitro: {
-    // El JSON de visitas (mock) sale como fichero estático del mismo origen: cumple `connect-src 'self'`.
-    // Privacidad solo se enlaza desde el aviso y el pie (que solo existen en producción): se prerenderiza siempre.
+    // Visits JSON (mock) is a static file on the same origin: satisfies `connect-src 'self'`.
+    // Privacy is linked only from the notice and footer (production only): always prerendered.
     prerender: {
       routes: [
         '/en',
@@ -68,7 +68,7 @@ export default defineNuxtConfig({
       crawlLinks: true
     },
     hooks: {
-      // Enlaces cortos de Libros como `/en/books.html`: Netlify los sirve con 200 en `/en/books`, sin 301 a la barra final.
+      // Short book links as `/en/books.html`: Netlify serves them with 200 at `/en/books`, without 301 to trailing slash.
       'prerender:generate'(route) {
         if (isUnusedPayload(route.route)) route.skip = true
         route.fileName = prerenderFileName(route.route, route.fileName ?? '')

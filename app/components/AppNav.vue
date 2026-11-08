@@ -1,8 +1,8 @@
 <script setup lang="ts">
 /**
- * Navegación única que cambia de forma por breakpoint (solo CSS, sin duplicar DOM):
- * móvil = barra inferior · tablet (md) = raíl de 88 px · escritorio (xl) = sidebar de 264 px,
- * que un botón puede colapsar al raíl de iconos (estado en localStorage, clase en `<html>`).
+ * Single shape-shifting navigation per breakpoint (CSS only, unduplicated DOM):
+ * mobile = bottom bar · tablet (md) = 88px rail · desktop (xl) = 264px sidebar,
+ * that a button can collapse to the icon rail (state in localStorage, class in `<html>`).
  */
 import { readCollapsed, toggleCollapsed } from '~~/lib/sidebar'
 

@@ -4,10 +4,10 @@ import { DEFAULT_THEME, THEME_NO_FLASH_SCRIPT, themeColor } from '~~/lib/theme'
 
 const colorMode = useColorMode()
 
-// Antes del primer pintado: fija `<html data-motion>` (estático salvo `animations=on` sin reduced-motion).
-// Tema: el HTML prerenderizado ya sale oscuro (también sin JS); el script solo corrige una elección «light» guardada.
+// Before the first painting: fixed `<html data-motion>` (static except `animations=on` without reduced-motion).
+// Theme: The prerendered HTML is already dark (also without JS); the script only corrects a saved "light" choice.
 useHead({
-  // Solo en el servidor: en el cliente la clase la gestiona color-mode (el botón la quita y la pone).
+  // Only on the server: on the client the class manages it color-mode (the button removes it and puts it).
   htmlAttrs: import.meta.server ? { class: DEFAULT_THEME } : {},
   meta: [{ name: 'theme-color', content: () => themeColor(colorMode.value) }],
   script: [

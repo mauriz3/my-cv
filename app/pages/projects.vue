@@ -44,7 +44,7 @@ const visibleProjects = computed(() =>
           class="relative h-full transition-shadow focus-within:ring-2 focus-within:ring-primary hover:shadow-md"
           :ui="{ body: 'p-0 sm:p-0' }"
         >
-          <!-- La primera captura es el LCP de la página: carga inmediata y prioridad alta; el resto, diferida. -->
+          <!-- The first capture is the LCP of the page: immediate load and high priority; the rest, deferred. -->
           <img
             :src="`/${project.image}`"
             :alt="project.imageAlt"
@@ -57,7 +57,7 @@ const visibleProjects = computed(() =>
           >
           <div class="space-y-2 p-4">
             <h2 :id="`project-${project.id}`" class="font-semibold text-highlighted">
-              <!-- El botón cubre toda la tarjeta (after:inset-0) para que se pueda pulsar en cualquier parte. -->
+              <!-- The button covers the entire card (after: inset-0) so that it can be pressed anywhere. -->
               <button
                 type="button"
                 aria-haspopup="dialog"

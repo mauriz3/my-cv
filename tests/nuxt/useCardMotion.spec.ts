@@ -33,7 +33,7 @@ function journeyCards() {
 
 const fxVariables = (card: HTMLElement) => [...card.style].filter((name) => name.startsWith('--fx-'))
 
-/** Estado del recorrido a mitad del tramo de una tarjeta (entre su lectura y la siguiente). */
+/** Journey state midway through a card segment (between its read point and the next). */
 const stateWhileReading = (index: number) => journeyStateAt(readingProgressOf(index))
 
 describe('useCardMotion', () => {
@@ -51,7 +51,7 @@ describe('useCardMotion', () => {
     return { ...result, media, isMobilePinned, wrapper, ...journeyCards() }
   }
 
-  it('al cargar en escritorio los contadores del Perfil ya están al valor final', async () => {
+  it('on desktop load, Profile counters are already at their final values', async () => {
     const { paint, section, profileCount } = await mountCardMotion({ wide: true })
     const state = journeyStateAt(0)
     paint(section, state, 0)
@@ -59,7 +59,7 @@ describe('useCardMotion', () => {
     expect(profileCount.value).toBe(profileCounterProgress(0, options))
   })
 
-  it('con el recorrido fijado escribe en cada tarjeta las variables de su avance', async () => {
+  it('with pinned journey, writes each card’s progress variables', async () => {
     const { paint, section, cards } = await mountCardMotion({ wide: true })
     const state = stateWhileReading(SKILLS)
     paint(section, state, readingProgressOf(SKILLS))
@@ -69,12 +69,12 @@ describe('useCardMotion', () => {
       expect(cards[SKILLS]!.style.getPropertyValue(name)).toBe(value)
     }
     expect(cards[SKILLS]!.hasAttribute(ACTIVE_ATTRIBUTE)).toBe(progress > 0 && progress < 1)
-    // Las ya leídas quedan en su estado final; Visitas no lleva microanimación.
+    // Cards already read stay at final state; Visits has no micro-animation.
     expect(cards[PROFILE]!.style.getPropertyValue('--fx-eyebrow')).toBe('1')
     expect(fxVariables(cards[VISITS]!)).toEqual([])
   })
 
-  it('sin pin, el avance sale de la posición de la tarjeta en pantalla y mueve los contadores del Perfil', async () => {
+  it('without pin, progress follows on-screen card position and moves Profile counters', async () => {
     const { paint, section, cards, profileCount } = await mountCardMotion({ wide: false })
     const top = VIEWPORT_HEIGHT * 0.8
     setBox(cards[PROFILE]!, { top, height: 300 })
@@ -88,7 +88,7 @@ describe('useCardMotion', () => {
     expect(cards[SKILLS]!.style.getPropertyValue('--fx-radar-scale')).not.toBe('')
   })
 
-  it('en el pin móvil la primera tarjeta muestra cifras finales y anima KPI al scroll', async () => {
+  it('with mobile pin, first card shows final figures and animates KPI on scroll', async () => {
     const { paint, section, profileCount, cards } = await mountCardMotion({ wide: false, mobilePinned: true })
     const journeyProgress = 0.01
     paint(section, journeyStateAt(journeyProgress), journeyProgress)
@@ -96,7 +96,7 @@ describe('useCardMotion', () => {
     expect(Number(cards[PROFILE]!.style.getPropertyValue('--fx-kpi-0'))).toBeLessThan(1)
   })
 
-  it('no reescribe si el avance apenas cambia; invalidate (cambio de maqueta) obliga a repintar', async () => {
+  it('skips repaint when progress barely changes; invalidate (layout change) forces repaint', async () => {
     const { paint, invalidate, section, cards, isMobilePinned } = await mountCardMotion({ wide: true })
     const state = stateWhileReading(SKILLS)
     paint(section, state, 0.3)
@@ -117,7 +117,7 @@ describe('useCardMotion', () => {
     expect(cards[SKILLS]!.style.getPropertyValue('--fx-radar-scale')).not.toBe('')
   })
 
-  it('con movimiento reducido no pinta; reset quita variables y marcas y deja los contadores al final', async () => {
+  it('with reduced motion, does not paint; reset clears variables and attributes and sets counters to final', async () => {
     const { paint, reset, section, cards, profileCount } = await mountCardMotion({ wide: true })
     paint(section, journeyStateAt(0), 0)
     expect(fxVariables(cards[PROFILE]!).length).toBeGreaterThan(0)
@@ -131,7 +131,7 @@ describe('useCardMotion', () => {
     reset(null)
   })
 
-  it('al activar, la tarjeta visible alcanza su progreso en 450 ms y la de fuera salta al suyo', async () => {
+  it('when enabling motion, visible card reaches its progress in 450 ms and off-screen card jumps to its', async () => {
     vi.useFakeTimers()
     try {
       const { paint, section, cards } = await mountCardMotion({ wide: true })
@@ -156,7 +156,7 @@ describe('useCardMotion', () => {
     }
   })
 
-  it('al desmontar deja de escuchar el cambio de ancho', async () => {
+  it('on unmount, stops listening for width changes', async () => {
     const { wrapper, media } = await mountCardMotion({ wide: true })
     expect(media.listenerCount(WIDE_QUERY)).toBe(1)
     wrapper.unmount()

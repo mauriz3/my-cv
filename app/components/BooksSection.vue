@@ -2,8 +2,8 @@
 import { BOOKS_REVEAL_THRESHOLD, revealDelayMs } from '~~/lib/books'
 
 /**
- * «Libros que recomiendo» (Tanda D): sección del Perfil tras el recorrido, ancla `#books`, sin entrada en el menú.
- * Orden de lectura: h2 → p → ul > li > article (portada → género → h3 → autor → blockquote).
+ * “Books I recommend” (Run D): Profile section after tour, anchor `#books`, no menu entry.
+ * Reading order: h2 → p → ul > li > article (cover → genre → h3 → author → blockquote).
  */
 const { t } = useI18n()
 const cv = useCv()
@@ -50,8 +50,8 @@ const { state: revealState } = useRevealOnce(list, BOOKS_REVEAL_THRESHOLD)
 
 <style>
 /*
- * Móvil: portada 96 px y título a la derecha; la cita, debajo a ancho completo.
- * Tablet (1 col): portada 128 px a la izquierda de todo. Escritorio (2 col): portada 150 px.
+ * Mobile: cover 96 px and title on the right; the quote, below full width.
+ * Tablet (1 col): cover 128 px to the left of everything. Desktop (2 col): cover 150 px.
  */
 .book {
   display: grid;
@@ -109,7 +109,7 @@ const { state: revealState } = useRevealOnce(list, BOOKS_REVEAL_THRESHOLD)
   box-shadow: 0 10px 22px rgb(0 0 0 / 0.28);
 }
 
-/* La elevación solo con movimiento completo; en reducido el hover cambia solo la sombra. */
+/* Elevation only with full movement; in reduced the hover changes only the shadow. */
 :root[data-motion='full'] .book:hover .book-cover__face {
   transform: translateY(-4px);
 }

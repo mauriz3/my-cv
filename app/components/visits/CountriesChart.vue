@@ -17,12 +17,12 @@ ChartJS.register(
   finishAnimationsWhenDisabled,
 )
 
-/** Mapa de burbujas por país (proyección Equal Earth, mapa empaquetado en local) y su ranking al lado. */
+/** Map of bubbles by country (Equal Earth projection, map packaged locally) and its ranking next to it. */
 const props = defineProps<{ countries: VisitsReport['countries'] }>()
 
 const DRAW_DURATION_MS = 700
 const BUBBLE_SIZE_RANGE_PX: [number, number] = [4, 24]
-const ANTARCTICA_ID = '010' // fuera del contorno: solo restaría alto al mapa
+const ANTARCTICA_ID = '010' // off the silhouette: would only add height to the map
 
 type Atlas = Parameters<typeof topojson.feature>[0]
 const atlas = worldAtlas as unknown as Atlas
@@ -40,7 +40,7 @@ const { chartRef, updateMode } = useChartPlayback(DRAW_DURATION_MS, themeUpdateM
 
 const maxVisits = computed(() => Math.max(1, ...props.countries.map((country) => country.visits)))
 
-/** Burbujas en el centroide de cada país conocido («Otros» no tiene lugar en el mapa). */
+/** Bubbles in the centroid of every known country (“Other” has no place on the map). */
 const bubbles = computed(() =>
   props.countries.flatMap((country) => {
     const feature = featureById.get(ISO_NUMERIC_BY_ALPHA2.get(country.iso) ?? '')
@@ -110,7 +110,7 @@ const summary = computed(() =>
         :aria-label="summary"
       />
     </div>
-    <!-- Ranking: misma información en texto (también la usa el lector de pantalla). -->
+    <!-- Ranking: same information in text (also used by the screen reader). -->
     <ol class="grid content-start gap-x-4 gap-y-1 text-sm max-md:grid-cols-2">
       <li v-for="country in countries" :key="country.iso" class="flex items-center justify-between gap-2">
         <span class="flex min-w-0 items-center gap-2">

@@ -2,12 +2,12 @@ import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
 import { THEME_STORAGE_KEY } from '../../lib/theme'
 
-/** Falla con violaciones de este impacto o mayor; las moderate/minor solo se listan en el informe. */
+/** Fails on violations at this impact or higher; moderate/minor are only listed in the report. */
 const BLOCKING_IMPACTS = new Set(['serious', 'critical'])
 const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice']
 const THEMES = ['dark', 'light'] as const
 const PAGES = ['/en/', '/es/', '/en/visits', '/en/privacy']
-/** Enlace corto de Libros: página mínima que salta en cliente a la sección del Perfil. */
+/** Books short link: minimal page that client-redirects to the Profile section. */
 const BOOKS_SHORT_LINK = '/en/books'
 const BOOKS_DESTINATION = /\/en\/#books$/
 
@@ -22,7 +22,7 @@ async function expectNoBlockingViolations(page: Page) {
 }
 
 for (const theme of THEMES) {
-  test.describe(`axe · tema ${theme}`, () => {
+  test.describe(`axe · ${theme} theme`, () => {
     test.beforeEach(async ({ page }) => {
       await page.addInitScript(({ key, value }) => localStorage.setItem(key, value), { key: THEME_STORAGE_KEY, value: theme })
     })
@@ -35,7 +35,7 @@ for (const theme of THEMES) {
       })
     }
 
-    test(`${BOOKS_SHORT_LINK} → destino`, async ({ page }) => {
+    test(`${BOOKS_SHORT_LINK} → destination`, async ({ page }) => {
       await page.goto(BOOKS_SHORT_LINK)
       await page.waitForURL(BOOKS_DESTINATION)
       await page.waitForLoadState('networkidle')
@@ -44,12 +44,12 @@ for (const theme of THEMES) {
   })
 }
 
-/** Quita solo el salto (meta refresh y script con `location.replace`) para auditar la propia página mínima. */
+/** Strips only the redirect (meta refresh and script with `location.replace`) to audit the minimal page itself. */
 function withoutClientRedirect(html: string) {
   return html.replace(/<meta http-equiv="refresh"[^>]*>/, '').replace(/<script[^>]*>[^<]*location\.replace[^<]*<\/script>/, '')
 }
 
-test(`axe · página mínima de ${BOOKS_SHORT_LINK} (sin el salto)`, async ({ page }) => {
+test(`axe · ${BOOKS_SHORT_LINK} minimal page (without redirect)`, async ({ page }) => {
   await page.route(BOOKS_SHORT_LINK, async (route) => {
     const response = await route.fetch()
     await route.fulfill({ response, body: withoutClientRedirect(await response.text()) })

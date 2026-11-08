@@ -1,13 +1,13 @@
 /**
- * Google Analytics (gtag.js) con Consent Mode v2: todo «denied» por defecto y `analytics_storage`
- * solo pasa a «granted» si la persona acepta el aviso. Lógica pura para poder probarla en Vitest.
+ * Google Analytics (gtag.js) with Consent Mode v2: all «denied» by default and `analytics_storage`
+ * moves to «granted» only if the user accepts the notice. Pure logic for Vitest.
  */
 
-/** ID de medición de GA4 (público). Solo se carga en el build de producción. */
+/** GA4 measurement ID (public). Loaded only on production builds. */
 export const ANALYTICS_MEASUREMENT_ID = 'G-9HF9362QE9'
 export const GTAG_SCRIPT_URL = `https://www.googletagmanager.com/gtag/js?id=${ANALYTICS_MEASUREMENT_ID}`
 
-/** Orígenes de medición (envío de hits): connect-src e img-src. */
+/** Measurement origins (hit delivery): connect-src and img-src. */
 const ANALYTICS_COLLECT_SOURCES = [
   'https://*.googletagmanager.com',
   'https://*.google-analytics.com',
@@ -15,8 +15,8 @@ const ANALYTICS_COLLECT_SOURCES = [
 ] as const
 
 /**
- * Orígenes que la CSP añade a cada directiva cuando hay analytics. `script-src` solo admite el host
- * exacto de gtag.js (el único script externo); los comodines quedan para las peticiones de medición.
+ * Origins CSP adds to each directive when analytics is enabled. `script-src` only allows the exact
+ * gtag.js host (the only external script); wildcards are for measurement requests.
  */
 export const ANALYTICS_CSP_SOURCES = {
   'script-src': [new URL(GTAG_SCRIPT_URL).origin],
@@ -32,7 +32,7 @@ const CONSENT_CHOICES: readonly string[] = ['granted', 'denied']
 export type ConsentStorage = Pick<Storage, 'getItem' | 'setItem'>
 export type Gtag = (command: 'consent', action: 'update', params: Record<string, string>) => void
 
-/** Elección guardada, o `null` si aún no hay (entonces se muestra el aviso). */
+/** Stored choice, or `null` if none yet (then show the notice). */
 export function readConsent(storage: Pick<Storage, 'getItem'>): ConsentChoice | null {
   try {
     const stored = storage.getItem(CONSENT_STORAGE_KEY)
@@ -43,32 +43,32 @@ export function readConsent(storage: Pick<Storage, 'getItem'>): ConsentChoice | 
 }
 
 /**
- * Guarda la elección y actualiza `analytics_storage` con ella. Así también se puede cambiar después
- * (pie «Preferencias de analítica»): de «granted» a «denied» y al revés.
+ * Saves the choice and updates `analytics_storage`. Also supports later changes
+ * (footer «Analytics preferences»): from «granted» to «denied» and back.
  */
 export function applyConsent(choice: ConsentChoice, storage: ConsentStorage, gtag: Gtag | undefined): void {
   try {
     storage.setItem(CONSENT_STORAGE_KEY, choice)
   } catch {
-    // Sin almacenamiento, la elección vale solo para esta visita.
+    // Without storage the choice applies only for this visit.
   }
   updateConsent(choice, gtag)
 }
 
-/** Actualiza `analytics_storage` sin guardar nada (fuera de la zona con aviso se concede en cada visita). */
+/** Updates `analytics_storage` without persisting (outside notice zone, granted each visit). */
 export function updateConsent(choice: ConsentChoice, gtag: Gtag | undefined): void {
   gtag?.('consent', 'update', { analytics_storage: choice })
 }
 
 /**
- * Cuánto espera gtag a un `consent update` antes de enviar la primera visita: lo justo para que,
- * fuera de la zona con aviso, la respuesta de `/geo` conceda el consentimiento a tiempo.
+ * How long gtag waits for a `consent update` before the first page_view: just enough for
+ * `/geo` to grant consent in time outside the notice zone.
  */
 export const CONSENT_WAIT_FOR_UPDATE_MS = 500
 
 /**
- * Script inline (antes de gtag.js): consentimiento «denied» por defecto, restaura un «granted»
- * guardado y configura GA sin señales de anuncios. Su hash entra en la CSP con `scripts/build-headers.mjs`.
+ * Inline script (before gtag.js): default consent «denied», restores stored «granted»,
+ * and configures GA without ads signals. Hash is in CSP via `scripts/build-headers.mjs`.
  */
 export function buildAnalyticsInlineScript(measurementId: string): string {
   return (

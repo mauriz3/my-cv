@@ -2,7 +2,7 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { vi } from 'vitest'
 import { defineComponent, h } from 'vue'
 
-// happy-dom: `CSSStyleDeclaration` no es iterable como en los navegadores (`[...element.style]`).
+// happy-dom: `CSSStyleDeclaration` is not iterable like in browsers (`[...element.style]`).
 if (!(Symbol.iterator in CSSStyleDeclaration.prototype)) {
   Object.defineProperty(CSSStyleDeclaration.prototype, Symbol.iterator, {
     *value(this: CSSStyleDeclaration) {
@@ -11,7 +11,7 @@ if (!(Symbol.iterator in CSSStyleDeclaration.prototype)) {
   })
 }
 
-/** Monta un componente mínimo que llama al composable en su `setup` (con contexto de Nuxt y ciclo de vida). */
+/** Mounts a minimal component that calls the composable in `setup` (with Nuxt context and lifecycle). */
 export async function withSetup<T>(composable: () => T) {
   let result!: T
   const wrapper = await mountSuspended(
@@ -25,7 +25,7 @@ export async function withSetup<T>(composable: () => T) {
   return { result, wrapper }
 }
 
-/** IntersectionObserver controlable: `intersect(true)` simula que el elemento entra en pantalla. */
+/** Controllable IntersectionObserver: `intersect(true)` simulates the element entering the viewport. */
 export class FakeIntersectionObserver {
   static instances: FakeIntersectionObserver[] = []
   readonly observed: Element[] = []
@@ -68,7 +68,31 @@ export function stubIntersectionObserver() {
   vi.stubGlobal('IntersectionObserver', FakeIntersectionObserver)
 }
 
-/** `matchMedia` controlable por consulta: `setMatches(query, true)` avisa a los oyentes como el navegador. */
+/** In-memory Web Storage when the Nuxt test env has no `localStorage` (e.g. SSR-only setup). */
+export function ensureWebStorage() {
+  if (typeof globalThis.localStorage !== 'undefined') return
+  const make = () => {
+    const map = new Map<string, string>()
+    return {
+      get length() {
+        return map.size
+      },
+      clear: () => map.clear(),
+      getItem: (key: string) => map.get(key) ?? null,
+      key: (index: number) => [...map.keys()][index] ?? null,
+      removeItem: (key: string) => {
+        map.delete(key)
+      },
+      setItem: (key: string, value: string) => {
+        map.set(key, value)
+      },
+    }
+  }
+  vi.stubGlobal('localStorage', make())
+  vi.stubGlobal('sessionStorage', make())
+}
+
+/** Controllable `matchMedia` per query: `setMatches(query, true)` notifies listeners like the browser. */
 export function stubMatchMedia(initial: Record<string, boolean> = {}) {
   const matches = new Map(Object.entries(initial))
   const listeners = new Map<string, Set<(event: MediaQueryListEvent) => void>>()
@@ -92,7 +116,7 @@ export function stubMatchMedia(initial: Record<string, boolean> = {}) {
   }
 }
 
-/** Caja de un elemento para `getBoundingClientRect` (happy-dom no maqueta). */
+/** Element box for `getBoundingClientRect` (happy-dom does not layout). */
 export function setBox(element: Element, box: { top: number; height: number }) {
   const rect = { top: box.top, bottom: box.top + box.height, height: box.height, left: 0, right: 0, width: 0, x: 0, y: box.top }
   element.getBoundingClientRect = () => ({ ...rect, toJSON: () => rect }) as DOMRect

@@ -16,7 +16,7 @@ describe('useEntranceOnce', () => {
     useMotion().set('full')
   })
 
-  it('con movimiento entra al montar y termina pasado su tiempo', async () => {
+  it('with motion, enters on mount and finishes after its duration', async () => {
     const { result } = await withSetup(() => useEntranceOnce(ENTRANCE_MS))
     expect(result.isEntering.value).toBe(true)
     vi.advanceTimersByTime(ENTRANCE_MS - 1)
@@ -25,7 +25,7 @@ describe('useEntranceOnce', () => {
     expect(result.isEntering.value).toBe(false)
   })
 
-  it('si se desactivan las animaciones a mitad, termina al momento y al activar vuelve a entrar', async () => {
+  it('when animations turn off mid-flight, finishes immediately and re-enters when turned on', async () => {
     const { result } = await withSetup(() => useEntranceOnce(ENTRANCE_MS))
     useMotion().set('reduced')
     await nextTick()
@@ -37,7 +37,7 @@ describe('useEntranceOnce', () => {
     expect(result.isEntering.value).toBe(false)
   })
 
-  it('con <html data-motion="reduced"> no hay entrada', async () => {
+  it('with <html data-motion="reduced"> there is no entrance', async () => {
     document.documentElement.setAttribute(MOTION_ATTRIBUTE, 'reduced')
     const { result } = await withSetup(() => useEntranceOnce(ENTRANCE_MS))
     expect(result.isEntering.value).toBe(false)
@@ -49,7 +49,7 @@ describe('useRevealOnce', () => {
   beforeEach(stubIntersectionObserver)
   afterEach(() => vi.unstubAllGlobals())
 
-  it('se oculta al montar y se revela una sola vez al cruzar el umbral', async () => {
+  it('hides on mount and reveals once when crossing the threshold', async () => {
     const target = ref<HTMLElement | null>(document.createElement('section'))
     const { result } = await withSetup(() => useRevealOnce(target, 0.3))
     const observer = FakeIntersectionObserver.last()
@@ -63,7 +63,7 @@ describe('useRevealOnce', () => {
     expect(observer.disconnected).toBe(true)
   })
 
-  it('sin elemento o sin IntersectionObserver se queda estático (todo visible)', async () => {
+  it('without element or IntersectionObserver stays static (all visible)', async () => {
     const { result } = await withSetup(() => useRevealOnce(ref(null), 0.3))
     expect(result.state.value).toBe('static')
     vi.stubGlobal('IntersectionObserver', undefined)
@@ -72,7 +72,7 @@ describe('useRevealOnce', () => {
     expect(withoutObserver.state.value).toBe('static')
   })
 
-  it('al activar, lo que se ve vuelve a entrar y al desactivar queda en su estado final', async () => {
+  it('when enabling motion, in-view content re-enters; when disabling, stays at final state', async () => {
     vi.stubGlobal('innerHeight', 800)
     const target = ref<HTMLElement | null>(document.createElement('section'))
     setBox(target.value!, { top: 0, height: 200 })
@@ -86,7 +86,7 @@ describe('useRevealOnce', () => {
     expect(result.state.value).toBe('revealed')
   })
 
-  it('lo que no se ve al activar espera a entrar', async () => {
+  it('off-screen on enable waits to enter viewport', async () => {
     vi.stubGlobal('innerHeight', 800)
     const target = ref<HTMLElement | null>(document.createElement('section'))
     setBox(target.value!, { top: 2000, height: 200 })
@@ -99,7 +99,7 @@ describe('useRevealOnce', () => {
     expect(result.state.value).toBe('revealed')
   })
 
-  it('al desmontar deja de observar', async () => {
+  it('on unmount, stops observing', async () => {
     const { wrapper } = await withSetup(() => useRevealOnce(ref(document.createElement('div')), 0.3))
     wrapper.unmount()
     expect(FakeIntersectionObserver.last().disconnected).toBe(true)

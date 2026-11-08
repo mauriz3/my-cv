@@ -3,10 +3,10 @@ import { clamp01, countUpValue } from '~~/lib/easing'
 import { useReplayable } from '~/composables/useReplayable'
 
 /**
- * Número que cuenta de 0 a `value` al entrar en pantalla (si `animate` y las animaciones están activas).
- * El HTML generado ya trae el valor final: sin JS o con animaciones apagadas no cambia nada.
- * `format` da forma al número (miles, «1m 46s»…); si `value` cambia después, se muestra al momento.
- * `progress` (0–1): la cuenta la lleva quien lo pasa (scroll del recorrido) en lugar del temporizador.
+ * Number that counts from 0 to `value` when entering the screen (if `animate` and the animations are active).
+ * The generated HTML already brings the final value: without JS or with animations turned off nothing changes.
+ * `format` shapes the number (thousands, "1m 46s"...); if `value` changes later, it is displayed instantly.
+ * `progress` (0–1): the count is taken by the one who passes it (scroll of the tour) instead of the timer.
  */
 const props = withDefaults(
   defineProps<{ value: number; animate?: boolean; format?: (value: number) => string; progress?: number }>(),
@@ -68,7 +68,7 @@ useReplayable({
   },
 })
 
-// Cuenta al entrar en pantalla, una vez. Si al entrar las animaciones están apagadas, se queda en el valor final.
+// Counts when entering the screen, once. If the animations are off when entering, it remains at the final value.
 onMounted(() => {
   if (!canCount() || !root.value) return
   if (!isReduced.value && readDocumentMotion() === 'full') displayedValue.value = 0

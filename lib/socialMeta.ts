@@ -1,7 +1,7 @@
-/** Dominio de producción: base de las URLs absolutas que leen redes sociales y buscadores. */
+/** Production domain: base for absolute URLs social networks and search engines read. */
 export const SITE_ORIGIN = 'https://www.mauriziorendon.com'
 
-/** Imagen de vista previa (Open Graph / Twitter) compartida por todas las páginas e idiomas. */
+/** Shared preview image (Open Graph / Twitter) for all pages and locales. */
 export const SOCIAL_IMAGE = {
   path: '/og-cv.png',
   width: 1200,
@@ -11,7 +11,7 @@ export const SOCIAL_IMAGE = {
 
 export const TWITTER_CARD = 'summary_large_image'
 
-/** URL absoluta de una ruta del sitio (las redes no resuelven rutas relativas). */
+/** Absolute URL for a site path (networks do not resolve relative paths). */
 export function absoluteUrl(path: string, origin: string = SITE_ORIGIN): string {
   return new URL(path, origin).href
 }
@@ -27,7 +27,7 @@ export interface SocialImageMeta {
   twitterImageAlt: string
 }
 
-/** Etiquetas de imagen para `useSeoMeta`: siempre la URL de producción, también en previews. */
+/** Image tags for `useSeoMeta`: always production URL, including in previews. */
 export function socialImageMeta(alt: string): SocialImageMeta {
   const url = absoluteUrl(SOCIAL_IMAGE.path)
   return {
@@ -42,7 +42,7 @@ export function socialImageMeta(alt: string): SocialImageMeta {
   }
 }
 
-/** Lo que se lee de los `<link>` y `<meta>` de `useLocaleHead` (el resto de atributos se conserva tal cual). */
+/** Fields read from `<link>` and `<meta>` of `useLocaleHead` (other attrs are kept as-is). */
 interface HeadLinkAttrs {
   rel?: unknown
   href?: unknown
@@ -54,8 +54,8 @@ interface HeadMetaAttrs {
 }
 
 /**
- * Para una página que duplica a otra (p. ej. un enlace corto): `canonical` y `og:url` pasan a `canonicalUrl`
- * y se quitan los `hreflang`, que solo debe llevar la página canónica.
+ * For a page that duplicates another (e.g. a short link): `canonical` and `og:url` become `canonicalUrl`
+ * and `hreflang` entries are removed (only the canonical page should have them).
  */
 export function pointHeadToCanonical<Link extends HeadLinkAttrs, Meta extends HeadMetaAttrs>(
   head: { link?: Link[]; meta?: Meta[] },

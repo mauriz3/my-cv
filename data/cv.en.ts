@@ -1,6 +1,6 @@
 import type { CvTexts } from './schema'
 
-/** Textos del CV en inglés. Las claves de cada bloque coinciden con los `id` de `cv.shared.ts`. */
+/** English CV copy. Block keys match the `id` fields in `cv.shared.ts`. */
 export const textsEn: CvTexts = {
   headline: 'Senior Software Engineer · Full stack (Back End and Front End)',
   summary:

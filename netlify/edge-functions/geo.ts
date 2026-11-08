@@ -1,20 +1,20 @@
 /**
- * `/geo` (Netlify Edge Function): devuelve el país de la visita, `{ "country": "ES" }` o `{ "country": null }`,
- * para decidir si hace falta el aviso de analítica (lib/consentRegion.ts). Mismo origen (CSP connect-src 'self'),
- * sin guardar nada y sin caché: el país sale de la IP en el borde de Netlify y no se registra.
- * La web sigue siendo estática; en local (sin borde) la ruta no existe y el cliente muestra el aviso.
+ * `/geo` (Netlify Edge Function): returns the visitor country as `{ "country": "ES" }` or `{ "country": null }`,
+ * to decide whether the analytics notice is required (lib/consentRegion.ts). Same origin (CSP connect-src 'self'),
+ * stores nothing and no cache: country comes from the IP at Netlify's edge and is not logged.
+ * The site stays static; locally (no edge) the route is missing and the client shows the notice.
  */
 
-/** Lo único que se usa del contexto de Netlify (`context.geo.country.code`, ISO 3166-1 alfa-2). */
+/** The only Netlify context field used (`context.geo.country.code`, ISO 3166-1 alpha-2). */
 export interface GeoContext {
   geo?: { country?: { code?: string } }
 }
 
-/** Solo lectura: cualquier otro método recibe 405. */
+/** Read-only: any other method gets 405. */
 export const GEO_ALLOWED_METHODS = ['GET', 'HEAD'] as const
 /**
- * Las cabeceras de `_headers` no llegan a las Edge Functions: se repiten aquí las que aplican.
- * HSTS es el mismo valor que ya envía todo el sitio (solo cubre www.mauriziorendon.com y sus subdominios).
+ * `_headers` rules do not apply to Edge Functions: repeat the ones that apply here.
+ * HSTS matches what the rest of the site sends (covers www.mauriziorendon.com and subdomains only).
  */
 const SECURITY_HEADERS = {
   'cache-control': 'no-store',

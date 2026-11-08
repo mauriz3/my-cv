@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/** Enlace a otra web: pestaña nueva, sin `opener` ni `referrer` y aviso para lectores de pantalla. */
+/** Link to another website: new tab, without `opener` or `referrer` and notice for screen readers. */
 defineProps<{ href: string }>()
 const { t } = useI18n()
 </script>

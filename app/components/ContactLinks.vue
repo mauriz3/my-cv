@@ -1,13 +1,13 @@
 <script setup lang="ts">
 /**
- * Enlaces de contacto (solo redes: nunca teléfono, email ni dirección).
+ * Contact links (networks only: never phone, email or address).
  * `labels="always"` muestra icono y texto; `labels="wide-only"` solo icono hasta xl.
- * `pick` limita y ordena por etiqueta (p. ej. solo LinkedIn en la tarjeta Perfil, opción F).
+ * `pick` limits and sorts by tag (e.g. only LinkedIn on Profile card, option F).
  */
 const props = defineProps<{
   labels: 'always' | 'wide-only'
   pick?: readonly string[]
-  /** Botones a ancho completo del contenedor (tarjeta Perfil, opción F). */
+  /** Full width buttons of the container (Profile card, option F). */
   layout?: 'inline' | 'block'
 }>()
 

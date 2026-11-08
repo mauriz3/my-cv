@@ -1,9 +1,9 @@
 import { z } from 'zod'
 
 /**
- * Zod con `jitless`: sin esto, al validar el primer objeto prueba `new Function('')` para compilar
- * validadores; la CSP (sin `unsafe-eval`) lo bloquea y Chrome lo anota como violación (Lighthouse,
- * buenas prácticas). Validar sin JIT basta para estos datos. Todo el código importa `z` desde aquí.
+ * Zod with `jitless`: without it, validating the first object tries `new Function('')` to compile
+ * validators; CSP (no `unsafe-eval`) blocks it and Chrome flags it as a violation (Lighthouse,
+ * best practices). Validating without JIT is enough for this data. All code imports `z` from here.
  */
 z.config({ jitless: true })
 

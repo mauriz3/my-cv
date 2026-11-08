@@ -1,6 +1,6 @@
 import { defineConfig } from '@playwright/test'
 
-/** Auditoría de accesibilidad (axe) sobre el sitio ya generado (`npm run generate`), servido en local. */
+/** Accessibility audit (axe) on the generated site (`npm run generate`), served locally. */
 const PORT = 4173
 const BASE_URL = `http://localhost:${PORT}`
 
@@ -11,9 +11,9 @@ export default defineConfig({
   reporter: process.env.CI ? [['list'], ['html', { open: 'never', outputFolder: 'playwright-report' }]] : 'list',
   use: {
     baseURL: BASE_URL,
-    // Google Chrome del sistema (viene en los runners de GitHub): sin descargar navegadores.
+    // System Google Chrome (on GitHub runners): no browser download.
     channel: 'chrome',
-    // Estado final de las animaciones: axe mide el contraste de lo que queda en pantalla, no de un fotograma intermedio.
+    // Final animation state: axe measures contrast of what stays on screen, not an intermediate frame.
     reducedMotion: 'reduce'
   },
   webServer: {

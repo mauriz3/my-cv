@@ -7,20 +7,20 @@ const MIN = 60_000
 const HOUR = 60 * MIN
 const DAY = 24 * HOUR
 
-describe('ageOf (límites)', () => {
-  it('menos de 1 min o en el futuro: ahora', () => {
+describe('ageOf (boundaries)', () => {
+  it('less than 1 min or in the future: now', () => {
     expect(ageOf(before(59_999), NOW)).toEqual({ unit: 'now', count: 0 })
     expect(ageOf(before(-5 * MIN), NOW)).toEqual({ unit: 'now', count: 0 })
-    expect(ageOf(new Date('no es fecha'), NOW).unit).toBe('now')
+    expect(ageOf(new Date('not a date'), NOW).unit).toBe('now')
   })
 
-  it('1–59 min en minutos; 60 min ya es 1 h', () => {
+  it('1–59 min in minutes; 60 min is already 1 h', () => {
     expect(ageOf(before(MIN), NOW)).toEqual({ unit: 'minute', count: 1 })
     expect(ageOf(before(59 * MIN + 59_000), NOW)).toEqual({ unit: 'minute', count: 59 })
     expect(ageOf(before(HOUR), NOW)).toEqual({ unit: 'hour', count: 1 })
   })
 
-  it('horas redondeando hacia abajo; 24 h ya es 1 día', () => {
+  it('hours round down; 24 h is already 1 day', () => {
     expect(ageOf(before(3 * HOUR + 59 * MIN), NOW)).toEqual({ unit: 'hour', count: 3 })
     expect(ageOf(before(23 * HOUR + 59 * MIN), NOW)).toEqual({ unit: 'hour', count: 23 })
     expect(ageOf(before(DAY), NOW)).toEqual({ unit: 'day', count: 1 })
@@ -29,7 +29,7 @@ describe('ageOf (límites)', () => {
 })
 
 describe('formatUpdatedAgo', () => {
-  it('español', () => {
+  it('Spanish', () => {
     expect(formatUpdatedAgo(before(10_000), NOW, 'es')).toBe('Datos actualizados hace un momento')
     expect(formatUpdatedAgo(before(5 * MIN), NOW, 'es')).toBe('Datos actualizados hace 5 min')
     expect(formatUpdatedAgo(before(2 * HOUR), NOW, 'es')).toBe('Datos actualizados hace 2 h')
@@ -37,7 +37,7 @@ describe('formatUpdatedAgo', () => {
     expect(formatUpdatedAgo(before(3 * DAY), NOW, 'es')).toBe('Datos actualizados hace 3 días')
   })
 
-  it('inglés (acepta la fecha ISO del contrato)', () => {
+  it('English (accepts ISO date from contract)', () => {
     expect(formatUpdatedAgo(before(10_000).toISOString(), NOW, 'en')).toBe('Data updated just now')
     expect(formatUpdatedAgo(before(MIN).toISOString(), NOW, 'en')).toBe('Data updated 1 min ago')
     expect(formatUpdatedAgo(before(HOUR).toISOString(), NOW, 'en')).toBe('Data updated 1 h ago')

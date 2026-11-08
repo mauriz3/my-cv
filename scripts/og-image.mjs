@@ -1,6 +1,6 @@
-// Genera public/og-cv.png (1200×630), la imagen de Open Graph / Twitter de todas las páginas.
-// Reproducible: colores de los tokens de marca de main.css y fuentes locales de @fontsource-variable.
-// Uso (ver README): npm i --no-save playwright-core && node scripts/og-image.mjs
+// Generates public/og-cv.png (1200×630), the Open Graph / Twitter image for all pages.
+// Reproducible: brand token colors from main.css and local @fontsource-variable fonts.
+// Usage (see README): npm i --no-save playwright-core && node scripts/og-image.mjs
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -34,7 +34,7 @@ export function brandPalette(css) {
   return { brand, brandDeep, brandSoft, brandAccent }
 }
 
-/** HTML de la imagen (1200×630): dominio, nombre, titular y avatar; sin datos de contacto. */
+/** Image HTML (1200×630): domain, name, headline, and avatar; no contact details. */
 export function ogImageHtml({ brand, brandDeep, brandSoft, brandAccent }) {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><style>
 @font-face { font-family: Inter; src: url(${FONT_INTER}) format('woff2'); font-weight: 100 900; }

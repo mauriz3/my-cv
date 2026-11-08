@@ -2,17 +2,17 @@ import type { Ref } from 'vue'
 import { clamp01, easeInOutCubic as easeDraw } from '~~/lib/easing'
 import type { CardState } from '~~/lib/journey'
 
-/** Escritorio y tablet (por tiempo): la mini-gráfica empieza tras la tarjeta y dura lo que la secuencia de la spec. */
+/** Desktop and tablet (by time): the mini-graph starts after the card and lasts as long as the spec sequence. */
 const DESKTOP_DRAW_DELAY_MS = 450
 const DESKTOP_DRAW_MS = 1050
 const WIDE_PIN_QUERY = '(min-width: 768px)'
 
 /**
- * Avance (0–1) del dibujo de la tarjeta «Visitas» del recorrido (mini-gráfica, donut y cuenta de los KPI)
- * y si el botón «Ver visitas» debe pulsar.
- * · Móvil con pin: lo da el scroll (`mobileDraw`, del fotograma); pulsa una vez al completarse.
- * · Tablet y escritorio con pin: por tiempo, cada vez que la tarjeta pasa a ser la actual; pulsa al acabar.
- * · Estático (movimiento reducido, guardas, sin JS): dibujado del todo y sin pulso.
+ * Advance (0–1) of the drawing of the "Visits" card of the tour (mini-graph, donut and account of the KPIs)
+ * and if the "View Visits" button should be pressed.
+ * · Mobile with pin: it is scrolled (`mobileDraw`, from the frame); press once when completed.
+ * · Tablet and desktop with pin: by time, each time the card becomes the current one; press when finished.
+ * · Static (reduced movement, guards, without JS): drawn completely and without a pulse.
  */
 export function useVisitsCardDraw(options: {
   cardState: Readonly<Ref<CardState>>
