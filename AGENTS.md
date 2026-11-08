@@ -1,7 +1,9 @@
 # Normas para agentes de IA
 
 ## Flujo y documentación
-- Nunca fusionar ni desplegar en master sin OK explícito de Maurizio. Trabajar en ramas con PR; sin force push.
+- Nunca fusionar ni desplegar en master sin OK explícito de Maurizio. Trabajar en ramas con PR; nunca force push a master.
+- Fusionar solo con squash o rebase (merge commits desactivados) para un historial lineal; la rama se borra sola al fusionar.
+- Actualizar la rama con `git rebase origin/master`, no con merge; tras rebasar, `git push --force-with-lease` solo en la rama propia de la PR.
 - Desplegar únicamente por GitHub Actions; no publicar desde CLI local ni activar builds automáticos de Netlify.
 - Actualizar README y `docs/` (incluido [ADR](docs/adr.md)) cuando la PR lo requiera. Registrar decisiones nuevas.
 - README breve, sin nombres internos como «tandas». Coordinar cambios de documentación con otras ramas.
