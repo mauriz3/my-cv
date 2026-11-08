@@ -15,6 +15,9 @@
     "postinstall": "nuxt prepare",
     "typecheck": "nuxt typecheck",
     "test": "vitest run",
+    "coverage": "vitest run --coverage",
+    "test:a11y": "playwright test",
+    "lighthouse": "npx --yes @lhci/cli@0.16.0 autorun",
     "audit:check": "node scripts/audit.mjs",
     "visits:snapshot": "jiti scripts/visits-snapshot.ts",
     "pdf": "jiti scripts/pdf/generate.ts && scripts/pdf/check-privacy.sh public/Resume-Maurizio-Rendon-en.pdf && scripts/pdf/check-privacy.sh public/Resume-Maurizio-Rendon-es.pdf"
@@ -37,7 +40,13 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@nuxt/test-utils": "4.3.4",
+    "@playwright/test": "1.64.1",
     "@types/node": "^24.19.2",
+    "@vitest/coverage-v8": "4.1.12",
+    "@vue/test-utils": "2.5.1",
+    "happy-dom": "21.0.4",
     "pdf-lib": "1.17.1",
     "playwright-core": "1.64.1",
     "typescript": "~5.9.3",

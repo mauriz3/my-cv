@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from './zod'
 import { DEVICE_KEYS, HOUR_SLOTS, SOURCE_KEYS, VISITS_RANGES, WEEK_DAYS } from './visits'
 
 /**

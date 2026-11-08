@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { chromium } from 'playwright-core'
+import { isDirectRun } from './isDirectRun.mjs'
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const OUTPUT = join(ROOT, 'public/og-cv.png')
@@ -21,16 +22,21 @@ const FONT_DISPLAY = fileUrl('node_modules/@fontsource-variable/space-grotesk/fi
 const AVATAR = fileUrl('public/me.webp')
 
 /** Lee un token `--color-brand-N` de main.css: la imagen usa el azul real de la marca. */
-async function brandColor(css, step) {
+export function brandColor(css, step) {
   const match = css.match(new RegExp(`--color-brand-${step}:\\s*(#[0-9a-fA-F]{6})`))
   if (!match?.[1]) throw new Error(`Falta --color-brand-${step} en main.css`)
   return match[1]
 }
 
-const css = await readFile(join(ROOT, 'app/assets/css/main.css'), 'utf8')
-const [brand, brandDeep, brandSoft, brandAccent] = await Promise.all([700, 900, 100, 300].map((step) => brandColor(css, step)))
+/** Colores de la imagen a partir de main.css: fondo (700 → 900), textos suaves (100) y acento (300). */
+export function brandPalette(css) {
+  const [brand, brandDeep, brandSoft, brandAccent] = [700, 900, 100, 300].map((step) => brandColor(css, step))
+  return { brand, brandDeep, brandSoft, brandAccent }
+}
 
-const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><style>
+/** HTML de la imagen (1200×630): dominio, nombre, titular y avatar; sin datos de contacto. */
+export function ogImageHtml({ brand, brandDeep, brandSoft, brandAccent }) {
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><style>
 @font-face { font-family: Inter; src: url(${FONT_INTER}) format('woff2'); font-weight: 100 900; }
 @font-face { font-family: 'Space Grotesk'; src: url(${FONT_DISPLAY}) format('woff2'); font-weight: 300 700; }
 * { margin: 0; box-sizing: border-box; }
@@ -47,18 +53,24 @@ img { width: 300px; height: 300px; border-radius: 50%; box-shadow: 0 0 0 10px rg
 <div class="text"><span class="domain">${DOMAIN}</span><h1>${NAME}</h1><div class="rule"></div><p>${HEADLINE}</p></div>
 <img src="${AVATAR}" alt="">
 </body></html>`
-
-const dir = await mkdtemp(join(tmpdir(), 'og-image-'))
-const page = join(dir, 'og.html')
-await writeFile(page, html)
-const browser = await chromium.launch(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : { channel: 'chrome' })
-try {
-  const tab = await browser.newPage({ viewport: { width: WIDTH, height: HEIGHT } })
-  await tab.goto(pathToFileURL(page).href)
-  await tab.evaluate(() => document.fonts.ready)
-  await tab.screenshot({ path: OUTPUT, type: 'png' })
-  console.log(`Escrito ${OUTPUT}`)
-} finally {
-  await browser.close()
-  await rm(dir, { recursive: true, force: true })
 }
+
+async function renderOgImage() {
+  const css = await readFile(join(ROOT, 'app/assets/css/main.css'), 'utf8')
+  const dir = await mkdtemp(join(tmpdir(), 'og-image-'))
+  const page = join(dir, 'og.html')
+  await writeFile(page, ogImageHtml(brandPalette(css)))
+  const browser = await chromium.launch(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : { channel: 'chrome' })
+  try {
+    const tab = await browser.newPage({ viewport: { width: WIDTH, height: HEIGHT } })
+    await tab.goto(pathToFileURL(page).href)
+    await tab.evaluate(() => document.fonts.ready)
+    await tab.screenshot({ path: OUTPUT, type: 'png' })
+    console.log(`Escrito ${OUTPUT}`)
+  } finally {
+    await browser.close()
+    await rm(dir, { recursive: true, force: true })
+  }
+}
+
+if (isDirectRun(import.meta.url)) await renderOgImage()
