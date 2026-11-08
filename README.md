@@ -55,3 +55,4 @@ Solo un push a master despliega en Netlify (job `deploy-production`, tras pasar 
 - [Funcionalidades](docs/funcionalidades.md): Visitas, analítica y consentimiento, movimiento, microanimaciones, tema, libros y vista previa al compartir.
 - [Visitas con datos de GA4](docs/ga4.md): instantánea, puesta en marcha y pruebas en local.
 - [Calidad](docs/calidad.md) · [Seguridad](docs/seguridad.md) · [Despliegue](docs/despliegue.md).
+- [Diagramas de arquitectura, tipos y flujos](docs/README.md) · [Decisiones (ADR)](docs/adr.md) · [Normas para agentes](AGENTS.md).
