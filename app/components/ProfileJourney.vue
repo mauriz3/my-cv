@@ -11,7 +11,7 @@ import { mobileCardStateAt, pointingArmOf } from '~~/lib/mobileJourney'
 import { yearsInPeriods } from '~~/lib/years'
 
 /**
- * Inicio como recorrido (holograma wireframe R): el holograma camina por un timeline de 6 puntos (Profile, Skills,
+ * Inicio como recorrido (Holograma C): el holograma camina por un timeline de 6 puntos (Profile, Skills,
  * Experience, Education, Projects, Visits) y en cada uno se para, señala y muestra su tarjeta. Lógica: `lib/journey.ts`.
  * Con pin: 720vh en escritorio (timeline horizontal) y 480vh en tablet (vertical). En móvil, 420svh con el
  * holograma arriba y una sola tarjeta debajo que cambia en el sitio, todo ligado al scroll (`lib/mobileJourney.ts`):
