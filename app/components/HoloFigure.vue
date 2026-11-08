@@ -1,16 +1,18 @@
 <script setup lang="ts">
 /**
- * Holograma wireframe (opción R): figura de malla cyan, pedestal circular con anillos y suelo en rejilla.
- * Piernas y brazos son `<g>` con `transform-box: fill-box` para caminar y señalar; el haz sale de la mano derecha.
- * Estados (solo CSS, con `<html data-motion="full">`): flicker · `walking`/`stepping` · `pointing` (brazo a −100° + haz)
- * · `breathing` · `paused`. Sin movimiento: figura estable y legible en móvil, tablet y escritorio.
+ * Holograma de cuerpo entero (SVG inline, decorativo): pelo negro de punta, piel morena y camisa azul vivo,
+ * translúcido, con scanlines y base de proyección con cono de luz.
+ * Piernas y brazos son `<g>` con `transform-box: fill-box` (origen en cadera y hombro) para caminar y señalar.
+ * Estados (solo CSS, con `<html data-motion="full">`): flicker siempre · `walking` (ciclo de 4 frames, en pausa)
+ * · `stepping` (el ciclo avanza) · `pointing` (brazo derecho a −100°) · `breathing` (±3 px) · `paused` (todo quieto).
+ * Sin JS o con movimiento reducido: estable, opacidad 0,85 y sin animar.
  */
 defineProps<{ walking?: boolean; stepping?: boolean; pointing?: boolean; breathing?: boolean; paused?: boolean }>()
 </script>
 
 <template>
   <svg
-    class="holo holo--r"
+    class="holo"
     :class="{
       'holo--walking': walking,
       'holo--stepping': stepping,
@@ -24,31 +26,24 @@ defineProps<{ walking?: boolean; stepping?: boolean; pointing?: boolean; breathi
   >
     <defs>
       <linearGradient id="holo-cone" x1="0" y1="1" x2="0" y2="0">
-        <stop offset="0" stop-color="currentColor" stop-opacity=".2" />
+        <stop offset="0" stop-color="currentColor" stop-opacity=".35" />
         <stop offset="1" stop-color="currentColor" stop-opacity="0" />
       </linearGradient>
       <linearGradient id="holo-band" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0" stop-color="currentColor" stop-opacity="0" />
-        <stop offset=".45" stop-color="currentColor" stop-opacity=".55" />
+        <stop offset=".5" stop-color="currentColor" stop-opacity=".45" />
         <stop offset="1" stop-color="currentColor" stop-opacity="0" />
       </linearGradient>
-      <pattern id="holo-lines" width="6" height="6" patternUnits="userSpaceOnUse">
-        <path d="M0 3H6M3 0V6" stroke="currentColor" stroke-opacity=".35" stroke-width=".6" />
-      </pattern>
-      <pattern id="holo-deck" width="28" height="16" patternUnits="userSpaceOnUse">
-        <path d="M0 15H28M14 8V15" stroke="currentColor" stroke-opacity=".18" stroke-width=".75" />
+      <pattern id="holo-lines" width="4" height="4" patternUnits="userSpaceOnUse">
+        <path d="M0 .5H4" stroke="currentColor" stroke-opacity=".45" />
       </pattern>
     </defs>
 
-    <rect class="holo__deck" x="8" y="430" width="224" height="48" />
-    <path class="holo__cone" d="M72 448H168L198 28H42Z" fill="url(#holo-cone)" />
-
+    <path class="holo__cone" d="M66 452H174L214 24H26Z" fill="url(#holo-cone)" />
     <g class="holo__base">
-      <ellipse class="holo__platform holo__platform--outer" cx="120" cy="452" rx="100" ry="15" />
-      <ellipse class="holo__platform holo__platform--mid" cx="120" cy="452" rx="74" ry="10" />
-      <ellipse class="holo__platform holo__platform--inner" cx="120" cy="452" rx="50" ry="7" />
-      <ellipse class="holo__pad" cx="120" cy="452" rx="30" ry="4.5" />
-      <ellipse class="holo__glow" cx="120" cy="452" rx="118" ry="20" />
+      <ellipse cx="120" cy="452" rx="92" ry="14" />
+      <ellipse cx="120" cy="452" rx="64" ry="9" />
+      <ellipse class="holo__pad" cx="120" cy="452" rx="34" ry="5" />
     </g>
 
     <g class="holo__figure">
@@ -56,24 +51,15 @@ defineProps<{ walking?: boolean; stepping?: boolean; pointing?: boolean; breathi
         <g id="holo-body" class="holo__body">
           <g class="holo__leg holo__leg--left">
             <path class="holo__trousers" d="M80 250H121L114 418H86Z" />
-            <path class="holo__seam" d="M100 260V410" />
             <ellipse class="holo__shoe" cx="99" cy="422" rx="17" ry="6" />
           </g>
           <g class="holo__leg holo__leg--right">
             <path class="holo__trousers" d="M119 250H160L154 418H126Z" />
-            <path class="holo__seam" d="M140 260V410" />
             <ellipse class="holo__shoe" cx="141" cy="422" rx="17" ry="6" />
           </g>
-
           <rect class="holo__skin" x="109" y="98" width="22" height="26" />
-          <path class="holo__hood" d="M88 78Q88 48 120 44Q152 48 152 78L146 108Q120 118 94 108Z" />
-          <path
-            class="holo__shirt"
-            d="M100 116L120 142L140 116Q158 118 164 130L162 254H78L76 130Q82 118 100 116Z"
-          />
+          <path class="holo__shirt" d="M100 116L120 142L140 116Q158 118 164 130L162 254H78L76 130Q82 118 100 116Z" />
           <path class="holo__collar" d="M100 116L120 142L140 116" />
-          <path class="holo__mesh" d="M90 170H150M90 210H150M90 250H150M108 130V254M132 130V254" />
-
           <g class="holo__arm holo__arm--left">
             <g class="holo__swing">
               <path class="holo__shirt" d="M76 128Q64 132 62 146L54 244H70L76 168Z" />
@@ -84,39 +70,33 @@ defineProps<{ walking?: boolean; stepping?: boolean; pointing?: boolean; breathi
             <g class="holo__swing">
               <path class="holo__shirt" d="M164 128Q176 132 178 146L186 244H170L164 168Z" />
               <circle class="holo__skin" cx="178" cy="250" r="8" />
-              <g class="holo__beam">
-                <path class="holo__beam-line" d="M178 246L228 118" pathLength="1" />
-                <circle class="holo__beam-dot" cx="228" cy="118" r="5" />
-              </g>
             </g>
           </g>
-
           <ellipse class="holo__skin" cx="89" cy="80" rx="5" ry="9" />
           <ellipse class="holo__skin" cx="151" cy="80" rx="5" ry="9" />
           <ellipse class="holo__skin" cx="120" cy="76" rx="30" ry="34" />
-          <g class="holo__glasses">
-            <ellipse cx="108" cy="82" rx="11" ry="7" />
-            <ellipse cx="132" cy="82" rx="11" ry="7" />
-            <path d="M119 82h2" />
-          </g>
           <path
             class="holo__hair"
             d="M90 70Q86 42 104 36L98 16L113 31L120 8L128 31L143 15L138 38Q156 46 150 70Q142 52 120 52Q98 52 90 70Z"
           />
         </g>
-        <rect class="holo__lines" x="40" y="6" width="160" height="424" fill="url(#holo-lines)" />
+        <rect class="holo__lines" x="44" y="6" width="152" height="424" fill="url(#holo-lines)" />
       </g>
     </g>
     <use class="holo__echo" href="#holo-body" />
-    <rect class="holo__scan" x="40" y="0" width="160" height="36" fill="url(#holo-band)" />
+    <rect class="holo__scan" x="44" y="0" width="152" height="40" fill="url(#holo-band)" />
   </svg>
 </template>
 
 <style>
-/* Opción R: malla cyan; solo opacity y transform en animación. */
+/* Colores de la paleta azul (Tanda C). Solo se animan opacity y transform. */
 .holo {
-  --holo-opacity: 0.92;
-  --holo-echo-shift: 4px;
+  --holo-opacity: 0.85;
+  --holo-echo-shift: 3px;
+  --holo-skin: #8d5a3b;
+  --holo-hair: #0d1117;
+  --holo-trousers: #0b4766;
+  /* Ciclo de caminar (handoff «Holograma C»): zancada, balanceo de brazos, rebote y base. */
   --holo-stride-long: 1.05;
   --holo-stride-short: 0.95;
   --holo-arm-swing: 8deg;
@@ -129,34 +109,16 @@ defineProps<{ walking?: boolean; stepping?: boolean; pointing?: boolean; breathi
   width: 100%;
   height: auto;
   overflow: visible;
-  color: var(--brand-vivid);
+  color: var(--color-brand-400);
 }
 
-.holo__body :is(.holo__skin, .holo__hair, .holo__shirt, .holo__trousers, .holo__shoe, .holo__hood) {
-  fill: color-mix(in srgb, var(--brand-vivid) 8%, transparent);
+.holo__body > *,
+.holo__leg > *,
+.holo__swing > * {
   stroke: currentColor;
-  stroke-width: 1.35;
+  stroke-width: 1.5;
   stroke-linejoin: round;
-  vector-effect: non-scaling-stroke;
-}
-
-.holo__collar,
-.holo__mesh,
-.holo__seam,
-.holo__glasses :is(ellipse, path) {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.1;
-  stroke-linecap: round;
-  vector-effect: non-scaling-stroke;
-}
-
-.holo__mesh {
-  opacity: 0.55;
-}
-
-.holo__glasses {
-  opacity: 0.95;
+  fill-opacity: 0.6;
 }
 
 .holo__leg,
@@ -171,16 +133,26 @@ defineProps<{ walking?: boolean; stepping?: boolean; pointing?: boolean; breathi
   transform-origin: 50% 50%;
 }
 
-.holo__deck {
-  fill: url(#holo-deck);
-  opacity: 0.85;
+.holo__skin {
+  fill: var(--holo-skin);
 }
 
-.holo__cone {
-  stroke: currentColor;
-  stroke-opacity: 0.12;
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
+.holo__hair {
+  fill: var(--holo-hair);
+  fill-opacity: 0.9;
+}
+
+.holo__shirt {
+  fill: var(--brand-vivid);
+}
+
+.holo__collar {
+  fill: none;
+}
+
+.holo__trousers,
+.holo__shoe {
+  fill: var(--holo-trousers);
 }
 
 .holo__figure {
@@ -188,73 +160,27 @@ defineProps<{ walking?: boolean; stepping?: boolean; pointing?: boolean; breathi
 }
 
 .holo__lines {
-  opacity: 0.45;
+  opacity: 0.6;
 }
 
-.holo__platform {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.75;
-  vector-effect: non-scaling-stroke;
-}
-
-.holo__platform--outer {
-  stroke-opacity: 0.85;
-}
-
-.holo__platform--mid {
-  stroke-opacity: 0.65;
-  stroke-dasharray: 4 6;
-}
-
-.holo__platform--inner {
-  stroke-opacity: 0.95;
-  stroke-width: 2;
-}
-
-.holo__pad {
-  fill: currentColor;
-  fill-opacity: 0.55;
-  stroke: none;
-}
-
-.holo__glow {
-  fill: currentColor;
-  fill-opacity: 0.07;
-  stroke: none;
-}
-
-.holo__beam {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.holo--pointing .holo__beam {
-  opacity: 1;
-}
-
-.holo__beam-line {
+.holo__base ellipse {
   fill: none;
   stroke: currentColor;
   stroke-width: 2;
-  stroke-dasharray: 0.08 0.06;
-  stroke-linecap: round;
-  vector-effect: non-scaling-stroke;
 }
 
-.holo__beam-dot {
+.holo__base .holo__pad {
   fill: currentColor;
-  fill-opacity: 0.35;
-  stroke: currentColor;
-  stroke-width: 1.5;
-  vector-effect: non-scaling-stroke;
+  fill-opacity: 0.5;
 }
 
+/* Eco y barrido solo existen mientras se animan. */
 .holo__echo,
 .holo__scan {
   opacity: 0;
 }
 
+/* Con movimiento (`data-motion="full"`, lo pone el script anterior al pintado). */
 :root[data-motion='full'] .holo__scan {
   opacity: 1;
   transform-box: view-box;
@@ -270,22 +196,15 @@ defineProps<{ walking?: boolean; stepping?: boolean; pointing?: boolean; breathi
   animation: holo-echo var(--holo-flicker-duration, 5s) infinite;
 }
 
-.holo--pointing .holo__arm--right {
-  transform: rotate(var(--holo-point-angle));
-}
-
 :root[data-motion='full'] .holo__arm--right {
   transition: transform var(--point-duration, 450ms) cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-:root[data-motion='full'] .holo--pointing .holo__beam-line {
-  animation: holo-beam-flow 1.1s linear infinite;
+:root[data-motion='full'] .holo--pointing .holo__arm--right {
+  transform: rotate(var(--holo-point-angle));
 }
 
-:root[data-motion='full'] .holo--pointing .holo__beam-dot {
-  animation: holo-beam-pulse 1.1s ease-in-out infinite;
-}
-
+/* Caminar: el ciclo está en pausa y solo avanza mientras hay scroll (`stepping`). */
 :root[data-motion='full'] .holo--walking .holo__leg--left {
   animation: holo-leg-left var(--walk-cycle-duration, 800ms) linear infinite paused;
 }
@@ -318,33 +237,22 @@ defineProps<{ walking?: boolean; stepping?: boolean; pointing?: boolean; breathi
   animation: holo-breathe var(--breathe-duration, 4s) ease-in-out infinite;
 }
 
-:root[data-motion='full'] .holo--breathing .holo__platform--outer {
-  animation: holo-ring-pulse var(--breathe-duration, 4s) ease-in-out infinite;
-}
-
+/* Fuera de pantalla o con la pestaña oculta: todo quieto. */
 :root[data-motion='full'] .holo--paused,
 :root[data-motion='full'] .holo--paused * {
   animation-play-state: paused;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .holo__beam-line,
-  .holo__beam-dot {
-    animation: none !important;
-  }
-}
-
+/* F1 pierna izq. delante · F2 cruce (cuerpo arriba) · F3 pierna der. delante · F4 cruce. */
 @keyframes holo-leg-left {
   0%,
   100% {
     transform: scaleY(var(--holo-stride-long));
   }
-
   25%,
   75% {
     transform: none;
   }
-
   50% {
     transform: scaleY(var(--holo-stride-short));
   }
@@ -355,12 +263,10 @@ defineProps<{ walking?: boolean; stepping?: boolean; pointing?: boolean; breathi
   100% {
     transform: scaleY(var(--holo-stride-short));
   }
-
   25%,
   75% {
     transform: none;
   }
-
   50% {
     transform: scaleY(var(--holo-stride-long));
   }
@@ -371,12 +277,10 @@ defineProps<{ walking?: boolean; stepping?: boolean; pointing?: boolean; breathi
   100% {
     transform: rotate(var(--holo-arm-swing));
   }
-
   25%,
   75% {
     transform: none;
   }
-
   50% {
     transform: rotate(calc(var(--holo-arm-swing) * -1));
   }
@@ -387,12 +291,10 @@ defineProps<{ walking?: boolean; stepping?: boolean; pointing?: boolean; breathi
   100% {
     transform: rotate(calc(var(--holo-arm-swing) * -1));
   }
-
   25%,
   75% {
     transform: none;
   }
-
   50% {
     transform: rotate(var(--holo-arm-swing));
   }
@@ -418,29 +320,21 @@ defineProps<{ walking?: boolean; stepping?: boolean; pointing?: boolean; breathi
   }
 }
 
-@keyframes holo-ring-pulse {
-  50% {
-    stroke-opacity: 1;
-  }
-}
-
+/* Flicker: 160 ms de parpadeo dentro de un ciclo de 5 s (92 %→100 %). */
 @keyframes holo-flicker {
   0%,
   92%,
   100% {
-    opacity: 0.92;
+    opacity: 0.85;
   }
-
   93% {
-    opacity: 0.4;
+    opacity: 0.35;
   }
-
   95% {
-    opacity: 0.95;
+    opacity: 0.9;
   }
-
   97% {
-    opacity: 0.55;
+    opacity: 0.5;
   }
 }
 
@@ -450,32 +344,19 @@ defineProps<{ walking?: boolean; stepping?: boolean; pointing?: boolean; breathi
   100% {
     opacity: 0;
   }
-
   93%,
   97% {
-    opacity: 0.25;
+    opacity: 0.3;
   }
 }
 
+/* La banda (40 de 480 de alto) recorre la figura de arriba abajo sin salirse del lienzo: 440 / 480. */
 @keyframes holo-scan {
   from {
     transform: translateY(0);
   }
-
   to {
     transform: translateY(91.67%);
-  }
-}
-
-@keyframes holo-beam-flow {
-  to {
-    stroke-dashoffset: -0.28;
-  }
-}
-
-@keyframes holo-beam-pulse {
-  50% {
-    fill-opacity: 0.75;
   }
 }
 </style>
