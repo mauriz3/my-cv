@@ -1,7 +1,8 @@
+import { useReplayable } from './useReplayable'
+
 /**
- * Entrada animada de una página, una sola vez: `isEntering` vale true desde el montaje y durante `durationMs`
- * si el movimiento está activo. Si se reduce a mitad, termina al momento (el CSS salta al estado final)
- * y al reanudar no vuelve a empezar: lo ya visto no se repite.
+ * Entrada animada de una página, una sola vez al montar si las animaciones están activas.
+ * Al desactivar termina al momento. Al volver a activar, se repite una sola vez.
  */
 export function useEntranceOnce(durationMs: number) {
   const { isReduced } = useMotion()
@@ -13,14 +14,28 @@ export function useEntranceOnce(durationMs: number) {
     isEntering.value = false
   }
 
-  onMounted(() => {
-    if (readDocumentMotion() === 'reduced') return
-    isEntering.value = true
-    timer = setTimeout(finish, durationMs)
+  function play() {
+    finish()
+    void nextTick(() => {
+      if (isReduced.value) return
+      isEntering.value = true
+      timer = setTimeout(finish, durationMs)
+    })
+  }
+
+  useReplayable({
+    element: () => document.documentElement,
+    threshold: 0,
+    onEnter: 'skip',
+    reset: finish,
+    play,
+    finish,
   })
 
-  watch(isReduced, (reduced) => {
-    if (reduced) finish()
+  onMounted(() => {
+    if (isReduced.value || readDocumentMotion() === 'reduced') return
+    isEntering.value = true
+    timer = setTimeout(finish, durationMs)
   })
 
   onBeforeUnmount(finish)

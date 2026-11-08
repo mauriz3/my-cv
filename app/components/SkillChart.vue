@@ -27,6 +27,7 @@ const colorMode = useColorMode()
 const { isReduced } = useMotion()
 
 const CHART_DRAW_DURATION_MS = 700
+const { chartRef, updateMode } = useChartPlayback(CHART_DRAW_DURATION_MS)
 const AREA_FILL_ALPHA_HEX = '33' // ≈ 20 % de opacidad sobre el color de la serie (#RRGGBBAA)
 const POINT_RADIUS_PX = 3
 const LINE_WIDTH_PX = 2
@@ -107,7 +108,14 @@ const accessibleLabel = computed(() => t('ariaLabel', { axes: props.axes.map((ax
   <Panel :title="t('title')" :note="t('note')">
     <!-- Alto fijo: el hueco existe antes de que el canvas se pinte (CLS 0). -->
     <div class="h-64 md:h-72">
-      <Radar v-if="themeColors" :data="chartData" :options="chartOptions" :aria-label="accessibleLabel" />
+      <Radar
+        v-if="themeColors"
+        ref="chartRef"
+        :data="chartData"
+        :options="chartOptions"
+        :update-mode="updateMode"
+        :aria-label="accessibleLabel"
+      />
     </div>
   </Panel>
 </template>

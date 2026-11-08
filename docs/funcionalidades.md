@@ -85,12 +85,14 @@ Fuentes: [configuración Nuxt](../nuxt.config.ts), [layout](../app/layouts/defau
 - El aviso sigue cerrado mientras se resuelve el país; `wait_for_update` (500 ms) y el timeout de `/geo` (3 s) pueden vencer en momentos distintos.
 - **Límite:** `denied` no significa cero solicitudes a Google. gtag.js se carga y configura antes de decidir y Consent Mode puede medir sin cookies; no debe describirse como bloqueo completo. Revocar no borra explícitamente cookies existentes. Si falla `setItem`, la elección vale solo para la visita actual.
 
-## Botón de movimiento global
+## Animaciones opt-in
 
-- En la cabecera de todas las páginas, entre los enlaces y ES/EN (`MotionToggle`). Escritorio: icono + texto; tablet y móvil: icono de 44 px con tooltip. `aria-pressed="true"` = movimiento reducido.
-- Estado en `localStorage["motion"]` (`full` | `reduced`) o, si no hay, `prefers-reduced-motion`. Un script inline lo aplica en `<html data-motion>` antes de pintar (`lib/motion.ts`).
-- El CSS solo anima con `data-motion="full"`. En reducido, las gráficas usan `animation: false` y, si se pausa a mitad, saltan al estado final.
-- `MOTION_TOGGLE_TEXT_MODE` decide el texto de escritorio: `fixed` (actual, siempre «Reducir movimiento») o `by-state`.
+- Por defecto todo el sitio carga estático (estado final visible). El botón de la cabecera (`AnimationsToggle`), entre los enlaces y ES/EN, es lo único que puede moverse al cargar.
+- Escritorio (≥ 1024 px): icono + texto. Tablet y móvil: icono 44×44 con tooltip. OFF = ámbar y play («Activar animaciones»); ON = neutro y pausa («Desactivar animaciones»). Sin `aria-pressed`: el `aria-label` es el copy de la acción.
+- Preferencia en `localStorage["animations"]` (`on` | `off`). Sin elección = OFF. La clave antigua `motion` se ignora. Un script inline fija `<html data-motion>` antes de pintar (`lib/animations.ts`); ON → `full`, OFF → `reduced`.
+- Al cargar, `prefers-reduced-motion` manda: con PRM activo la web queda OFF aunque haya `on` guardado. Un clic en «Activar» anima en el documento actual y no sobrevive a una recarga (ADR-016).
+- Al activar sin recargar: las gráficas visibles hacen `reset` + `update`; las escenas del recorrido (Profile) alcanzan su progreso actual en 450 ms sin mover el scroll. Al desactivar, todo salta al estado final.
+- Tres pulsos suaves del botón (2,4 s tras 600 ms) solo en la primera sesión de pestaña sin elección y sin PRM (`sessionStorage["animations-hint"]`).
 
 ## Microanimaciones de las tarjetas del Inicio
 
@@ -102,11 +104,11 @@ Fuentes: [configuración Nuxt](../nuxt.config.ts), [layout](../app/layouts/defau
   - Formación: 4 escalones que se elevan y un birrete que cae, rebota una vez y balancea la borla.
   - Proyectos: código que se teclea con cursor ámbar fijo (sin parpadeo), flecha «deploy» y 3 bloques que se apilan con check.
   - Geometría, tramos y valores en `lib/journeyScene.ts`: cada parte tiene canales (`x`, `y`, `scale`, `scaleY`, `rotate`, `opacity`, `offset`) que valen su valor neutro en p = 1, así el SVG sin variables ya es el estado final. Colores: `--g-main` (brand), `--g-acc` (`--accent`, ámbar), `--g-track` (guías, #6E7681 / #8C959F) y relleno tintado decorativo (el contraste lo da el borde: main y acc ≥ 4,5:1, guías ≥ 3:1).
-  - Primer pintado sin parpadeo: cada canal se lee como `var(--fx-<parte>-<canal>, <valor en p = 0>)` (`sceneVariableReference`), así que con movimiento el HTML prerenderizado ya muestra el estado inicial antes de que el JS escriba la primera variable. Esas reglas solo aplican con `<html data-motion="full">` (lo pone el script inline anterior al pintado): sin JS, con movimiento reducido o en pausa, estado final. Sin scripts nuevos ni cambios de CSP.
+  - Primer pintado sin parpadeo: cada canal se lee como `var(--fx-<parte>-<canal>, <valor en p = 0>)` (`sceneVariableReference`). Esas reglas solo aplican con `<html data-motion="full">` (animación activada): sin JS o con animaciones apagadas, estado final.
 - La tarjeta de Visitas no lleva microanimación (tiene su propio dibujo ligado al scroll).
 - Lógica pura en `lib/cardMotion.ts` (progreso por tarjeta y valores del Perfil) y `lib/journeyScene.ts` (escenas), con tests, sobre `lib/easing.ts`. `app/composables/useCardMotion.ts` escribe variables CSS `--fx-*` en el mismo rAF del recorrido (`useJourney`, opción `onFrame`).
 - Progreso: en el recorrido fijado (escritorio/tablet) sale del tramo del punto (0,6–0,85 del segmento; el Perfil, 0–0,25). En el pin móvil, 0,46–0,62 (el Perfil sigue la entrada del holograma). Sin pin, se calcula por la posición de la tarjeta en pantalla.
-- Movimiento reducido o pausa global: estado final estático, sin saltos (sin variables, cada canal vale su valor final). El foco de teclado dentro de una tarjeta también fuerza el estado final.
+- Animaciones apagadas: estado final estático, sin saltos (sin variables, cada canal vale su valor final). El foco de teclado dentro de una tarjeta también fuerza el estado final. Al activar a mitad de página, catch-up de 0 a `pLive` en 450 ms.
 
 ## Tema claro / oscuro (oscuro por defecto)
 

@@ -100,3 +100,6 @@ playwright-report
 # Auditorías de CI (Lighthouse y axe)
 lighthouse-report*
 .lighthouseci
+
+# Node local del agente
+.tools/

@@ -42,12 +42,19 @@ export class FakeIntersectionObserver {
     this.observed.push(element)
   }
 
+  unobserve(element: Element) {
+    const index = this.observed.indexOf(element)
+    if (index >= 0) this.observed.splice(index, 1)
+  }
+
   disconnect() {
     this.disconnected = true
   }
 
-  intersect(isIntersecting: boolean) {
-    const entries = this.observed.map((target) => ({ isIntersecting, target }) as IntersectionObserverEntry)
+  intersect(isIntersecting: boolean, ratio = isIntersecting ? 1 : 0) {
+    const entries = this.observed.map(
+      (target) => ({ isIntersecting, intersectionRatio: ratio, target }) as IntersectionObserverEntry,
+    )
     this.callback(entries, this as unknown as IntersectionObserver)
   }
 

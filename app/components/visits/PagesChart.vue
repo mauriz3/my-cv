@@ -50,8 +50,9 @@ const valueLabels: Plugin<'bar', ValueLabelOptions> = {
 
 const { t } = useI18n()
 const { integer, pageName } = useVisitsFormat()
-const { theme, updateMode } = useChartTheme()
+const { theme, updateMode: themeUpdateMode } = useChartTheme()
 const { isReduced } = useMotion()
+const { chartRef, updateMode } = useChartPlayback(DRAW_DURATION_MS, themeUpdateMode)
 
 const chartData = computed<ChartData<'bar'>>(() => ({
   labels: props.pages.map((page) => pageName(page.path)),
@@ -95,6 +96,7 @@ const summary = computed(() =>
   <div class="relative h-full">
     <Chart
       v-if="theme"
+      ref="chartRef"
       type="bar"
       :data="chartData"
       :options="chartOptions"

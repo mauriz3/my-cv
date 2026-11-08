@@ -8,19 +8,36 @@ const TOOLTIP_PADDING_PX = 8
 const TOOLTIP_RADIUS_PX = 8
 const MAX_VALUE_TICKS = 5
 
-/** Animación de entrada; con movimiento reducido, ninguna (`animation: false`). */
+/** Animación de entrada; con animaciones apagadas, ninguna (`animation: false`). */
 export function chartAnimation(isReduced: boolean, durationMs: number) {
   return isReduced ? (false as const) : { duration: durationMs, easing: 'easeOutQuart' as const }
 }
 
+/** Gráficas que deben volver a su base en la próxima actualización (activación con la gráfica a la vista). */
+const chartsWaitingToReplay = new WeakSet<object>()
+
+export function markChartReplay(chart: object) {
+  chartsWaitingToReplay.add(chart)
+}
+
+function consumeChartReplay(chart: object): boolean {
+  if (!chartsWaitingToReplay.has(chart)) return false
+  chartsWaitingToReplay.delete(chart)
+  return true
+}
+
 /**
- * Pausa a mitad de una animación: al llegar `animation: false` (movimiento reducido), para la que está en curso
- * y la actualización deja cada pieza en su estado final. Se registra con los controladores de cada gráfica.
+ * Al pasar a `animation: false`, para la animación en curso (el `update('none')` deja el estado final).
+ * Si la gráfica está marcada, `reset()` la devuelve a su base en esa misma actualización.
  */
 export const finishAnimationsWhenDisabled: Plugin = {
   id: 'finishAnimationsWhenDisabled',
   beforeUpdate(chart) {
-    if (chart.options.animation === false) chart.stop()
+    if (chart.options.animation === false) {
+      chart.stop()
+      return
+    }
+    if (consumeChartReplay(chart)) chart.reset()
   },
 }
 
@@ -49,6 +66,7 @@ export function baseChartOptions(theme: ChartTheme, isReduced: boolean, duration
     responsive: true,
     maintainAspectRatio: false,
     animation: chartAnimation(isReduced, durationMs),
+    transitions: { resize: { animation: { duration: 0 } } },
     plugins: { legend: { display: false }, tooltip: chartTooltip(theme) },
   }
 }

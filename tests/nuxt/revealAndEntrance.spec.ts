@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 import { MOTION_ATTRIBUTE } from '~~/lib/motion'
-import { FakeIntersectionObserver, stubIntersectionObserver, withSetup } from './helpers'
+import { FakeIntersectionObserver, setBox, stubIntersectionObserver, withSetup } from './helpers'
 
 const ENTRANCE_MS = 600
 
@@ -25,13 +25,14 @@ describe('useEntranceOnce', () => {
     expect(result.isEntering.value).toBe(false)
   })
 
-  it('si se reduce el movimiento a mitad, termina al momento y no se repite al reanudar', async () => {
+  it('si se desactivan las animaciones a mitad, termina al momento y al activar vuelve a entrar', async () => {
     const { result } = await withSetup(() => useEntranceOnce(ENTRANCE_MS))
     useMotion().set('reduced')
     await nextTick()
     expect(result.isEntering.value).toBe(false)
     useMotion().set('full')
     await nextTick()
+    expect(result.isEntering.value).toBe(true)
     vi.advanceTimersByTime(ENTRANCE_MS)
     expect(result.isEntering.value).toBe(false)
   })
@@ -69,6 +70,33 @@ describe('useRevealOnce', () => {
     Reflect.deleteProperty(window, 'IntersectionObserver')
     const { result: withoutObserver } = await withSetup(() => useRevealOnce(ref(document.createElement('div')), 0.3))
     expect(withoutObserver.state.value).toBe('static')
+  })
+
+  it('al activar, lo que se ve vuelve a entrar y al desactivar queda en su estado final', async () => {
+    vi.stubGlobal('innerHeight', 800)
+    const target = ref<HTMLElement | null>(document.createElement('section'))
+    setBox(target.value!, { top: 0, height: 200 })
+    useMotion().set('reduced')
+    const { result } = await withSetup(() => useRevealOnce(target, 0.3))
+    useMotion().set('full')
+    expect(result.state.value).toBe('hidden')
+    await nextTick()
+    expect(result.state.value).toBe('revealed')
+    useMotion().set('reduced')
+    expect(result.state.value).toBe('revealed')
+  })
+
+  it('lo que no se ve al activar espera a entrar', async () => {
+    vi.stubGlobal('innerHeight', 800)
+    const target = ref<HTMLElement | null>(document.createElement('section'))
+    setBox(target.value!, { top: 2000, height: 200 })
+    useMotion().set('reduced')
+    const { result } = await withSetup(() => useRevealOnce(target, 0.3))
+    useMotion().set('full')
+    expect(result.state.value).toBe('hidden')
+    FakeIntersectionObserver.last().intersect(true)
+    await nextTick()
+    expect(result.state.value).toBe('revealed')
   })
 
   it('al desmontar deja de observar', async () => {

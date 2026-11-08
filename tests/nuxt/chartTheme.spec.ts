@@ -7,6 +7,7 @@ import {
   chartAnimation,
   chartTooltip,
   finishAnimationsWhenDisabled,
+  markChartReplay,
   valueAxis
 } from '~/utils/chartOptions'
 import type { ChartTheme } from '~/composables/useChartTheme'
@@ -27,6 +28,7 @@ describe('opciones comunes de las gráficas', () => {
     expect(chartAnimation(true, 800)).toBe(false)
     expect(chartAnimation(false, 800)).toEqual({ duration: 800, easing: 'easeOutQuart' })
     expect(baseChartOptions(THEME, true, 800).animation).toBe(false)
+    expect(baseChartOptions(THEME, false, 800).transitions.resize.animation.duration).toBe(0)
   })
 
   it('el tooltip invierte el contraste del tema y las gráficas no pintan leyenda en el canvas', () => {
@@ -50,6 +52,17 @@ describe('opciones comunes de las gráficas', () => {
     expect(stop).toHaveBeenCalledOnce()
     beforeUpdate({ options: { animation: { duration: 1 } }, stop } as never, {} as never, {})
     expect(stop).toHaveBeenCalledOnce()
+  })
+
+  it('si está marcada, la siguiente actualización la devuelve a su base una sola vez', () => {
+    const reset = vi.fn()
+    const chart = { options: { animation: { duration: 1 } }, stop: vi.fn(), reset }
+    markChartReplay(chart)
+    const beforeUpdate = finishAnimationsWhenDisabled.beforeUpdate!.bind(finishAnimationsWhenDisabled)
+    beforeUpdate(chart as never, {} as never, {})
+    expect(reset).toHaveBeenCalledOnce()
+    beforeUpdate(chart as never, {} as never, {})
+    expect(reset).toHaveBeenCalledOnce()
   })
 })
 

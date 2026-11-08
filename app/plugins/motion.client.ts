@@ -1,4 +1,4 @@
-/** Una sola vez por visita, al terminar de hidratar: estado de movimiento desde `<html>` y escucha del sistema. */
-export default defineNuxtPlugin((nuxtApp) => {
-  nuxtApp.hooks.hookOnce('app:suspense:resolve', startMotionSync)
+/** Una sola vez por visita, antes de montar la app: animaciones desde `<html>` y escucha del sistema. */
+export default defineNuxtPlugin(() => {
+  startAnimationsSync()
 })

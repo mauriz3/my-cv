@@ -34,8 +34,9 @@ const featureById = new Map(countryFeatures.map((feature) => [String(feature.id)
 
 const { t } = useI18n()
 const { integer, countryName } = useVisitsFormat()
-const { theme, updateMode } = useChartTheme()
+const { theme, updateMode: themeUpdateMode } = useChartTheme()
 const { isReduced } = useMotion()
+const { chartRef, updateMode } = useChartPlayback(DRAW_DURATION_MS, themeUpdateMode)
 
 const maxVisits = computed(() => Math.max(1, ...props.countries.map((country) => country.visits)))
 
@@ -101,6 +102,7 @@ const summary = computed(() =>
     <div class="relative h-[200px] md:h-full">
       <Chart
         v-if="theme"
+        ref="chartRef"
         type="bubbleMap"
         :data="chartData"
         :options="chartOptions"

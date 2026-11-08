@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * Cabecera de cada página (spec boton-global.md). Orden fijo, igual en el DOM y en pantalla:
- * título (se estira) → [enlaces] → [movimiento] → [ES/EN] → [sol/luna].
+ * título (se estira) → [enlaces] → [animaciones] → [ES/EN] → [sol/luna].
  * Móvil (< 600 px): una sola línea con el título y los tres controles; sin subtítulo, y `shortTitle` si lo hay.
  * Por debajo de 375 px el título baja a 20 px; la elipsis es solo una red de seguridad.
  * `titleTag="p"` cuando la página ya tiene su propio h1 (el Perfil: el nombre del hero).
@@ -34,7 +34,7 @@ withDefaults(
     <div class="flex shrink-0 items-center gap-2" data-testid="page-header-controls">
       <!-- En móvil los enlaces van en la tarjeta de perfil (ver ProfileJourney). -->
       <ContactLinks labels="wide-only" class="hidden md:flex" />
-      <MotionToggle />
+      <AnimationsToggle />
       <LanguageSwitch />
       <UColorModeButton class="size-11 shrink-0 justify-center" />
     </div>

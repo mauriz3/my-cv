@@ -1,61 +1,17 @@
 /**
- * Preferencia de movimiento de la web (botón global de la cabecera, spec boton-global.md). Lógica pura, sin Vue ni DOM global.
- * El estado vive en `<html data-motion="full | reduced">`: el CSS solo anima con `full`.
- * Sin JS no hay atributo y todo queda estático.
+ * Atributo con el que el CSS decide si anima. ON = `full`, OFF = `reduced`.
+ * La elección de la persona vive en `lib/animations.ts` (`animations` = on | off), no aquí.
  */
 
 export const MOTION_PREFERENCES = ['full', 'reduced'] as const
 export type MotionPreference = (typeof MOTION_PREFERENCES)[number]
 
 export const MOTION_ATTRIBUTE = 'data-motion'
+/** Clave antigua. Ya no se lee; se borra al guardar la primera elección de animaciones. */
 export const MOTION_STORAGE_KEY = 'motion'
 export const SYSTEM_REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
 
-/** Lo guardado solo vale si es una preferencia conocida. */
+/** Lo guardado en el atributo solo vale si es un estado conocido. */
 export function parseStoredMotion(stored: string | null): MotionPreference | null {
   return MOTION_PREFERENCES.find((preference) => preference === stored) ?? null
 }
-
-/** Manda la elección manual; si no la hay, el sistema (prefers-reduced-motion). */
-export function resolveMotion(stored: MotionPreference | null, systemPrefersReduced: boolean): MotionPreference {
-  return stored ?? (systemPrefersReduced ? 'reduced' : 'full')
-}
-
-export function toggledMotion(current: MotionPreference): MotionPreference {
-  return current === 'full' ? 'reduced' : 'full'
-}
-
-/** Claves i18n del botón de movimiento (MotionToggle). */
-export type MotionToggleTextKey = 'reduceMotion' | 'increaseMotion'
-export type MotionAnnouncementKey = 'motionReduced' | 'motionOn'
-
-/**
- * Texto visible del botón en escritorio (≥ 1024 px). Decisión de Maurizio: 'fixed', siempre «Reducir movimiento»;
- * el estado lo dan aria-pressed, el icono (pausa / play) y el color (ámbar). La alternativa de la spec,
- * 'by-state' («Reducir» ↔ «Aumentar movimiento»), queda a un cambio de esta constante.
- */
-export const MOTION_TOGGLE_TEXT_MODE: 'by-state' | 'fixed' = 'fixed'
-
-/** Nombre fijo del botón en modo icono (tablet y móvil) y de su tooltip; el estado va en aria-pressed. */
-export const MOTION_TOGGLE_ICON_TEXT_KEY: MotionToggleTextKey = 'reduceMotion'
-
-export function motionToggleTextKey(
-  motion: MotionPreference,
-  mode: typeof MOTION_TOGGLE_TEXT_MODE = MOTION_TOGGLE_TEXT_MODE,
-): MotionToggleTextKey {
-  return mode === 'by-state' && motion === 'reduced' ? 'increaseMotion' : MOTION_TOGGLE_ICON_TEXT_KEY
-}
-
-/** Anuncio (aria-live polite) tras pulsar: «Movimiento reducido» / «Movimiento activado». */
-export function motionAnnouncementKey(motion: MotionPreference): MotionAnnouncementKey {
-  return motion === 'reduced' ? 'motionReduced' : 'motionOn'
-}
-
-/**
- * Script inline que corre antes del primer pintado y fija `data-motion`, así el Inicio elige su maqueta
- * (recorrido con pin o versión estática) sin saltos de diseño. Su hash entra en la CSP con `scripts/build-headers.mjs`.
- */
-export const MOTION_NO_FLASH_SCRIPT =
-  `var m=null;try{m=localStorage.getItem('${MOTION_STORAGE_KEY}')}catch(e){}` +
-  `if(m!=='full'&&m!=='reduced')m=matchMedia('${SYSTEM_REDUCED_MOTION_QUERY}').matches?'reduced':'full';` +
-  `document.documentElement.setAttribute('${MOTION_ATTRIBUTE}',m)`
