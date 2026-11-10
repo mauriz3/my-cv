@@ -103,3 +103,6 @@ lighthouse-report*
 
 # Node local del agente
 .tools/
+
+# Impeccable engine binary (platform-specific; launcher downloads on first use)
+.cursor/skills/impeccable/scripts/bin/
