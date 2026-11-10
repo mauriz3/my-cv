@@ -550,7 +550,8 @@ const courses = computed(() =>
     max-height: min(58cqh, calc(100svh - var(--holo-height, 26cqh) - 5.5rem));
     padding-bottom: 0.5rem;
     overflow-y: auto;
-    overscroll-behavior: contain;
+    /* Let swipes reach the page when this inner scroller is at a boundary (or already fits). */
+    overscroll-behavior: auto;
   }
 
   :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__card {
