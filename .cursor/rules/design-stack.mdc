@@ -1,0 +1,44 @@
+---
+description: Design skill stack — Impeccable, frontend-design, design-taste-frontend
+alwaysApply: true
+---
+
+# Design stack (always use together)
+
+For any UI design, redesign, polish, audit, or visual iteration in this repo, combine three sources. Repo rules in `AGENTS.md` (CSP, privacy, i18n, motion locks, CI) override everything.
+
+## Sources
+
+| Source | Location | Role |
+|--------|----------|------|
+| **Impeccable** | `.cursor/skills/impeccable/SKILL.md` | Session setup (`impeccable context`), command playbooks, `craft-floor.md` before edits, `audit`/`critique`/`polish`, `live`, `npx impeccable detect` |
+| **frontend-design** | User skill store `frontend-design` | Distinct art direction, typography POV, anti-template choices for the brief |
+| **design-taste-frontend** | `~/.agents/skills/design-taste-frontend` | Layout system, tokens, house rules, hero/motion layer, browser finish gate |
+
+## Session order
+
+1. Read **PRODUCT.md** (and **DESIGN.md** when present).
+2. Run Impeccable setup once per design session: `.cursor/skills/impeccable/scripts/impeccable context` with `--target` when scoped; load the command reference or `reference/new-work.md`; read `reference/craft-floor.md` immediately before any UI edit.
+3. Read **frontend-design** for new surfaces or a changed visual world.
+4. Read **design-taste-frontend** before implementing layout/CSS and again for browser verification.
+
+## When they overlap — pick the lead
+
+| Situation | Lead | Support |
+|-----------|------|---------|
+| New page or full visual redesign | frontend-design | Impeccable `shape` / new-work + `craft-floor`; Taste Skill build + checker |
+| Layout, spacing, section rhythm, equal edges | design-taste-frontend | Impeccable `layout` / `polish` for targeted passes |
+| Bold typography / palette commitment | frontend-design | Impeccable `typeset` / `colorize` if refining existing UI |
+| UX heuristic review, ranked fixes | Impeccable `critique` | Taste Skill browser check |
+| a11y, responsive, perf, technical audit | Impeccable `audit` | Project `test:a11y`, Lighthouse, `docs/calidad.md` (CI wins) |
+| AI slop / pattern detector | Impeccable `detect` + design hook | Taste Skill house rules |
+| Live variants in dev | Impeccable `live` | Taste Skill finish gate after accept |
+| Motion | design-taste-frontend | Impeccable `animate` only if consistent; never change Profile/Visitas motion without Maurizio |
+| i18n, errors, edge cases | Impeccable `harden` | Repo data/i18n conventions |
+
+If two leads disagree on **motion**, follow **design-taste-frontend** (one hero motion layer; no extra per-section entrances). If they disagree on **distinctiveness vs restraint**, use Impeccable **mode** from the surface brief: Experience/Persuade allows more POV; Operate/Read favors precision and Taste Skill restraint.
+
+## Impeccable in this project
+
+- Skill and hooks: `.cursor/skills/impeccable/`, `.cursor/hooks.json` (post-write detector).
+- Optional: `/impeccable document` to generate `DESIGN.md`; `npx impeccable detect` on `app/`, `components/`, or dev URL after `npm run dev`.

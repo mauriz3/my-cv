@@ -35,6 +35,11 @@
 - CV data in `data/`: shared facts and EN/ES copy; UI in `i18n/locales/`. Translate all visible and accessible text, including errors and metadata.
 - Keep the Visits API independent of its source, validated snapshot, and clearly labeled example fallback. Do not expose GA credentials to the browser.
 
+## Design (agents)
+
+- UI design, redesign, or polish: use **Impeccable** (`.cursor/skills/impeccable/`), **frontend-design** (user skill store), and **design-taste-frontend** together; see `.cursor/rules/design-stack.mdc` for lead skill when they overlap. Run `impeccable context` once per design session; read `craft-floor.md` before UI edits. `PRODUCT.md` holds Impeccable product context; add `DESIGN.md` via `/impeccable document` when useful.
+- Repo constraints (CSP, privacy, i18n, Profile/Visits motion, CI thresholds) always override design playbooks.
+
 ## UI and accessibility
 
 - Check contrast, keyboard, and accessibility in dark and light; dark by default, no flash.
