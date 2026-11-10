@@ -48,7 +48,7 @@ Raster assets in WebP (lossless for screenshots, quality 85 for covers); only `o
 
 ## CI and quality
 
-Every PR and every push to master runs `.github/workflows/ci.yml`: typecheck, tests with coverage (fails below 80%), generate, `audit:check`, gitleaks, axe (fails on serious/critical violations), and Lighthouse (per-category thresholds). Reports are stored as workflow artifacts in Actions; CI tools (Lighthouse CI, Netlify CLI) come from the lockfile and audits never send Google Analytics hits. Details: [docs/quality.md](docs/quality.md). Security (CSP, headers, dependencies): [docs/security.md](docs/security.md).
+Every PR and every push to master runs `.github/workflows/ci.yml`: typecheck, tests with coverage (fails below 80%), generate, `audit:check`, gitleaks, axe (fails on serious/critical violations), mobile journey touch-scroll regressions, and Lighthouse (per-category thresholds). Reports are stored as workflow artifacts in Actions; CI tools (Lighthouse CI, Netlify CLI) come from the lockfile and audits never send Google Analytics hits. Details: [docs/quality.md](docs/quality.md). Security (CSP, headers, dependencies): [docs/security.md](docs/security.md).
 
 ## Deployment
 
