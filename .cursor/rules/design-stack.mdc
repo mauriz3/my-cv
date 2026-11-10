@@ -5,6 +5,8 @@ alwaysApply: true
 
 # Design stack (always use together)
 
+Account User Rule **Design stack (Impeccable + skills)** defers here for overlap routing. Global copy: `~/.cursor/rules/design-stack.mdc`.
+
 For any UI design, redesign, polish, audit, or visual iteration in this repo, combine three sources. Repo rules in `AGENTS.md` (CSP, privacy, i18n, motion locks, CI) override everything.
 
 ## Sources
