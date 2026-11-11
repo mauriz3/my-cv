@@ -150,7 +150,7 @@ jobs:
             curl -fsS "http://localhost:8080/api/visits/$range" | python3 -c 'import json,sys; r=json.load(sys.stdin); assert r["sample"] is True'
           done
           curl -fsS http://localhost:8080/geo | python3 -c 'import json,sys; assert json.load(sys.stdin) == {"country": None}'
-          docker image inspect my-cv:local --format 'Docker image: {{.Size}} bytes (uncompressed)' >> "$GITHUB_STEP_SUMMARY"
+          docker image inspect my-cv:local --format 'Docker image: {{.Size}} bytes (uncompressed)' | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Container logs and cleanup
         if: always()
         run: |
