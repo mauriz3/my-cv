@@ -110,6 +110,8 @@ describe('scripts/serve-static.mjs', () => {
     expect(acceptsBrotli('BR; Q = 0.5')).toBe(true)
     expect(acceptsBrotli('*;q=1, br;q=0.0')).toBe(false)
     expect(acceptsBrotli('br;q=1,br;q=0')).toBe(false)
+    expect(acceptsBrotli('br;q=1;q=0')).toBe(false)
+    expect(acceptsBrotli('br;invalid')).toBe(false)
     expect(acceptsBrotli('*;q=0.5')).toBe(true)
     expect(negotiateEncoding('gzip;q=1, br;q=0.5')).toBe('gzip')
     expect(negotiateEncoding('gzip;q=0.5,br;q=1')).toBe('br')
@@ -255,13 +257,15 @@ describe('scripts/serve-static.mjs', () => {
     symlinkSync(join(outside, 'marker.txt'), join(root, 'linked.txt'))
     symlinkSync(outside, join(root, 'linked-directory'))
     symlinkSync(join(root, 'en/index.html'), join(root, 'internal.txt'))
+    symlinkSync(join(root, '.env'), join(root, 'private-alias.txt'))
+    symlinkSync(join(root, '_headers'), join(root, 'headers-alias.txt'))
     unlinkSync(join(root, '404.html'))
     symlinkSync(join(outside, 'marker.txt'), join(root, '404.html'))
     const server = await createStaticServer(root)
     await new Promise<void>((resolve) => server.listen(0, SERVER_HOST, resolve))
     try {
       const origin = `http://${SERVER_HOST}:${(server.address() as AddressInfo).port}`
-      for (const path of ['/linked.txt', '/linked-directory/marker.txt', '/missing', '/404.html']) {
+      for (const path of ['/linked.txt', '/linked-directory/marker.txt', '/private-alias.txt', '/headers-alias.txt', '/missing', '/404.html']) {
         const response = await fetch(`${origin}${path}`)
         expect(response.status).toBe(404)
         expect(await response.text()).not.toContain('OUTSIDE_MARKER')

@@ -11,7 +11,7 @@
  */
 import { createServer } from 'node:http'
 import { readFile, realpath, stat } from 'node:fs/promises'
-import { extname, join, resolve, sep } from 'node:path'
+import { extname, join, relative, resolve, sep } from 'node:path'
 import { brotliCompressSync, gzipSync } from 'node:zlib'
 import geo, { config as geoConfig } from '../netlify/edge-functions/geo.ts'
 import { isDirectRun } from './isDirectRun.mjs'
@@ -53,8 +53,9 @@ function encodingQualities(header) {
   for (const entry of header.toLowerCase().split(',')) {
     const [coding = '', ...params] = entry.split(';').map((part) => part.trim())
     if (!coding) continue
-    const q = params.find((part) => /^q\s*=/.test(part))?.split('=')[1]?.trim()
-    const quality = q === undefined ? 1 : /^(?:0(?:\.\d{0,3})?|1(?:\.0{0,3})?)$/.test(q) ? Number(q) : 0
+    const weights = params.filter((part) => /^q\s*=/.test(part))
+    const q = weights[0]?.split('=')[1]?.trim()
+    const quality = weights.length > 1 || params.length !== weights.length ? 0 : q === undefined ? 1 : /^(?:0(?:\.\d{0,3})?|1(?:\.0{0,3})?)$/.test(q) ? Number(q) : 0
     qualities.set(coding, Math.min(qualities.get(coding) ?? 1, quality))
   }
   return qualities
@@ -135,16 +136,19 @@ export function preferredLanguage(header = '') {
   }).filter(({ language, quality }) => language && quality > 0 && quality <= 1).sort((a, b) => b.quality - a.quality)[0]?.language
 }
 
+function isPrivatePath(path) {
+  return path.split('/').some((part) => part.startsWith('.') || part === '_headers' || part === '_redirects')
+}
+
 async function resolveFile(root, urlPath) {
   const decoded = decodeURIComponent(urlPath)
-  if (decoded.includes('\\') || decoded.includes('\0') || decoded.split('/').some((part) =>
-    part.startsWith('.') || part === '_headers' || part === '_redirects')) return null
+  if (decoded.includes('\\') || decoded.includes('\0') || isPrivatePath(decoded)) return null
   const directory = resolve(root)
   const base = resolve(directory, `.${decoded}`)
   if (!base.startsWith(`${directory}${sep}`) && base !== directory) return null
   for (const candidate of [base, `${base}.html`, join(base, 'index.html')]) {
     const canonical = await containedFile(directory, candidate)
-    if (canonical) return canonical
+    if (canonical && !isPrivatePath(relative(directory, canonical))) return canonical
   }
   return null
 }
