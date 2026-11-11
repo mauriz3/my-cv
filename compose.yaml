@@ -1,0 +1,13 @@
+services:
+  web:
+    build: .
+    image: my-cv:local
+    ports:
+      - "8080:8080"
+    env_file:
+      - path: .env
+        required: false
+    read_only: true
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true

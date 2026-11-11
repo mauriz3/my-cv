@@ -10,6 +10,8 @@ import {
   acceptsBrotli,
   createStaticServer,
   parseHeadersFile,
+  parseRedirectsFile,
+  preferredLanguage,
   serverReadyMessage
 } from '../../scripts/serve-static.mjs'
 
@@ -36,6 +38,8 @@ function createSite(): string {
   mkdirSync(join(root, 'api/visits'), { recursive: true })
   mkdirSync(join(root, '_nuxt/builds'), { recursive: true })
   writeFileSync(join(root, '_headers'), HEADERS_FILE)
+  writeFileSync(join(root, '_redirects'), '# Root redirects\n/ /es/ 302 Language=es\n/ /en/ 302\n')
+  writeFileSync(join(root, '.env'), 'NOT_PUBLIC')
   writeFileSync(join(root, 'en/index.html'), '<h1>Profile</h1>')
   writeFileSync(join(root, 'en/books.html'), '<p>Books</p>')
   writeFileSync(join(root, '404.html'), '<h1>404</h1>')
@@ -59,6 +63,22 @@ describe('scripts/serve-static.mjs', () => {
     expect(api!.test('/api/visits/7d')).toBe(true)
     expect(nuxtAsset!.test('/_nuxt/app.js')).toBe(true)
     expect(nuxtAsset!.test('/_nuxt/builds/latest.json')).toBe(false)
+  })
+
+  it('retains noindex outside audit mode', () => {
+    expect(parseHeadersFile(HEADERS_FILE, { omitNoindex: false })[0]!.headers)
+      .toContainEqual(['X-Robots-Tag', 'noindex, nofollow'])
+  })
+
+  it('parses local redirects and rejects unsupported rules instead of silently drifting', () => {
+    expect(parseRedirectsFile('/ /en/ 302')).toEqual([{ from: '/', to: '/en/', status: 302, language: undefined }])
+    for (const rule of ['/ https://example.test 302', '/ /en/ 200', '/* /en/:splat 301', '/ /en/ 302 Country=es', '/ /en/ 302 Language=es extra']) {
+      expect(() => parseRedirectsFile(rule)).toThrow('Unsupported static redirect rule')
+    }
+    expect(preferredLanguage()).toBeUndefined()
+    expect(preferredLanguage('en;q=0.5,es-ES;q=0.9')).toBe('es')
+    expect(preferredLanguage('es;q=0,en')).toBe('en')
+    expect(preferredLanguage('es;q=invalid,en;q=2')).toBeUndefined()
   })
 
   it('accepts Brotli only when client asks without q=0', () => {
@@ -95,6 +115,26 @@ describe('scripts/serve-static.mjs', () => {
       expect(profile.headers.get('content-type')).toBe('text/html; charset=utf-8')
       expect(await profile.text()).toBe('<h1>Profile</h1>')
       expect(await (await fetch(`${baseUrl}/en/books`)).text()).toBe('<p>Books</p>')
+    })
+
+    it('redirects the root by preferred language using _redirects', async () => {
+      for (const [language, target] of [['es-ES,en;q=0.8', '/es/'], ['en,es;q=0.8', '/en/'], ['fr', '/en/']]) {
+        const response = await fetch(`${baseUrl}/`, { headers: { 'accept-language': language! }, redirect: 'manual' })
+        expect(response.status).toBe(302)
+        expect(response.headers.get('location')).toBe(target)
+        expect(response.headers.get('content-security-policy')).toBe("default-src 'self'")
+      }
+    })
+
+    it('rejects malformed escapes, hidden files and unsupported methods without crashing', async () => {
+      for (const path of ['/.env', '/_headers', '/_redirects', '/..%5c.env', '/%00']) {
+        expect((await fetch(`${baseUrl}${path}`)).status).toBe(404)
+      }
+      expect((await fetch(`${baseUrl}/%broken`)).status).toBe(400)
+      const post = await fetch(`${baseUrl}/en`, { method: 'POST' })
+      expect(post.status).toBe(405)
+      expect(post.headers.get('allow')).toBe('GET, HEAD')
+      expect((await fetch(`${baseUrl}/en/`)).status).toBe(200)
     })
 
     it('applies matching _headers rules', async () => {
@@ -141,6 +181,19 @@ describe('scripts/serve-static.mjs', () => {
       expect(head.status).toBe(200)
       expect(await head.text()).toBe('')
     })
+  })
+
+  it('container mode preserves noindex and uses unknown country without credentials', async () => {
+    const server = await createStaticServer(createSite(), { omitNoindex: false, geoCountry: null })
+    await new Promise<void>((resolve) => server.listen(0, SERVER_HOST, resolve))
+    try {
+      const origin = `http://${SERVER_HOST}:${(server.address() as AddressInfo).port}`
+      expect((await fetch(`${origin}/en/`)).headers.get('x-robots-tag')).toBe('noindex, nofollow')
+      expect(await (await fetch(`${origin}/geo`)).json()).toEqual({ country: null })
+      expect(serverReadyMessage('public', 8080, '0.0.0.0')).toContain('http://0.0.0.0:8080')
+    } finally {
+      await new Promise<void>((resolve) => server.close(() => resolve()))
+    }
   })
 
   it('without _headers serves the same, no extra headers', async () => {
