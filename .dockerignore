@@ -1,6 +1,11 @@
 # Local state, credentials, generated output and test artifacts never enter the build context.
 **/node_modules
 **/.env*
+**/.npmrc
+**/.yarnrc*
+**/.ssh
+**/.aws
+**/.config/gcloud
 **/.git
 **/.git/**
 **/.output
@@ -18,6 +23,8 @@
 **/*.log
 **/*.pem
 **/*.key
+**/*.p12
+**/*.pfx
 **/*service-account*.json
 **/credentials*.json
 **/secrets*
