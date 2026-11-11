@@ -595,6 +595,59 @@ const courses = computed(() =>
   }
 }
 
+/* Short phones keep the pinned composition; tall phones retain the original spacing. */
+@media (max-width: 767.98px) and (min-height: 520px) and (max-height: 820px) {
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) {
+    --holo-height: 22cqh;
+    --holo-top: 1.25rem;
+    --timeline-top: calc(var(--holo-top) + var(--holo-height) + 0.25rem);
+    --cards-top: calc(var(--timeline-top) + 2.75rem);
+    --cards-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+  }
+
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__cards {
+    bottom: var(--cards-bottom);
+  }
+
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__card[data-point-index='0'] > article {
+    max-height: calc(100cqh - var(--cards-top) - var(--cards-bottom));
+  }
+}
+
+@media (max-width: 767.98px) and (min-height: 520px) and (max-height: 700px) {
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) {
+    --holo-height: 16cqh;
+    --holo-top: 0.75rem;
+  }
+
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey__card > article {
+    padding: 0.75rem;
+  }
+
+  /* Only the redundant numbered section label is hidden; headings and all content remain. */
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey-card__header > p:first-child {
+    display: none;
+  }
+
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey-card__header h2 {
+    font-size: 1.125rem;
+    line-height: 1.25;
+  }
+
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .journey-scene {
+    block-size: 48px;
+  }
+
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .profile-card__body {
+    margin-top: 0.75rem;
+    gap: 0.75rem;
+  }
+
+  :root[data-motion='full'] .journey:not([data-cards-fit='false']) .profile-card__pillars {
+    margin-top: 0.5rem;
+  }
+}
+
 /*
  * Tanda F: con pin, Profile carga en su estado inicial (p = 0), ya visible, y se asienta con el primer scroll.
  * It is fixed in the CSS so that it does not jump when hydrating; `useCardMotion` overwrites it online.
