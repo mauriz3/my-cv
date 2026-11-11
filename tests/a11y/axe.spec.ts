@@ -55,17 +55,36 @@ for (const theme of THEMES) {
   })
 }
 
-/** Strips only the redirect (meta refresh and script with `location.replace`) to audit the minimal page itself. */
-function withoutClientRedirect(html: string) {
-  return html.replace(/<meta http-equiv="refresh"[^>]*>/, '').replace(/<script[^>]*>[^<]*location\.replace[^<]*<\/script>/, '')
-}
-
+/** Audit the short-link page itself: drop the meta refresh and `location.replace` script in the DOM, not with HTML regex. */
 test(`axe · ${BOOKS_SHORT_LINK} minimal page (without redirect)`, async ({ page }) => {
-  await page.route(BOOKS_SHORT_LINK, async (route) => {
-    const response = await route.fetch()
-    await route.fulfill({ response, body: withoutClientRedirect(await response.text()) })
+  // Stay on this document if a leftover redirect script still runs.
+  await page.addInitScript(() => {
+    Location.prototype.replace = function replace() {}
   })
-  await page.goto(BOOKS_SHORT_LINK)
+
+  const response = await page.request.get(BOOKS_SHORT_LINK)
+  expect(response.ok()).toBe(true)
+
+  const withoutRedirect = await page.evaluate((html) => {
+    const parsed = new DOMParser().parseFromString(html, 'text/html')
+    for (const meta of parsed.querySelectorAll('meta[http-equiv="refresh" i]')) {
+      meta.remove()
+    }
+    for (const script of [...parsed.querySelectorAll('script')]) {
+      if (script.textContent?.includes('location.replace')) script.remove()
+    }
+    return `<!DOCTYPE html>${parsed.documentElement.outerHTML}`
+  }, await response.text())
+
+  await page.route(BOOKS_SHORT_LINK, async (route) => {
+    await route.fulfill({
+      status: response.status(),
+      contentType: 'text/html; charset=utf-8',
+      body: withoutRedirect
+    })
+  })
+
+  await page.goto(BOOKS_SHORT_LINK, { waitUntil: 'networkidle' })
   await expect(page.locator('main a')).toHaveAttribute('href', BOOKS_DESTINATION)
   await expectNoBlockingViolations(page)
 })
