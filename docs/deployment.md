@@ -50,9 +50,17 @@ Artifacts are kept seven days and deploy concurrency does not cancel a deploy in
 
 ## Docker
 
-- `docker compose up --build -d --wait` → <http://localhost:8080/en/> or `/es/`; stop with `docker compose down`. Compose ≥2.24 supports the optional `.env` file.
-- Without Compose: `docker build -t my-cv:local .` then `docker run --rm --read-only --cap-drop ALL --security-opt no-new-privileges -p 8080:8080 my-cv:local`.
-- Multi-stage, digest-pinned Node 24 Alpine build; runtime includes only static files and the dependency-free server, runs as `node`, and healthchecks `/en/`. CI builds with a GitHub Actions cache and checks startup, routes, redirects, headers and sample JSON; it never publishes an image or changes production gates.
-- Generated `_headers` (including CSP hashes, caching and **noindex**) are applied. Existing `_redirects` root language rules are supported; unsupported new rules fail startup. Local builds disable analytics. `/geo` returns unknown country by default (`GEO_COUNTRY` can simulate one), not real IP geolocation.
-- Visits works with labeled **sample data**. Netlify Functions, Blobs, schedules, rate limits and Edge infrastructure are not hosted by Docker. For real GA4, use your own Netlify site and credentials: [GA4 setup](ga4.md#one-time-setup). Runtime `GA_*` values do not enable it, and real snapshots must not be baked into the image.
-- No configuration is required. `.env.example` lists optional variables with blank placeholders; copy to gitignored `.env` only when needed and replace values with your own. `.env*`, keys, snapshots, dependencies, Git history and test artifacts are excluded from the build context. Never pass credentials as build arguments or commit them. Build-time settings are fixed in the Dockerfile; runtime environment cannot rewrite generated assets. Existing CV content/public links remain unchanged.
+```sh
+docker compose up --build -d --wait
+# http://localhost:8080/en/ or /es/
+docker compose down
+```
+
+Without Compose: `docker build -t my-cv:local .`, then `docker run --rm --read-only --cap-drop ALL --security-opt no-new-privileges -p 127.0.0.1:8080:8080 my-cv:local`.
+
+- **Local only:** host port binds to `127.0.0.1`, not the LAN. Compose limits RAM/CPU/PIDs to 256 MiB/1/64; CI checks the limits and records usage.
+- **Image:** multi-stage, digest-pinned Node 24 Alpine and Dockerfile frontend. Runtime contains static files and the dependency-free server; UID/GID `10001:10001`, root-owned non-writable content, read-only filesystem and `/en/` healthcheck.
+- **Configuration:** none required. Compose forwards only fixed `PORT=8080` and optional `${GEO_COUNTRY:-}` from the shell or gitignored `.env`; GA/Netlify credentials are never injected. `.env.example` separates external tooling variables; use your own values. Runtime settings cannot change a static build. Credentials, snapshots and local artifacts are excluded from the build context; never pass secrets as build arguments.
+- **Behaviour:** generated security/cache headers, CSP hashes and noindex are retained; missing/incomplete critical headers fail startup. Existing root language redirects work; unsupported rules fail startup. Analytics is disabled; `/geo` returns unknown country unless simulated. Visits uses labeled sample data. Real GA4 needs your own [Netlify setup](ga4.md#one-time-setup); Functions/Blobs/schedules/edge rate limits are not hosted here.
+- **Server:** symlinks (including 404 and metadata) stay within the real document root. Keep content immutable; do not mount attacker-writable trees (no race-safety guarantee). Encoding quality/exclusions cover Brotli/gzip/identity; unexpected errors return generic 500s and shutdown drains for at most five seconds.
+- **Maintenance:** CI builds with GHA cache, verifies startup/hardening and scans with cached, SHA/version-pinned Trivy (five-minute timeout): fixable HIGH/CRITICAL OS/library vulnerabilities fail. No exceptions; future exceptions require reason and expiry ([policy](security.md)). Dependabot proposes weekly Docker/Actions updates. No image publication or production-gate changes.

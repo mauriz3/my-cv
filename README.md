@@ -17,7 +17,7 @@ npm run dev
 
 ## Run with Docker
 
-Requires Docker with Compose ≥2.24; no Node installation or credentials needed.
+Requires Docker with Compose; no Node installation or credentials needed.
 
 ```bash
 docker compose up --build -d --wait
@@ -25,8 +25,8 @@ docker compose up --build -d --wait
 docker compose down
 ```
 
-The non-root, read-only container serves the generated site with security headers and sample Visits data.
-Optional: copy `.env.example` to `.env` and use **your own** values; runtime variables cannot enable GA4 or change a static build. [Details](docs/deployment.md#docker).
+The non-root, read-only container is published on **127.0.0.1:8080 only**, with security headers and sample Visits data.
+Optional `.env` configuration only supplies `GEO_COUNTRY`; GA/Netlify credentials are never injected into Docker. Runtime settings cannot change the static build. [Details](docs/deployment.md#docker).
 
 ## Scripts
 

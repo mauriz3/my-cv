@@ -3,10 +3,13 @@ services:
     build: .
     image: my-cv:local
     ports:
-      - "8080:8080"
-    env_file:
-      - path: .env
-        required: false
+      - "127.0.0.1:8080:8080"
+    environment:
+      PORT: "8080"
+      GEO_COUNTRY: "${GEO_COUNTRY:-}"
+    mem_limit: 256m
+    cpus: 1.0
+    pids_limit: 64
     read_only: true
     cap_drop: [ALL]
     security_opt:

@@ -1,6 +1,5 @@
-# Actualizaciones semanales de dependencias. Sin auto-merge: cada PR pasa la CI (verify + secrets) y se revisa a mano.
-# Minor y patch van agrupadas en una sola PR por ecosistema; las major llegan sueltas.
-# Sin target-branch: las PRs van a la rama por defecto del repo (master).
+# Weekly reviewed updates; no auto-merge. Minor/patch updates are grouped per ecosystem.
+# No target-branch: PRs use the default branch (master).
 version: 2
 updates:
   - package-ecosystem: npm
@@ -17,7 +16,7 @@ updates:
       minor-and-patch:
         update-types: [minor, patch]
     ignore:
-      # La web corre en Node 24: los tipos deben seguir esa major.
+      # The site uses Node 24; keep matching Node types.
       - dependency-name: '@types/node'
         update-types: ['version-update:semver-major']
   - package-ecosystem: github-actions
@@ -28,3 +27,8 @@ updates:
     groups:
       minor-and-patch:
         update-types: [minor, patch]
+  - package-ecosystem: docker
+    directory: /
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 2
+    commit-message: { prefix: 'chore(deps)' }
