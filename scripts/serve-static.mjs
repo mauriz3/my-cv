@@ -10,14 +10,15 @@
  * Usage: node scripts/serve-static.mjs [folder]   (port: PORT, default 4173; `/geo` country: GEO_COUNTRY)
  */
 import { createServer } from 'node:http'
-import { readFile, stat } from 'node:fs/promises'
+import { readFile, realpath, stat } from 'node:fs/promises'
 import { extname, join, resolve, sep } from 'node:path'
-import { brotliCompressSync } from 'node:zlib'
+import { brotliCompressSync, gzipSync } from 'node:zlib'
 import geo, { config as geoConfig } from '../netlify/edge-functions/geo.ts'
 import { isDirectRun } from './isDirectRun.mjs'
 
 const DEFAULT_ROOT = '.output/public'
 const DEFAULT_PORT = 4173
+const SHUTDOWN_TIMEOUT_MS = 5000
 /** Loopback only: CI and local audits must not expose the site to other hosts. */
 export const SERVER_HOST = '127.0.0.1'
 /** Start of the line printed once listening; lighthouserc.cjs waits for it (`startServerReadyPattern`). */
@@ -46,12 +47,34 @@ const CONTENT_TYPES = {
 /** MIME types Netlify serves compressed (text); images, fonts, and PDF are already compressed. */
 const COMPRESSIBLE_EXTENSIONS = new Set(['.html', '.js', '.css', '.json', '.svg', '.txt'])
 
-/** Does the client accept Brotli? (`Accept-Encoding: gzip, deflate, br`, without `br;q=0`). */
+/** Parse quality numerically, treating invalid/duplicate exclusions conservatively. */
+function encodingQualities(header) {
+  const qualities = new Map()
+  for (const entry of header.toLowerCase().split(',')) {
+    const [coding = '', ...params] = entry.split(';').map((part) => part.trim())
+    if (!coding) continue
+    const q = params.find((part) => /^q\s*=/.test(part))?.split('=')[1]?.trim()
+    const quality = q === undefined ? 1 : /^(?:0(?:\.\d{0,3})?|1(?:\.0{0,3})?)$/.test(q) ? Number(q) : 0
+    qualities.set(coding, Math.min(qualities.get(coding) ?? 1, quality))
+  }
+  return qualities
+}
+
+/** Explicit exclusions override wildcards; missing Accept-Encoding keeps identity. */
 export function acceptsBrotli(acceptEncoding = '') {
-  return acceptEncoding.split(',').some((part) => {
-    const [coding = '', ...params] = part.split(';').map((token) => token.trim())
-    return coding === 'br' && !params.includes('q=0')
-  })
+  const qualities = encodingQualities(acceptEncoding)
+  return (qualities.get('br') ?? qualities.get('*') ?? 0) > 0
+}
+
+/** Prefer the highest quality supported encoding, Brotli on ties; null means 406. */
+export function negotiateEncoding(acceptEncoding = '') {
+  const qualities = encodingQualities(acceptEncoding)
+  const quality = (coding) => qualities.get(coding) ?? qualities.get('*') ?? 0
+  const encoding = quality('br') >= quality('gzip') ? 'br' : 'gzip'
+  const best = quality(encoding)
+  const identity = qualities.get('identity') ?? (qualities.get('*') === 0 ? 0 : 1)
+  if (best > 0 && (qualities.get('identity') === undefined || best >= identity)) return encoding
+  return identity > 0 ? 'identity' : null
 }
 
 /** Netlify `_headers`: one route line and indented headers below it. */
@@ -79,8 +102,16 @@ function toRegExp(pathPattern) {
   return new RegExp(`^${source}$`)
 }
 
-async function isFile(path) {
-  return (await stat(path).catch(() => null))?.isFile() ?? false
+/** Resolve symlinks as well as lexical paths. Published content must remain immutable. */
+async function containedFile(root, candidate) {
+  try {
+    const canonical = await realpath(candidate)
+    if (!canonical.startsWith(`${root}${sep}`)) return null
+    return (await stat(canonical)).isFile() ? canonical : null
+  } catch (error) {
+    if (['ENOENT', 'ENOTDIR'].includes(error.code)) return null
+    throw error
+  }
 }
 
 /** Supported Netlify subset: literal local redirects with an optional Language condition. Fail closed on drift. */
@@ -112,7 +143,8 @@ async function resolveFile(root, urlPath) {
   const base = resolve(directory, `.${decoded}`)
   if (!base.startsWith(`${directory}${sep}`) && base !== directory) return null
   for (const candidate of [base, `${base}.html`, join(base, 'index.html')]) {
-    if (await isFile(candidate)) return candidate
+    const canonical = await containedFile(directory, candidate)
+    if (canonical) return canonical
   }
   return null
 }
@@ -127,50 +159,86 @@ async function serveGeo(request, response, country) {
 /**
  * Server for generated site in `root` (not listening yet).
  * @param {string} root
- * @param {{ geoCountry?: string | null, omitNoindex?: boolean }} options
+ * @param {{ geoCountry?: string | null, omitNoindex?: boolean, requireHeaders?: boolean }} options
  */
-export async function createStaticServer(root, { geoCountry = DEFAULT_GEO_COUNTRY, omitNoindex = true } = {}) {
-  const headerRules = parseHeadersFile(await readFile(join(root, '_headers'), 'utf8').catch(() => ''), { omitNoindex })
-  const redirects = parseRedirectsFile(await readFile(join(root, '_redirects'), 'utf8').catch(() => ''))
-  /** Brotli per file, once (generated site does not change while serving). */
+export async function createStaticServer(root, { geoCountry = DEFAULT_GEO_COUNTRY, omitNoindex = true, requireHeaders = false } = {}) {
+  root = await realpath(root)
+  const headersFile = await containedFile(root, join(root, '_headers'))
+  if (requireHeaders && !headersFile) throw new Error('Static security headers are required')
+  const headerRules = parseHeadersFile(headersFile ? await readFile(headersFile, 'utf8') : '', { omitNoindex })
+  if (requireHeaders) {
+    const globalHeaders = new Map(headerRules.filter((rule) => rule.pattern.test('/')).flatMap((rule) =>
+      rule.headers.map(([name, value]) => [name.toLowerCase(), value])))
+    const critical = ['content-security-policy', 'x-content-type-options', 'x-frame-options', 'referrer-policy',
+      'permissions-policy', 'strict-transport-security', 'cross-origin-opener-policy']
+    if (critical.some((name) => !globalHeaders.get(name)) || globalHeaders.get('x-content-type-options') !== 'nosniff') {
+      throw new Error('Static security headers are incomplete')
+    }
+  }
+  const redirectsFile = await containedFile(root, join(root, '_redirects'))
+  const redirects = parseRedirectsFile(redirectsFile ? await readFile(redirectsFile, 'utf8') : '')
+  /** At most one cached result per encoding/file; the published tree is immutable. */
   const compressed = new Map()
   return createServer(async (request, response) => {
-    if (!['GET', 'HEAD'].includes(request.method ?? '')) {
-      response.writeHead(405, { Allow: 'GET, HEAD' })
-      return response.end()
-    }
-    let urlPath
     try {
-      urlPath = new URL(request.url ?? '/', 'http://localhost').pathname
-      decodeURIComponent(urlPath)
-    } catch {
-      response.writeHead(400)
-      return response.end()
-    }
-    for (const rule of headerRules) {
-      if (rule.pattern.test(urlPath)) for (const [name, value] of rule.headers) response.setHeader(name, value)
-    }
-    const redirect = redirects.find((rule) => rule.from === urlPath &&
-      (!rule.language || rule.language === preferredLanguage(request.headers['accept-language'])))
-    if (redirect) {
-      response.writeHead(redirect.status, { Location: redirect.to })
-      return response.end()
-    }
-    if (urlPath === geoConfig.path) return serveGeo(request, response, geoCountry)
-    const file = await resolveFile(root, urlPath)
-    const servedFile = file ?? join(root, '404.html')
-    let body = await readFile(servedFile).catch(() => Buffer.from('Not found'))
-    if (!response.hasHeader('Content-Type')) response.setHeader('Content-Type', CONTENT_TYPES[extname(servedFile)] ?? 'application/octet-stream')
-    if (COMPRESSIBLE_EXTENSIONS.has(extname(servedFile))) {
-      response.setHeader('Vary', 'Accept-Encoding')
-      if (acceptsBrotli(request.headers['accept-encoding'])) {
-        body = compressed.get(servedFile) ?? brotliCompressSync(body)
-        compressed.set(servedFile, body)
-        response.setHeader('Content-Encoding', 'br')
+      if (!['GET', 'HEAD'].includes(request.method ?? '')) {
+        response.writeHead(405, { Allow: 'GET, HEAD' })
+        return response.end()
       }
+      let urlPath
+      try {
+        urlPath = new URL(request.url ?? '/', 'http://localhost').pathname
+        decodeURIComponent(urlPath)
+      } catch {
+        response.writeHead(400)
+        return response.end()
+      }
+      for (const rule of headerRules) {
+        if (rule.pattern.test(urlPath)) for (const [name, value] of rule.headers) response.setHeader(name, value)
+      }
+      const redirect = redirects.find((rule) => rule.from === urlPath &&
+        (!rule.language || rule.language === preferredLanguage(request.headers['accept-language'])))
+      if (redirect) {
+        response.writeHead(redirect.status, { Location: redirect.to })
+        return response.end()
+      }
+      if (urlPath === geoConfig.path) return await serveGeo(request, response, geoCountry)
+      const file = await resolveFile(root, urlPath)
+      const servedFile = file ?? await resolveFile(root, '/404.html')
+      let body = servedFile ? await readFile(servedFile) : Buffer.from('Not found')
+      const extension = servedFile ? extname(servedFile) : '.txt'
+      if (!response.hasHeader('Content-Type')) response.setHeader('Content-Type', CONTENT_TYPES[extension] ?? 'application/octet-stream')
+      if (COMPRESSIBLE_EXTENSIONS.has(extension)) {
+        response.setHeader('Vary', 'Accept-Encoding')
+        const encoding = negotiateEncoding(request.headers['accept-encoding'])
+        if (!encoding) {
+          response.writeHead(406)
+          return response.end()
+        }
+        if (encoding !== 'identity') {
+          const cacheKey = `${encoding}:${servedFile}`
+          body = compressed.get(cacheKey) ?? (encoding === 'br' ? brotliCompressSync(body) : gzipSync(body))
+          compressed.set(cacheKey, body)
+          response.setHeader('Content-Encoding', encoding)
+        }
+      }
+      response.writeHead(file ? 200 : 404)
+      response.end(request.method === 'HEAD' ? undefined : body)
+    } catch {
+      if (response.headersSent) return response.destroy()
+      response.removeHeader('Content-Encoding')
+      response.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' })
+      response.end(request.method === 'HEAD' ? undefined : 'Internal server error')
     }
-    response.writeHead(file ? 200 : 404)
-    response.end(request.method === 'HEAD' ? undefined : body)
+  })
+}
+
+/** Bounded graceful shutdown: drain requests, then terminate remaining connections. */
+export function closeStaticServer(server, timeoutMs = SHUTDOWN_TIMEOUT_MS) {
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => server.closeAllConnections(), timeoutMs)
+    timer.unref()
+    server.close(() => { clearTimeout(timer); resolve() })
   })
 }
 
@@ -185,7 +253,7 @@ if (isDirectRun(import.meta.url)) {
   const container = process.argv.includes('--container')
   const host = container ? '0.0.0.0' : SERVER_HOST
   const geoCountry = process.env.GEO_COUNTRY || (container ? null : DEFAULT_GEO_COUNTRY)
-  const server = await createStaticServer(root, { geoCountry, omitNoindex: !container })
+  const server = await createStaticServer(root, { geoCountry, omitNoindex: !container, requireHeaders: container })
   server.listen(port, host, () => console.log(serverReadyMessage(root, port, host)))
-  for (const signal of ['SIGTERM', 'SIGINT']) process.on(signal, () => server.close())
+  for (const signal of ['SIGTERM', 'SIGINT']) process.once(signal, () => { void closeStaticServer(server) })
 }

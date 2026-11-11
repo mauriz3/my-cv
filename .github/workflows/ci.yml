@@ -128,12 +128,28 @@ jobs:
           tags: my-cv:local
           cache-from: type=gha,scope=docker
           cache-to: type=gha,scope=docker,mode=max
+      - name: Scan runtime image (fixable HIGH/CRITICAL vulnerabilities)
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
+        with:
+          version: v0.76.2
+          image-ref: my-cv:local
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: '1'
+          timeout: 5m
+          cache: true
       - name: Start unprivileged container and verify routes, headers and sample Visits
         run: |
+          # Synthetic sentinels prove a general .env cannot inject external-service settings.
+          printf '%s\n' GA_PROPERTY_ID=not-forwarded GA_SERVICE_ACCOUNT_JSON=not-forwarded NETLIFY_AUTH_TOKEN=not-forwarded NETLIFY_SITE_ID=not-forwarded VISITS_SNAPSHOT_FILE=not-forwarded > .env
           docker compose up --no-build --wait --wait-timeout 90
           id=$(docker compose ps -q web)
           test "$(docker inspect --format '{{.State.Health.Status}}' "$id")" = healthy
-          test "$(docker compose exec -T web id -u)" != 0
+          docker inspect "$id" | python3 -c 'import json,sys; c=json.load(sys.stdin)[0]; p=c["HostConfig"]["PortBindings"]["8080/tcp"]; assert p == [{"HostIp":"127.0.0.1","HostPort":"8080"}]; h=c["HostConfig"]; assert h["Memory"] == 268435456 and h["NanoCpus"] == 1000000000 and h["PidsLimit"] == 64 and h["ReadonlyRootfs"]; assert c["Config"]["User"] == "10001:10001"; assert not any(e.startswith(("GA_", "NETLIFY_", "VISITS_SNAPSHOT_FILE=")) for e in c["Config"]["Env"])'
+          test "$(docker compose port web 8080)" = 127.0.0.1:8080
+          test "$(docker compose exec -T web id -u)" = 10001
+          docker compose exec -T web node --input-type=module -e 'import { lstatSync, readdirSync } from "node:fs"; const check=p=>{const s=lstatSync(p); if(s.uid!==0||s.gid!==0||(s.mode&0o222))throw Error("Writable or non-root-owned content"); if(s.isDirectory())for(const f of readdirSync(p))check(p+"/"+f)}; check("/app")'
           docker compose exec -T web sh -c 'test ! -d node_modules && test ! -e .env && ! command -v npm'
           for path in /en/ /es/ /en/books /es/libros /en/visits /es/visits; do
             test "$(curl -sS -o /dev/null -w '%{http_code}' "http://localhost:8080$path")" = 200
@@ -150,6 +166,7 @@ jobs:
             curl -fsS "http://localhost:8080/api/visits/$range" | python3 -c 'import json,sys; r=json.load(sys.stdin); assert r["sample"] is True'
           done
           curl -fsS http://localhost:8080/geo | python3 -c 'import json,sys; assert json.load(sys.stdin) == {"country": None}'
+          docker stats --no-stream --format 'Runtime usage: {{.MemUsage}} memory, {{.CPUPerc}} CPU, {{.PIDs}} PIDs' "$id" | tee -a "$GITHUB_STEP_SUMMARY"
           docker image inspect my-cv:local --format 'Docker image: {{.Size}} bytes (uncompressed)' | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Container logs and cleanup
         if: always()
