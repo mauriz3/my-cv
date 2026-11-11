@@ -120,3 +120,9 @@ First commit/PR dates verified (Atlantic/Canary); base: `master` at `8974b35` (a
 - **Context:** The card-fit guard correctly falls back to static on short phones, but Education exceeds the available zone by up to 145px at 360×640 (EN).
 - **Decision:** Keep the 520–950px mobile pin guard and fit measurement. Only in the animated, fitting journey: at ≤820px height reduce the hologram to 22cqh and tighten vertical spacing; at ≤700px use 16cqh, 12px card padding, 18px section headings, and 48px scenes (Profile illustration included). Hide only redundant numbered card-header labels at ≤700px; keep their accessible article names, headings, all CV content, and ≥44px CTAs. Profile scroll chaining remains `auto`.
 - **Consequences:** Larger phones, tablet/desktop, default animations-off, and static fallback retain their existing presentation. CSS determines initial geometry before hydration. Real-touch/wheel and card-fit tests cover four English CI resolutions; broader EN/ES sizes are verified locally; new content must still pass the fit guard.
+
+## ADR-019 · Portable static Docker runtime
+**2026-11-11 · Proposed**.
+- **Context:** A fresh clone should start without Node or private configuration.
+- **Decision:** Multi-stage, digest-pinned Node 24 Alpine image; generate without analytics or real snapshots, then serve with the existing dependency-free server as non-root. Compose is read-only; preserve CSP, noindex and locale redirects. CI verifies the image starts.
+- **Consequences:** Visits uses sample data; real GA4 and platform infrastructure remain on Netlify. No credentials enter the build or image; `.env` is optional runtime-only configuration.

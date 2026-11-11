@@ -114,6 +114,49 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  # Independent startup smoke test: no registry push, credentials, or production changes.
+  docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
+        with:
+          context: .
+          load: true
+          tags: my-cv:local
+          cache-from: type=gha,scope=docker
+          cache-to: type=gha,scope=docker,mode=max
+      - name: Start unprivileged container and verify routes, headers and sample Visits
+        run: |
+          docker compose up --no-build --wait --wait-timeout 90
+          id=$(docker compose ps -q web)
+          test "$(docker inspect --format '{{.State.Health.Status}}' "$id")" = healthy
+          test "$(docker compose exec -T web id -u)" != 0
+          docker compose exec -T web sh -c 'test ! -d node_modules && test ! -e .env && ! command -v npm'
+          for path in /en/ /es/ /en/books /es/libros /en/visits /es/visits; do
+            test "$(curl -sS -o /dev/null -w '%{http_code}' "http://localhost:8080$path")" = 200
+          done
+          test "$(curl -sS -o /dev/null -w '%{http_code}' http://localhost:8080/not-found)" = 404
+          curl -fsSI http://localhost:8080/en/ > /tmp/docker-headers
+          grep -qi '^content-security-policy:.*sha256-' /tmp/docker-headers
+          grep -qi '^x-content-type-options: nosniff' /tmp/docker-headers
+          grep -qi '^cross-origin-opener-policy: same-origin' /tmp/docker-headers
+          grep -qi '^x-robots-tag: noindex' /tmp/docker-headers
+          test "$(curl -sS -o /dev/null -w '%{redirect_url}' -H 'Accept-Language: es' http://localhost:8080/)" = http://localhost:8080/es/
+          test "$(curl -sS -o /dev/null -w '%{redirect_url}' http://localhost:8080/)" = http://localhost:8080/en/
+          for range in 1d 7d 30d; do
+            curl -fsS "http://localhost:8080/api/visits/$range" | python3 -c 'import json,sys; r=json.load(sys.stdin); assert r["sample"] is True'
+          done
+          curl -fsS http://localhost:8080/geo | python3 -c 'import json,sys; assert json.load(sys.stdin) == {"country": None}'
+          docker image inspect my-cv:local --format 'Docker image: {{.Size}} bytes (uncompressed)' >> "$GITHUB_STEP_SUMMARY"
+      - name: Container logs and cleanup
+        if: always()
+        run: |
+          docker compose logs
+          docker compose down
+
   deploy-production:
     # Only on push to master after verify, secrets, a11y, and lighthouse pass. Never from pull_request.
     # The production environment allows you to require manual approval (Settings → Environments), without touching this file.

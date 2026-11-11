@@ -15,6 +15,19 @@ npm install
 npm run dev
 ```
 
+## Run with Docker
+
+Requires Docker with Compose ≥2.24; no Node installation or credentials needed.
+
+```bash
+docker compose up --build -d --wait
+# Open http://localhost:8080/en/ (or /es/)
+docker compose down
+```
+
+The non-root, read-only container serves the generated site with security headers and sample Visits data.
+Optional: copy `.env.example` to `.env` and use **your own** values; runtime variables cannot enable GA4 or change a static build. [Details](docs/deployment.md#docker).
+
 ## Scripts
 
 | Script | Purpose |
@@ -48,7 +61,7 @@ Raster assets in WebP (lossless for screenshots, quality 85 for covers); only `o
 
 ## CI and quality
 
-Every PR and every push to master runs `.github/workflows/ci.yml`: typecheck, tests with coverage (fails below 80%), generate, `audit:check`, gitleaks, axe (fails on serious/critical violations), responsive journey fit and touch/wheel-scroll regressions, and Lighthouse (per-category thresholds). Reports are stored as workflow artifacts in Actions; CI tools (Lighthouse CI, Netlify CLI) come from the lockfile and audits never send Google Analytics hits. Details: [docs/quality.md](docs/quality.md). Security (CSP, headers, dependencies): [docs/security.md](docs/security.md).
+Every PR and every push to master runs `.github/workflows/ci.yml`: typecheck, tests with coverage (fails below 80%), generate, `audit:check`, gitleaks, Docker build/startup smoke tests, axe (fails on serious/critical violations), responsive journey fit and touch/wheel-scroll regressions, and Lighthouse (per-category thresholds). Reports are stored as workflow artifacts in Actions; CI tools (Lighthouse CI, Netlify CLI) come from the lockfile and audits never send Google Analytics hits. Details: [docs/quality.md](docs/quality.md). Security (CSP, headers, dependencies): [docs/security.md](docs/security.md).
 
 ## Deployment
 

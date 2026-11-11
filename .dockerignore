@@ -1,0 +1,27 @@
+# Local state, credentials, generated output and test artifacts never enter the build context.
+**/node_modules
+**/.env*
+**/.git
+**/.git/**
+**/.output
+**/.nuxt
+**/.nitro
+**/.data
+**/.netlify
+**/.cache
+**/.npm
+**/coverage
+**/test-results
+**/playwright-report
+**/lighthouse-report*
+**/.lighthouseci
+**/*.log
+**/*.pem
+**/*.key
+**/*service-account*.json
+**/credentials*.json
+**/secrets*
+.tools
+.cursor
+.idea
+.vscode
