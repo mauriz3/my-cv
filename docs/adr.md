@@ -114,3 +114,9 @@ First commit/PR dates verified (Atlantic/Canary); base: `master` at `8974b35` (a
   - CI audits block Google Analytics domains; local audit server binds `127.0.0.1`; `netlify.toml` skips any Netlify-side build (`ignore = "exit 0"`).
   - `deepmerge` advisory accepted (build-time only, trusted config, not shipped). Review by 2027-02-08.
 - **Consequences:** `npm ci` installs more devDependencies (slower cold install, cached by `setup-node`). A new page must be added to `REPORTED_PAGE_PATHS` (a test enforces it). `/geo` can still be influenced by the visitor's own `X-Forwarded-For` through Netlify's lookup: documented, fail-safe, stricter check pending a preview test. Secret scanning and push protection remain for the owner to enable.
+
+## ADR-018 · Height-responsive mobile journey
+**2026-11-11 · Proposed**.
+- **Context:** The card-fit guard correctly falls back to static on short phones, but Education exceeds the available zone by up to 145px at 360×640 (EN).
+- **Decision:** Keep the 520–950px mobile pin guard and fit measurement. Only in the animated, fitting journey: at ≤820px height reduce the hologram to 22cqh and tighten vertical spacing; at ≤700px use 16cqh, 12px card padding, 18px section headings, and 48px scenes (Profile illustration included). Hide only redundant numbered card-header labels at ≤700px; keep their accessible article names, headings, all CV content, and ≥44px CTAs. Profile scroll chaining remains `auto`.
+- **Consequences:** Larger phones, tablet/desktop, default animations-off, and static fallback retain their existing presentation. CSS determines initial geometry before hydration. Real-touch/wheel and card-fit tests cover four English CI resolutions; broader EN/ES sizes are verified locally; new content must still pass the fit guard.
