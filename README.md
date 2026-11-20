@@ -40,7 +40,7 @@ Optional `.env` configuration only supplies `GEO_COUNTRY`; GA/Netlify credential
 | `npm run test:a11y` | axe on the generated site (requires `generate` and Google Chrome) |
 | `npm run lighthouse` | Lighthouse on the generated site (requires `generate` and Google Chrome) |
 | `npm run lighthouse:consent` | Same with the analytics notice (visit from the EU; production build) |
-| `npm run audit:check` | `npm audit` with justified exceptions (fails if the audit itself fails) |
+| `npm run audit:check` | `npm audit` with justified exceptions; ignores advisories GitHub has withdrawn (fails if the audit or that lookup fails) |
 | `npm run pdf` | Regenerate CV PDFs from `data/` ([scripts/pdf/README.md](scripts/pdf/README.md)) |
 | `npm run visits:snapshot` | Local GA4 snapshot ([docs/ga4.md](docs/ga4.md)) |
 
