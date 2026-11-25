@@ -32,7 +32,7 @@ function isCurrent(end: string | null): boolean {
         <article
           :aria-labelledby="`job-${job.id}`"
           class="rounded-xl border border-default bg-elevated p-4 md:p-6"
-          :class="isCurrent(job.period.end) ? 'md:grid md:grid-cols-[11rem_1fr] md:gap-8' : undefined"
+          :class="isCurrent(job.period.end) ? 'role-open md:grid md:grid-cols-[11rem_1fr] md:gap-8' : undefined"
         >
           <PeriodTime
             :period="job.period"
@@ -105,6 +105,52 @@ function isCurrent(end: string | null): boolean {
 
   to {
     top: 1.5rem;
+  }
+}
+
+/* The current role stays an open frame. The light moves along the edge; the card does not spin. */
+@property --role-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.role-open {
+  position: relative;
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--ui-border));
+  box-shadow: 0 18px 36px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.role-open::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--role-angle),
+    var(--accent) 0 12%,
+    var(--chart-1) 20%,
+    transparent 34% 100%
+  );
+  pointer-events: none;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+
+:root[data-motion='full'] .role-open::before {
+  animation: role-open-sweep 11s linear infinite;
+}
+
+@keyframes role-open-sweep {
+  to {
+    --role-angle: 360deg;
   }
 }
 </style>
