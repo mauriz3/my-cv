@@ -2,6 +2,7 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import AboutSection from '~/components/AboutSection.vue'
 import LanguagesSection from '~/components/LanguagesSection.vue'
+import { BODY_DELAY_MS, QUOTE_TEXT_DELAY_MS } from '~~/lib/profileSections'
 import { stubIntersectionObserver, withSetup } from './helpers'
 
 async function useLocale(locale: 'en' | 'es') {
@@ -30,8 +31,8 @@ describe('profile about and languages', () => {
     expect(wrapper.get('[data-testid="mvp-equation"]').attributes('aria-hidden')).toBe('true')
     expect(wrapper.attributes('data-reveal')).toBe('hidden')
     expect(wrapper.get('.about__quote-bar').attributes('style')).toContain('--enter-delay: 0ms')
-    expect(wrapper.get('.about__quote-text').attributes('style')).toContain('--enter-delay: 60ms')
-    expect(wrapper.get('.about__body').attributes('style')).toContain('--enter-delay: 150ms')
+    expect(wrapper.get('.about__quote-text').attributes('style')).toContain(`--enter-delay: ${QUOTE_TEXT_DELAY_MS}ms`)
+    expect(wrapper.get('.about__body').attributes('style')).toContain(`--enter-delay: ${BODY_DELAY_MS}ms`)
     wrapper.unmount()
   })
 
