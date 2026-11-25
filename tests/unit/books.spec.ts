@@ -16,7 +16,7 @@ describe('book cover', () => {
 })
 
 describe('staggered reveal', () => {
-  it('first card has no delay; each next is 120 ms later', () => {
+  it('first card has no delay; each next waits one stagger', () => {
     expect([0, 1, 2].map(revealDelayMs)).toEqual([0, BOOKS_REVEAL_STAGGER_MS, 2 * BOOKS_REVEAL_STAGGER_MS])
   })
 

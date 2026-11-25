@@ -6,7 +6,7 @@
 /** Visible fraction of the list that triggers the entrance (once). */
 export const BOOKS_REVEAL_THRESHOLD = 0.2
 /** Delay between cards in the staggered entrance. */
-export const BOOKS_REVEAL_STAGGER_MS = 120
+export const BOOKS_REVEAL_STAGGER_MS = 220
 
 export type CoverStatus = 'loading' | 'loaded' | 'error'
 

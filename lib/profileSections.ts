@@ -12,26 +12,26 @@ export type CefrLevel = (typeof CEFR_LEVELS)[number]
 
 export const CEFR_STEP_COUNT = CEFR_LEVELS.length
 
-export const QUOTE_BAR_MS = 320
-export const QUOTE_TEXT_MS = 360
-export const QUOTE_TEXT_DELAY_MS = 60
-export const BODY_MS = 360
-export const BODY_DELAY_MS = 150
+export const QUOTE_BAR_MS = 560
+export const QUOTE_TEXT_MS = 560
+export const QUOTE_TEXT_DELAY_MS = 160
+export const BODY_MS = 520
+export const BODY_DELAY_MS = 320
 
-export const TERM_MS = 260
-const TERM_BASE_DELAY_MS = 120
-const TERM_STAGGER_MS = 85
+export const TERM_MS = 420
+const TERM_BASE_DELAY_MS = 80
+const TERM_STAGGER_MS = 140
 
-export const SIGN_MS = 200
-const SIGN_DELAYS_MS = [185, 270, 365] as const
+export const SIGN_MS = 320
+const SIGN_DELAYS_MS = [180, 320, 460] as const
 const LAST_SIGN_DELAY_MS = SIGN_DELAYS_MS[2]
 
-export const RESULT_MS = 340
-const RESULT_DELAY_MS = 430
-const BAR_STAGGER_MS = 35
+export const RESULT_MS = 480
+const RESULT_DELAY_MS = 520
+const BAR_STAGGER_MS = 90
 
-export const ROCKET_MS = 380
-export const ROCKET_DELAY_MS = 510
+export const ROCKET_MS = 560
+export const ROCKET_DELAY_MS = 760
 
 export const LANGUAGE_CARD_MS = 320
 const LANGUAGE_CARD_STAGGER_MS = 90
@@ -61,17 +61,17 @@ export function languageFraction(level: CefrLevel): string {
   return `${filledStepCount(level)}/${CEFR_STEP_COUNT}`
 }
 
-/** Bulb, UX window, and wireframe: 120 ms + 85 ms × k. */
+/** Bulb, UX window, and wireframe: 80 ms + 140 ms × k. */
 export function termDelayMs(index: number): number {
   return TERM_BASE_DELAY_MS + TERM_STAGGER_MS * Math.max(0, index)
 }
 
-/** Plus, plus, and equals: 185 / 270 / 365 ms. */
+/** Plus, plus, and equals: 180 / 320 / 460 ms. */
 export function signDelayMs(index: number): number {
   return SIGN_DELAYS_MS[index] ?? LAST_SIGN_DELAY_MS
 }
 
-/** MVP box (index 0) and its three bars: 430 ms + 35 ms × b. */
+/** MVP box (index 0) and its three bars: 520 ms + 90 ms × b. */
 export function resultBarDelayMs(index: number): number {
   return RESULT_DELAY_MS + BAR_STAGGER_MS * Math.max(0, index)
 }

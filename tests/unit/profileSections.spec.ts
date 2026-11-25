@@ -61,25 +61,25 @@ describe('about entrance', () => {
   })
 
   it('quotes the bar first, then the sentence, then the paragraph', () => {
-    expect(enterVars(0, QUOTE_BAR_MS)).toEqual({ '--enter-delay': '0ms', '--enter-ms': '320ms' })
-    expect(enterVars(QUOTE_TEXT_DELAY_MS, QUOTE_TEXT_MS)).toEqual({ '--enter-delay': '60ms', '--enter-ms': '360ms' })
-    expect(enterVars(BODY_DELAY_MS, BODY_MS)).toEqual({ '--enter-delay': '150ms', '--enter-ms': '360ms' })
+    expect(enterVars(0, QUOTE_BAR_MS)).toEqual({ '--enter-delay': '0ms', '--enter-ms': '560ms' })
+    expect(enterVars(QUOTE_TEXT_DELAY_MS, QUOTE_TEXT_MS)).toEqual({ '--enter-delay': '160ms', '--enter-ms': '560ms' })
+    expect(enterVars(BODY_DELAY_MS, BODY_MS)).toEqual({ '--enter-delay': '320ms', '--enter-ms': '520ms' })
   })
 
   it('staggers the three terms, the signs, the bars, and the rocket', () => {
-    expect([0, 1, 2].map(termDelayMs)).toEqual([120, 205, 290])
-    expect(termDelayMs(-1)).toBe(120)
-    expect(TERM_MS).toBe(260)
+    expect([0, 1, 2].map(termDelayMs)).toEqual([80, 220, 360])
+    expect(termDelayMs(-1)).toBe(80)
+    expect(TERM_MS).toBe(420)
 
-    expect([0, 1, 2].map(signDelayMs)).toEqual([185, 270, 365])
-    expect(signDelayMs(9)).toBe(365)
-    expect(SIGN_MS).toBe(200)
+    expect([0, 1, 2].map(signDelayMs)).toEqual([180, 320, 460])
+    expect(signDelayMs(9)).toBe(460)
+    expect(SIGN_MS).toBe(320)
 
-    expect([0, 1, 2].map(resultBarDelayMs)).toEqual([430, 465, 500])
-    expect(resultBarDelayMs(-2)).toBe(430)
-    expect(RESULT_MS).toBe(340)
+    expect([0, 1, 2].map(resultBarDelayMs)).toEqual([520, 610, 700])
+    expect(resultBarDelayMs(-2)).toBe(520)
+    expect(RESULT_MS).toBe(480)
 
-    expect(enterVars(ROCKET_DELAY_MS, ROCKET_MS)).toEqual({ '--enter-delay': '510ms', '--enter-ms': '380ms' })
+    expect(enterVars(ROCKET_DELAY_MS, ROCKET_MS)).toEqual({ '--enter-delay': '760ms', '--enter-ms': '560ms' })
   })
 })
 

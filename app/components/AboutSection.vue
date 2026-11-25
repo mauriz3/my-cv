@@ -63,7 +63,7 @@ const bodyStyle = enterVars(BODY_DELAY_MS, BODY_MS)
   width: 3px;
   border-radius: 2px;
   background: var(--ui-primary);
-  transform-origin: center;
+  transform-origin: bottom center;
 }
 
 .about__quote-text {
@@ -99,15 +99,19 @@ const bodyStyle = enterVars(BODY_DELAY_MS, BODY_MS)
   }
 }
 
-:root[data-motion='full'] [data-reveal='hidden'] .about__quote-bar,
+:root[data-motion='full'] [data-reveal='hidden'] .about__quote-bar {
+  opacity: 0;
+  transform: scaleY(0);
+}
+
 :root[data-motion='full'] [data-reveal='hidden'] .about__quote-text {
   opacity: 0;
-  transform: scaleY(0) translateY(8px);
+  transform: translateY(22px);
 }
 
 :root[data-motion='full'] [data-reveal='hidden'] .about__body {
   opacity: 0;
-  transform: translateY(8px);
+  transform: translateY(28px);
 }
 
 :root[data-motion='full'] [data-reveal='revealed'] .about__quote-bar,
@@ -120,7 +124,10 @@ const bodyStyle = enterVars(BODY_DELAY_MS, BODY_MS)
   animation-iteration-count: 1;
 }
 
-:root[data-motion='full'] [data-reveal='revealed'] .about__quote-bar,
+:root[data-motion='full'] [data-reveal='revealed'] .about__quote-bar {
+  animation-name: about-bar-in;
+}
+
 :root[data-motion='full'] [data-reveal='revealed'] .about__quote-text {
   animation-name: about-quote-in;
 }
@@ -129,22 +136,34 @@ const bodyStyle = enterVars(BODY_DELAY_MS, BODY_MS)
   animation-name: about-body-in;
 }
 
-@keyframes about-quote-in {
+@keyframes about-bar-in {
   from {
     opacity: 0;
-    transform: scaleY(0) translateY(8px);
+    transform: scaleY(0);
   }
 
   to {
     opacity: 1;
-    transform: scaleY(1) translateY(0);
+    transform: scaleY(1);
+  }
+}
+
+@keyframes about-quote-in {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
 @keyframes about-body-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(28px);
   }
 
   to {
