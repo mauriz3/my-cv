@@ -7,7 +7,7 @@ they do not guarantee external configuration or production state.
 - [Architecture decisions (ADR)](adr.md)
 - [Architecture and UI state](architecture.md) (component and module diagrams)
 - [TypeScript types and contracts](types.md) (class diagrams)
-- [Features](features.md): Visits, analytics and consent (notice and `/geo` diagram), opt-in animations, theme, books, and Open Graph
+- [Features](features.md): Visits, analytics and consent (notice and `/geo` diagram), opt-in animations, theme, books, profile about and languages, and Open Graph
 - [Visits with GA4](ga4.md): snapshot, setup, local testing, and sequence diagrams
 - [Quality](quality.md): tests, coverage, axe, and Lighthouse
 - [Security](security.md): CSP, headers (generation diagram), dependencies, and secrets

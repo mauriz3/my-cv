@@ -25,7 +25,22 @@
     "summary": "Sobre mí",
     "languages": "Idiomas",
     "greeting": "Hola, soy Maurizio",
-    "overview": "Resumen del perfil, cifras y habilidades"
+    "overview": "Resumen del perfil, cifras y habilidades",
+    "aboutQuote": "«Pensamiento creativo + UX + prototipado = Producto Mínimo Viable.»",
+    "aboutBody": "Construyo plataformas web, dashboards, PWAs y sitios CMS sobre arquitecturas serverless y servidores. Integro IA en el desarrollo y en la automatización de procesos, con MCP y asistentes de chat para clientes. De punta a punta: de las APIs en Node y la capa de datos a las interfaces en React y Vue.",
+    "languagesIntro": "Escala de 6 tramos (A1–C2) con nivel y contexto de uso",
+    "scaleLabel": "Escala A1–C2",
+    "levelSummary": "Nivel {level}, {filled} de {total}",
+    "cefrBadge": {
+      "C2": "C2 · Maestría",
+      "B2": "B2 · Intermedio alto",
+      "B1": "B1 · Intermedio"
+    },
+    "languageUse": {
+      "spanish": "Uso nativo: arquitectura, documentación y comunicación diaria.",
+      "english": "Uso profesional: lectura técnica, código y reuniones de equipo.",
+      "italian": "Uso conversacional: comprensión fluida y diálogo cotidiano."
+    }
   },
   "booksLink": {
     "redirecting": "Te llevo a"

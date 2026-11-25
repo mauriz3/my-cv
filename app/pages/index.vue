@@ -1,6 +1,5 @@
 <script setup lang="ts">
 const { t } = useI18n()
-const cv = useCv()
 
 usePageSeo(useProfileTitle())
 </script>
@@ -20,16 +19,8 @@ usePageSeo(useProfileTitle())
     <!-- After the tour (ending in Projects and Visits), in the normal flow of the page. -->
     <BooksSection />
 
-    <Panel :title="t('profile.summary')">
-      <p class="max-w-prose text-muted">{{ cv.summary }}</p>
-    </Panel>
+    <AboutSection />
 
-    <Panel :title="t('profile.languages')">
-      <ul class="flex flex-wrap gap-2">
-        <li v-for="language in cv.languages" :key="language.id">
-          <UBadge color="neutral" variant="subtle" :label="`${language.name} · ${language.level}`" />
-        </li>
-      </ul>
-    </Panel>
+    <LanguagesSection />
   </div>
 </template>

@@ -69,7 +69,7 @@ Only a push to master deploys to Netlify (job `deploy-production`, after full CI
 
 ## Documentation
 
-- [Features](docs/features.md): Visits, analytics and consent, opt-in animations, micro-animations, theme, books, and share preview.
+- [Features](docs/features.md): Visits, analytics and consent, opt-in animations, micro-animations, theme, books, profile about and languages, and share preview.
 - [Visits with GA4 data](docs/ga4.md): snapshot, setup, and local testing.
 - [Images](docs/images.md): formats, exceptions, and how to add an image.
 - [Quality](docs/quality.md) · [Security](docs/security.md) · [Deployment](docs/deployment.md).

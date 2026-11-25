@@ -22,6 +22,7 @@ flowchart TB
       Charts[visits/* and tabular alternatives]
       Cookies[ConsentBanner and AppFooter]
       Books[BooksSection and BookCover]
+      ProfileSections[AboutSection, MvpEquation and LanguagesSection]
     end
     subgraph Composables[Composables]
       UseCV[useCv and usePageSeo]
@@ -30,7 +31,7 @@ flowchart TB
       Consent[useConsentBanner]
     end
     subgraph Biblioteca[lib]
-      Dominio[Periods, journey, theme, sidebar and animations]
+      Dominio[Periods, journey, theme, sidebar, animations and profile sections]
       Contratos[visitsSchema, visitsFilter and visitsSnapshot]
       Analitica[analytics and consentRegion]
       Fuentes[visitsSource and visitsMock]
@@ -71,6 +72,7 @@ flowchart TB
   CV --> UseCV
   CV --> Motion
   CV --> Books
+  CV --> ProfileSections
   Visitas --> UseVisits
   Visitas --> Charts
   UseCV --> GetCV
