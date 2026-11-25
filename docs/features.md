@@ -117,6 +117,14 @@ Sources: [Nuxt config](../nuxt.config.ts), [layout](../app/layouts/default.vue),
 - No flash: prerendered HTML already has `<html class="dark">` and `<meta name="theme-color" content="#0d1117">` (also without JS). Inline script `THEME_NO_FLASH_SCRIPT` (before color-mode script) only removes `dark` if `light` is stored; its hash is in CSP via `scripts/build-headers.mjs`. `color-scheme` (scrollbars and native controls) and `theme-color` follow theme.
 - Does not affect `og-cv.png` or PDFs (their own template).
 
+## Profile: About and languages
+
+- On Profile, after recommended books. `AboutSection` is the “About” card: a full-width MVP quote, then the bio. From 1280px the bio sits beside the decorative equation (412×116). From 768px the equation stacks under the bio at full width (about 104px tall). Below 768px the equation is not shown.
+- `MvpEquation` is inline SVG, `aria-hidden`, and painted with theme tokens (`--ui-primary`, `--brand-soft`, `--accent`, `--ui-text`, `--ui-text-muted`, `--ui-border`, `--ui-bg`, `--ui-bg-elevated`) so one graphic works in light and dark.
+- `LanguagesSection` lists the languages from `data/` (Spanish C2, English B2, Italian B1). Badge, usage, and scale copy are in `i18n/locales/`. Each card shows the level label, a six-step A1–C2 scale, the fraction, and a short usage line. The scale has an accessible name; the fraction, the badge, and a bold current step do not rely on color alone. Three columns from 1024px, two from 768px, one below that.
+- Entrance reuses the opt-in (`data-motion` and `useRevealOnce` at 20%). Static until animations are on, including `prefers-reduced-motion` on load. No loop. The final frame matches the static layout. Delays live in `lib/profileSections.ts`.
+- The longer PDF summary in `data/` is unchanged.
+
 ## Books I recommend
 
 - Profile section after journey (`#books`, no menu entry). Data in `data/` (`books` in `cv.shared.ts` and copy in `cv.en.ts` / `cv.es.ts`); WebP covers in `public/books/` with real dimensions (a test checks).
