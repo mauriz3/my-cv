@@ -47,11 +47,11 @@ const { state: revealState } = useRevealOnce(stage, 0.2)
     <article
       v-if="featured"
       ref="stage"
-      class="project-stage grid gap-4 md:grid-cols-2 md:items-center"
+      class="project-card project-stage grid gap-4 md:grid-cols-2 md:items-center"
       :data-reveal="revealState"
       :aria-labelledby="`project-${featured.id}`"
     >
-      <div class="relative overflow-hidden rounded-xl border border-default">
+      <div class="project-frame relative overflow-hidden rounded-xl border border-default">
         <img
           :src="`/${featured.image}`"
           :alt="featured.imageAlt"
@@ -71,7 +71,7 @@ const { state: revealState } = useRevealOnce(stage, 0.2)
             type="button"
             aria-haspopup="dialog"
             :data-testid="`project-open-${featured.id}`"
-            class="text-left focus-visible:outline-2 focus-visible:outline-primary"
+            class="project-open text-left focus-visible:outline-2 focus-visible:outline-primary"
             @click="openDetail(featured)"
           >
             {{ featured.title }}
@@ -91,7 +91,7 @@ const { state: revealState } = useRevealOnce(stage, 0.2)
         <UCard
           as="article"
           :aria-labelledby="`project-${project.id}`"
-          class="relative flex h-full flex-col focus-within:ring-2 focus-within:ring-primary"
+          class="project-card relative flex h-full flex-col overflow-hidden focus-within:ring-2 focus-within:ring-primary"
           :ui="{ root: 'flex h-full flex-col', body: 'flex flex-1 flex-col p-0 sm:p-0' }"
         >
           <img
@@ -110,7 +110,7 @@ const { state: revealState } = useRevealOnce(stage, 0.2)
                 type="button"
                 aria-haspopup="dialog"
                 :data-testid="`project-open-${project.id}`"
-                class="text-left after:absolute after:inset-0 after:content-[''] focus-visible:outline-none"
+                class="project-open text-left after:absolute after:inset-0 after:content-[''] focus-visible:outline-none"
                 @click="openDetail(project)"
               >
                 {{ project.title }}
@@ -133,6 +133,31 @@ const { state: revealState } = useRevealOnce(stage, 0.2)
 </template>
 
 <style>
+.project-card {
+  transition:
+    border-color 180ms ease,
+    translate 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.project-card img {
+  transition: scale 280ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (hover: hover) {
+  .project-card:hover {
+    border-color: var(--brand-vivid);
+    translate: 0 -2px;
+  }
+
+  .project-stage:hover .project-frame {
+    border-color: var(--brand-vivid);
+  }
+
+  :root[data-motion='full'] .project-card:hover img {
+    scale: 1.03;
+  }
+}
+
 .project-stage__scan {
   position: absolute;
   right: 0;
