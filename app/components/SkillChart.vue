@@ -105,7 +105,7 @@ const accessibleLabel = computed(() => t('ariaLabel', { axes: props.axes.map((ax
 </script>
 
 <template>
-  <Panel :title="t('title')" :note="t('note')">
+  <Panel :title="t('title')" :note="t('note')" fill>
     <!-- Alto fijo: el hueco existe antes de que el canvas se pinte (CLS 0). -->
     <div class="h-64 md:h-72">
       <Radar

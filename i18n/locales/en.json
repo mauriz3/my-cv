@@ -50,15 +50,15 @@
     "intro": "Two books I keep coming back to, and why."
   },
   "skills": {
-    "subtitle": "Skill profile, years per area and tools",
+    "subtitle": "The interface carries the weight. Back end starts in 2022.",
     "toolsTitle": "Tools & technologies"
   },
   "experience": {
-    "subtitle": "Roles, companies and what I did in each one",
+    "subtitle": "Octane11 is still open. The rest is the path up to it.",
     "technologies": "Technologies"
   },
   "projects": {
-    "subtitle": "Personal and professional work",
+    "subtitle": "This site, a TV product and four prototypes.",
     "filterLabel": "Filter by type",
     "all": "All",
     "categories": {
@@ -70,7 +70,7 @@
     "closeDetail": "Close project details"
   },
   "education": {
-    "subtitle": "Studies and courses",
+    "subtitle": "From the higher certificate to the degree, with a year spent building.",
     "certifications": "Certifications",
     "studies": "Studies"
   },

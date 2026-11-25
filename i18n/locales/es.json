@@ -50,15 +50,15 @@
     "intro": "Dos libros a los que siempre vuelvo, y por qué."
   },
   "skills": {
-    "subtitle": "Perfil de habilidades, años por área y herramientas",
+    "subtitle": "La interfaz pesa más. El back end empieza en 2022.",
     "toolsTitle": "Herramientas y tecnologías"
   },
   "experience": {
-    "subtitle": "Puestos, empresas y lo que hice en cada una",
+    "subtitle": "Octane11 sigue abierto. Lo demás es el camino hasta ahí.",
     "technologies": "Tecnologías"
   },
   "projects": {
-    "subtitle": "Trabajo personal y profesional",
+    "subtitle": "Este sitio, un producto de TV y cuatro prototipos.",
     "filterLabel": "Filtrar por tipo",
     "all": "Todos",
     "categories": {
@@ -70,7 +70,7 @@
     "closeDetail": "Cerrar el detalle del proyecto"
   },
   "education": {
-    "subtitle": "Estudios y cursos",
+    "subtitle": "Del ciclo superior al grado, con un año para emprender.",
     "certifications": "Certificaciones",
     "studies": "Estudios"
   },
