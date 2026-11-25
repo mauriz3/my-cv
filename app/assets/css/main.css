@@ -114,6 +114,34 @@ body {
   font-family: var(--font-sans);
 }
 
+/*
+ * Buttons keep the default cursor in the current preflight. The hand and a brand edge
+ * mark what can be pressed. Project title buttons opt out: the whole card reacts instead.
+ */
+button:not(:disabled),
+[role='button']:not([aria-disabled='true']) {
+  cursor: pointer;
+}
+
+button:disabled,
+[aria-disabled='true'] {
+  cursor: not-allowed;
+}
+
+button:not(:disabled):not(.project-open),
+[role='button']:not([aria-disabled='true']),
+a.inline-flex[href] {
+  transition: box-shadow 180ms ease;
+}
+
+@media (hover: hover) {
+  button:not(:disabled):not(.project-open):hover,
+  [role='button']:not([aria-disabled='true']):hover,
+  a.inline-flex[href]:hover {
+    box-shadow: inset 0 0 0 1px var(--brand-vivid);
+  }
+}
+
 h1,
 h2,
 h3 {

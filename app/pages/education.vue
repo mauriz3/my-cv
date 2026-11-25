@@ -14,6 +14,7 @@ const { state: revealState } = useRevealOnce(path, 0.2)
   <div class="space-y-6">
     <PageHeader :title="t('nav.education')" :subtitle="t('education.subtitle')" />
 
+    <div class="grid items-start gap-8 md:grid-cols-[minmax(0,1.15fr)_minmax(14rem,18rem)] md:gap-8">
     <section aria-labelledby="education-studies" class="space-y-3">
       <h2 id="education-studies" class="text-lg font-semibold text-highlighted">{{ t('education.studies') }}</h2>
       <ol
@@ -51,6 +52,17 @@ const { state: revealState } = useRevealOnce(path, 0.2)
         </li>
       </ol>
     </section>
+
+    <aside class="flex flex-col items-center justify-center gap-4 md:sticky md:top-8 md:min-h-80">
+      <figure class="education-orbit" aria-hidden="true">
+        <svg class="education-orbit__svg" viewBox="0 0 200 200">
+          <circle class="education-orbit__track" cx="100" cy="100" r="78" pathLength="100" />
+          <circle class="education-orbit__head" cx="100" cy="100" r="78" pathLength="100" />
+        </svg>
+      </figure>
+      <p class="max-w-[16rem] text-center text-sm text-muted">{{ t('education.continues') }}</p>
+    </aside>
+    </div>
 
     <section v-if="cv.certifications.length" aria-labelledby="education-certifications" class="space-y-3">
       <h2 id="education-certifications" class="text-lg font-semibold text-highlighted">
@@ -110,6 +122,46 @@ const { state: revealState } = useRevealOnce(path, 0.2)
 
   to {
     top: 0.35rem;
+  }
+}
+
+.education-orbit {
+  width: min(100%, 18rem);
+  aspect-ratio: 1;
+}
+
+.education-orbit__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.education-orbit__track,
+.education-orbit__head {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.education-orbit__track {
+  stroke: color-mix(in srgb, var(--ui-primary) 45%, transparent);
+  stroke-width: 1.5;
+  stroke-dasharray: 2.2 3.4;
+}
+
+.education-orbit__head {
+  stroke: var(--accent);
+  stroke-width: 3;
+  stroke-dasharray: 8 92;
+}
+
+:root[data-motion='full'] .education-orbit__head {
+  animation: education-continue 16s linear infinite;
+}
+
+@keyframes education-continue {
+  to {
+    stroke-dashoffset: -100;
   }
 }
 </style>
