@@ -111,19 +111,19 @@ const { state: revealState } = useRevealOnce(list, BOOKS_REVEAL_THRESHOLD)
 
 /* Elevation only with full movement; in reduced the hover changes only the shadow. */
 :root[data-motion='full'] .book:hover .book-cover__face {
-  transform: translateY(-4px);
+  transform: translateY(-10px);
 }
 
 /* Entrada (solo transform / opacity, una vez): hasta cruzar el umbral las tarjetas esperan abajo y transparentes. */
 :root[data-motion='full'] .books__item {
   transition:
-    opacity 600ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 780ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 780ms cubic-bezier(0.16, 1, 0.3, 1);
   transition-delay: var(--reveal-delay, 0ms);
 }
 
 :root[data-motion='full'] [data-reveal='hidden'] > .books__item {
   opacity: 0;
-  transform: translateY(16px);
+  transform: translateY(40px);
 }
 </style>

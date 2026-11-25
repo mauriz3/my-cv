@@ -346,12 +346,12 @@ const rocketStyle = enterVars(ROCKET_DELAY_MS, ROCKET_MS)
 
 :root[data-motion='full'] [data-reveal='hidden'] .mvp__term {
   opacity: 0;
-  transform: translateY(5px);
+  transform: translateY(20px) scale(0.86);
 }
 
 :root[data-motion='full'] [data-reveal='hidden'] .mvp__sign {
   opacity: 0;
-  transform: scale(0.6);
+  transform: scale(0.3);
 }
 
 :root[data-motion='full'] [data-reveal='hidden'] .mvp__result {
@@ -364,7 +364,8 @@ const rocketStyle = enterVars(ROCKET_DELAY_MS, ROCKET_MS)
 }
 
 :root[data-motion='full'] [data-reveal='hidden'] .mvp__rocket {
-  transform: translate(-4px, 6px);
+  opacity: 0;
+  transform: translate(-18px, 22px) scale(0.7);
 }
 
 :root[data-motion='full'] [data-reveal='revealed'] .mvp__term,
@@ -403,19 +404,19 @@ const rocketStyle = enterVars(ROCKET_DELAY_MS, ROCKET_MS)
 @keyframes mvp-term-in {
   from {
     opacity: 0;
-    transform: translateY(5px);
+    transform: translateY(20px) scale(0.86);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
 @keyframes mvp-sign-in {
   from {
     opacity: 0;
-    transform: scale(0.6);
+    transform: scale(0.3);
   }
 
   to {
@@ -448,11 +449,13 @@ const rocketStyle = enterVars(ROCKET_DELAY_MS, ROCKET_MS)
 
 @keyframes mvp-rocket-in {
   from {
-    transform: translate(-4px, 6px);
+    opacity: 0;
+    transform: translate(-18px, 22px) scale(0.7);
   }
 
   to {
-    transform: translate(0, 0);
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
   }
 }
 </style>
